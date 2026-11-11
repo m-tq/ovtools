@@ -1,0 +1,36 @@
+/* ==========================================================================
+   SYNTEQ UI V2 — 03. LIGHT THEME (theme-light.css)
+   Daylight operator palette, same flat hairline architecture.
+   ========================================================================== */
+[data-theme="light"],
+.theme-light {
+  color-scheme: light;
+
+  /* Text — high-contrast daylight hierarchy (WCAG AA verified) */
+  --v2-text: #2f3434;        /* body / labels */
+  --v2-text-strong: #0d1010; /* high-emphasis values, hostnames, active */
+  --v2-text-subtle: #6a7272; /* metadata, units, timestamps */
+  --v2-text-on-accent: #ffffff;
+
+  /* Flat surfaces */
+  --v2-canvas: #f4f6f6;   /* main app background */
+  --v2-sidebar: #ffffff;   /* navigation background */
+  --v2-hover: #e8ecec;    /* interactive hover/active surface */
+  --v2-inset: #eef1f1;    /* inset rows / inputs / gauge track */
+
+  /* Line separators */
+  --v2-line: #e1e5e5;        /* default hairline */
+  --v2-line-strong: #cfd4d4; /* emphasized separator */
+  --v2-line-accent: #b9d9cf; /* accent-tinted separator */
+
+  /* Semantic accents (tuned for light contrast) */
+  --v2-brand: #059669;
+  --v2-status-running: #16a34a;
+  --v2-status-warning: #d97706;
+  --v2-status-error: #dc2626;
+  --v2-tel-in: #16a34a;
+  --v2-tel-out: #e11d48;
+  --v2-track: #e2e6e6;
+
+  --v2-glyph: #5a6363;
+}

@@ -1,0 +1,1080 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark" class="theme-dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="color-scheme" content="dark light" />
+  <meta name="description" content="Validator Management System - deploy, migrate and manage Octra validators" />
+  <title>Validator Management System</title>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+  <link rel="stylesheet" href="assets/v2.2/css/synteq-ui-v2.css?v=2.2.1" />
+  <link rel="stylesheet" href="styles.css?v=2.1.3" />
+</head>
+<body>
+
+<div class="v2-app" id="app">
+
+  <!-- --------------- NAVIGATION DOCK --------------- -->
+  <aside class="v2-aside" aria-label="Primary navigation" id="sidebar">
+    <a href="#console" class="v2-aside__brand" id="aside-brand"
+       aria-label="Validator Management System" title="Validator Management System">
+      <span class="v2-aside__brand-mark" aria-hidden="true">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4">
+          <path d="M4 7h13l-3-3" /><path d="M20 17H7l3 3" />
+        </svg>
+      </span>
+    </a>
+
+    <nav class="v2-nav" aria-label="Console sections">
+      <a href="#console" class="v2-nav__item v2-nav__item--active" aria-current="page">
+        <svg class="v2-icon v2-icon--16" viewBox="0 0 24 24" aria-hidden="true"><polygon points="6 3 20 12 6 21 6 3"/></svg>
+        Console
+      </a>
+      <a href="#nodes" class="v2-nav__item">
+        <svg class="v2-icon v2-icon--16" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="7" rx="1"/><rect x="3" y="13" width="18" height="7" rx="1"/><line x1="7" y1="7.5" x2="7.01" y2="7.5"/><line x1="7" y1="16.5" x2="7.01" y2="16.5"/></svg>
+        Nodes
+      </a>
+      <a href="#log" class="v2-nav__item">
+        <svg class="v2-icon v2-icon--16" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="13" y2="17"/></svg>
+        Live log
+        <span class="v2-nav__badge" id="nav-log-badge" hidden>0</span>
+      </a>
+      <a href="#guide" class="v2-nav__item">
+        <svg class="v2-icon v2-icon--16" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+        Guide
+      </a>
+    </nav>
+
+    <div class="v2-aside__footer">
+      <!-- Bottom-right of the navigation: ONE word for the console state
+           (Idle / Running / Done / Failed / Offline). The phase detail stays in
+           the topbar badge, the same split the monitor uses. The dot stays
+           outside the badge: one indicator per row, never a dot inside a pill. -->
+      <span class="v2-dot" id="dock-dot" aria-hidden="true"></span>
+      <span class="v2-badge mc-dockstatus" id="dock-status" title="Console state">
+        <span id="dock-status-text">Idle</span>
+      </span>
+    </div>
+  </aside>
+
+  <!-- --------------- TOPBAR --------------- -->
+  <header class="v2-topbar" role="banner">
+    <button class="v2-sidebar-toggle" data-v2-sidebar-toggle aria-label="Toggle navigation" aria-expanded="true" aria-controls="sidebar">
+      <svg class="v2-icon v2-icon--18 icon-menu" viewBox="0 0 24 24" aria-hidden="true"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      <svg class="v2-icon v2-icon--18 icon-close" viewBox="0 0 24 24" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+
+    <div class="v2-topbar__left">
+      <span class="v2-topbar__crumb v2-mono">octra</span>
+      <span class="v2-topbar__sep" aria-hidden="true">/</span>
+      <span class="v2-topbar__title" id="topbar-title">Validator Management</span>
+      <span class="v2-badge" id="topbar-status" title="Phase state">
+        <span id="topbar-status-text">idle</span>
+      </span>
+    </div>
+
+    <div class="v2-topbar__right">
+      <span class="live-age v2-t-xs v2-mono" id="live-age" title="Time since the last state poll">-</span>
+      <button class="v2-iconbtn" id="btn-refresh" aria-label="Refresh now" title="Refresh state">
+        <svg class="v2-icon v2-icon--16" viewBox="0 0 24 24" aria-hidden="true"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+      </button>
+      <button class="v2-iconbtn" id="btn-stop" aria-label="Cancel running phase" title="Cancel running phase" disabled>
+        <svg class="v2-icon v2-icon--16" viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="6" width="12" height="12" rx="2"/></svg>
+      </button>
+      <button class="v2-iconbtn v2-theme-toggle" data-v2-toggle-theme aria-label="Toggle theme">
+        <svg class="v2-icon v2-icon--16 v2-icon--moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        <svg class="v2-icon v2-icon--16 v2-icon--sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <main class="v2-main" aria-label="Validator Management System">
+    <div class="v2-content v2-scroll" id="main-content">
+
+      <!-- ---------- 1. CONSOLE ---------- -->
+      <section class="v2-section v2-section--compact" id="console" aria-label="Validator Management System">
+
+        <div class="mc-hero">
+          <div class="mc-hero__main">
+            <div class="mc-hero__title-row">
+              <h1 class="mc-hero__title" id="hero-title">Validator Management</h1>
+              <span class="v2-badge" id="hero-state-badge">
+                <span id="hero-state-text">idle</span>
+              </span>
+            </div>
+            <div class="mc-hero__meta">
+              <span class="v2-t-xs v2-mute">
+                orchestrator <span class="v2-mono" id="hero-orchestrator">-</span>
+              </span>
+              <span class="mc-hero__sep" aria-hidden="true">-</span>
+              <span class="v2-t-xs v2-mute">route <span class="v2-mono" id="hero-route-text">-</span></span>
+              <span class="mc-hero__sep" aria-hidden="true">-</span>
+              <span class="v2-t-xs v2-mute">
+                project <span class="v2-mono" id="hero-project">-</span>
+              </span>
+              <span class="mc-hero__sep" aria-hidden="true">-</span>
+              <span class="v2-t-xs v2-mute">elapsed <span class="v2-mono" id="hero-elapsed">-</span></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- safety banner: only shown when a rule is at risk -->
+        <div class="mc-alert" id="safety-alert" hidden></div>
+
+        <!-- three dashboards, one console: pick the program (the choice is remembered).
+             The fourth tool - updating the running node - lives INSIDE "Manage active
+             node" (its actions sit next to Increase bond / Exit validator in the Live
+             node state section), so there is no tab for it (2026-11-05). -->
+        <nav class="mc-tabs" id="seg-programs" role="tablist" aria-label="Automation program">
+          <button type="button" class="mc-tab" data-program="deploy" role="tab" aria-selected="false">
+            <span class="mc-tab__title">Deploy fresh node</span>
+            <span class="mc-tab__hint">One fresh VPS: toolchain, identity, sync, start, verify, enroll</span>
+          </button>
+          <button type="button" class="mc-tab mc-tab--active" data-program="migrate" role="tab" aria-selected="true">
+            <span class="mc-tab__title">Migrate node</span>
+            <span class="mc-tab__hint">Move the running validator: source keeps voting until the switch</span>
+          </button>
+          <button type="button" class="mc-tab" data-program="manage" role="tab" aria-selected="false">
+            <span class="mc-tab__title">Manage active node</span>
+            <span class="mc-tab__hint">Bond, exit, update the software, prune preserved states, monitor</span>
+          </button>
+        </nav>
+
+        <!-- ---------- 1. PROJECT SETTINGS (deploy + migrate) ---------- -->
+        <!-- What a deploy/migrate run really takes from here: the swap file size.
+             The data store is detected and formatted by the program itself, and the
+             monitoring dashboard is NOT part of a deploy or a migration any more -
+             it is the "Deploy monitor" action of the Manage active node tab
+             (2026-11-05), so the checkbox that used to sit here is gone. The Manage
+             tab hides this section entirely. -->
+        <section class="v2-section v2-section--compact" id="settings" aria-label="Project settings">
+          <div class="v2-section__head">
+            <span class="v2-section__title">Project settings</span>
+            <span class="v2-section__meta" id="settings-meta">swap - the data store is automatic</span>
+          </div>
+
+          <div class="mc-form mc-settings" role="group" aria-label="Project settings">
+            <label class="mc-field mc-field--sm" title="Swap file size on the host (0 = no swap)">
+              <span class="mc-field__label">Swap (GB)</span>
+              <input class="v2-input" id="set-swap" type="number" min="0" max="64" value="8" />
+            </label>
+            <button class="v2-btn v2-btn--brand mc-settings__save" id="btn-settings-save">
+              <svg class="v2-icon v2-icon--14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                   aria-hidden="true"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+              Save settings
+            </button>
+          </div>
+
+          <!-- The data store is detected and formatted by the program: nothing to
+               type. When a node-building run of THIS page has finished, the
+               operator gets a pointer to where the rest lives (monitoring, bond,
+               exit) instead of having to hunt for it. A freshly opened page - whose
+               /api/state still carries the finished run of an earlier session - and a
+               run still in flight both stay quiet (2026-11-04). -->
+          <div class="mc-settings__off" id="settings-off" hidden>
+            <span class="v2-t-xs v2-mute">
+              <span class="v2-mono" id="dash-off-host">-</span> is set up. Monitoring, bond and
+              exit live in the Manage active node tab:
+            </span>
+            <button class="v2-btn v2-btn--ghost" id="btn-goto-manage">
+              <svg class="v2-icon v2-icon--14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                   aria-hidden="true"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+              Go to Manage active node
+            </button>
+          </div>
+        </section>
+
+        <!-- =============== DASHBOARD 1: DEPLOY FRESH NODE =============== -->
+        <div class="mc-panel" id="panel-deploy" role="tabpanel" aria-label="Deploy fresh node" hidden>
+          <div class="mc-program__head">
+            <span class="mc-program__title">Deploy fresh node</span>
+            <span class="v2-t-xs v2-mute">
+              One target VPS. Swap + data store, toolchain, node identity, chain sync, start, verify -
+              then the "Ready for enrollment" popup: confirm the top-up, type the bond amount and press
+              Enroll; the run only ends once the node is an ACTIVE validator and voting.
+            </span>
+          </div>
+          <div class="mc-pipeline" id="d-pipeline" role="list" aria-label="Deploy pipeline steps"></div>
+
+          <div class="mc-endpoints mc-endpoints--single">
+            <div class="mc-endpoint">
+              <span class="mc-endpoint__role">Target VPS (new node)</span>
+              <input class="v2-input v2-mono" id="d-inp-ip" type="text" placeholder="IP address or hostname"
+                     autocomplete="off" spellcheck="false" aria-label="Target IP address" />
+              <div class="mc-auth">
+                <select class="v2-input mc-auth__method" id="d-inp-auth" aria-label="Target authentication method"
+                        data-key="d-inp-key" data-keybox="d-key-box" data-keytext="d-inp-keytext" data-pick="d-btn-key-pick" data-passfield="d-inp-pass" data-eye="d-btn-pass-eye">
+                  <option value="password">password</option>
+                  <option value="key">ssh key</option>
+                </select>
+                <div class="mc-key" id="d-key-box" hidden>
+                  <div class="mc-key__row">
+                    <input class="v2-input v2-mono mc-auth__key" id="d-inp-key" type="text"
+                           placeholder="/home/you/.ssh/id_ed25519" autocomplete="off" spellcheck="false"
+                           aria-label="Target private key file (OpenSSH)" />
+                    <button type="button" class="v2-btn v2-btn--ghost mc-key__pick" id="d-btn-key-pick"
+                            data-key="d-inp-key" title="Pick the private key file on this machine">
+                      <svg class="v2-icon v2-icon--14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                           aria-hidden="true"><circle cx="7.5" cy="15.5" r="3.5"/><path d="M10.3 12.7 20 3"/><path d="M15 8l3 3"/></svg>
+                      Browse
+                    </button>
+                  </div>
+                  <textarea class="v2-input v2-mono mc-key__text" id="d-inp-keytext" rows="2" spellcheck="false"
+                            placeholder="or paste the private key text here (saved 0600 on this machine)"></textarea>
+                </div>
+              </div>
+              <div class="mc-pass">
+                <input class="v2-input" id="d-inp-pass" type="password" placeholder="root password"
+                       autocomplete="new-password" spellcheck="false" aria-label="Target root password" />
+                <button type="button" class="v2-iconbtn mc-pass__toggle" id="d-btn-pass-eye"
+                        data-pass="d-inp-pass" data-pass-label="target password"
+                        aria-label="Show target password" aria-pressed="false" title="Show password">
+                  <svg class="v2-icon v2-icon--16 mc-pass__eye-open" viewBox="0 0 24 24" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg>
+                  <svg class="v2-icon v2-icon--16 mc-pass__eye-off" viewBox="0 0 24 24" aria-hidden="true"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- The only option left here is the Check button: the bond is asked in
+               the "Ready for enrollment" popup (after the sync) and the verify
+               samples/interval are fixed by the program. -->
+          <div class="mc-form" role="group" aria-label="Deploy options">
+            <button class="v2-btn v2-btn--primary mc-check-btn" id="d-btn-check" title="Verify the target before anything is written">
+              <svg class="v2-icon v2-icon--14" viewBox="0 0 24 24" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+              Check
+            </button>
+          </div>
+
+          <div class="mc-check" id="d-check-result" hidden>
+            <div class="mc-check__head">
+              <span class="v2-badge" id="d-check-badge">
+                <span id="d-check-badge-text">not checked</span>
+              </span>
+              <span class="v2-t-xs v2-mute" id="d-check-summary">-</span>
+              <span class="v2-t-xs v2-mono v2-mute" id="d-check-age"></span>
+            </div>
+            <div class="mc-check__list" id="d-check-list" role="list"></div>
+            <div class="mc-check__actions" id="d-check-actions" hidden></div>
+          </div>
+
+          <div class="mc-progress" id="d-progress-wrap" hidden>
+            <div class="v2-gauge" id="d-gauge" role="progressbar" aria-label="Deploy progress" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+              <div class="v2-gauge__head">
+                <span class="v2-gauge__label" id="d-phase-label">running</span>
+                <span class="v2-gauge__value"><span id="d-phase-pct">0</span><span class="v2-gauge__max"> %</span></span>
+              </div>
+              <div class="v2-gauge__track"><div class="v2-gauge__fill"></div></div>
+            </div>
+            <div class="mc-progress__meta">
+              <span class="v2-mono v2-t-xs" id="d-phase-rate">-</span>
+              <span class="v2-mono v2-t-xs v2-mute" id="d-phase-status">-</span>
+              <span class="v2-mono v2-t-xs v2-mute" id="d-phase-idle"></span>
+              <span class="v2-mono v2-t-xs v2-mute" id="d-phase-exit"></span>
+            </div>
+          </div>
+
+          <div class="mc-actions mc-actions--deploy">
+            <label class="mc-field mc-field--sm mc-role-field" title="observer: a synced node without a bond. validator: the console pauses after verify so you can top up the wallet, then enrolls and promotes">
+              <span class="mc-field__label">Node role</span>
+              <select class="v2-input" id="d-role">
+                <option value="validator" selected>validator</option>
+                <option value="observer">observer</option>
+              </select>
+            </label>
+            <button class="v2-btn v2-btn--brand" id="d-btn-start">
+              <svg class="v2-icon v2-icon--14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                   aria-hidden="true"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+              Start deploy
+            </button>
+            <button class="v2-btn v2-btn--ghost" id="d-btn-status">
+              <svg class="v2-icon v2-icon--14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                   aria-hidden="true"><circle cx="12" cy="12" r="9"/><line x1="12" y1="11" x2="12" y2="16"/><line x1="12" y1="8" x2="12" y2="8"/></svg>
+              Print status
+            </button>
+            <span class="v2-t-xs v2-mute mc-footnote" id="d-action-note">
+              One click: check - prep - toolchain - setup - start - verify, then (validator) the top-up popup,
+              enroll - promote - verify.
+            </span>
+          </div>
+
+          <div class="mc-result" id="d-dash-result" hidden></div>
+        </div>
+
+        <!-- =============== DASHBOARD 2: MIGRATE NODE =============== -->
+        <div class="mc-panel" id="panel-migrate" role="tabpanel" aria-label="Migrate node">
+          <div class="mc-program__head">
+            <span class="mc-program__title">Migrate node</span>
+            <span class="v2-t-xs v2-mute">
+              Source validator -> new VPS. The source keeps voting until the switch, so the downtime is the
+              final delta sync only.
+            </span>
+          </div>
+          <div class="mc-pipeline" id="pipeline-list" role="list" aria-label="Migration pipeline steps"></div>
+
+        <!-- endpoints: one row per field (host, auth method, credential) -->
+        <div class="mc-endpoints">
+          <div class="mc-endpoint" id="endpoint-src">
+            <span class="mc-endpoint__role" id="endpoint-src-role">Source</span>
+            <input class="v2-input v2-mono" id="inp-old" type="text" placeholder="IP address or hostname"
+                   autocomplete="off" spellcheck="false" aria-label="Source IP address" />
+            <div class="mc-auth">
+              <select class="v2-input mc-auth__method" id="inp-old-auth" aria-label="Source authentication method"
+                      data-key="inp-old-key" data-keybox="old-key-box" data-keytext="inp-old-keytext" data-pick="btn-old-key-pick" data-passfield="inp-old-pass" data-eye="btn-old-pass-eye">
+                <option value="password">password</option>
+                <option value="key">ssh key</option>
+              </select>
+              <div class="mc-key" id="old-key-box" hidden>
+                <div class="mc-key__row">
+                  <input class="v2-input v2-mono mc-auth__key" id="inp-old-key" type="text"
+                         placeholder="/home/you/.ssh/id_ed25519" autocomplete="off" spellcheck="false"
+                         aria-label="Source private key file (OpenSSH)" />
+                  <button type="button" class="v2-btn v2-btn--ghost mc-key__pick" id="btn-old-key-pick"
+                          data-key="inp-old-key" title="Pick the private key file on this machine">
+                    <svg class="v2-icon v2-icon--14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                         aria-hidden="true"><circle cx="7.5" cy="15.5" r="3.5"/><path d="M10.3 12.7 20 3"/><path d="M15 8l3 3"/></svg>
+                    Browse
+                  </button>
+                </div>
+                <textarea class="v2-input v2-mono mc-key__text" id="inp-old-keytext" rows="2" spellcheck="false"
+                          placeholder="or paste the private key text here (saved 0600 on this machine)"></textarea>
+              </div>
+            </div>
+            <div class="mc-pass">
+              <input class="v2-input" id="inp-old-pass" type="password" placeholder="root password"
+                     autocomplete="new-password" spellcheck="false" aria-label="Source root password" />
+              <button type="button" class="v2-iconbtn mc-pass__toggle" id="btn-old-pass-eye"
+                      data-pass="inp-old-pass" data-pass-label="source password"
+                      aria-label="Show source password" aria-pressed="false" title="Show password">
+                <svg class="v2-icon v2-icon--16 mc-pass__eye-open" viewBox="0 0 24 24" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg>
+                <svg class="v2-icon v2-icon--16 mc-pass__eye-off" viewBox="0 0 24 24" aria-hidden="true"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+              </button>
+            </div>
+          </div>
+
+          <div class="mc-endpoint">
+            <span class="mc-endpoint__role" id="endpoint-dst-role">Target</span>
+            <input class="v2-input v2-mono" id="inp-new" type="text" placeholder="IP address or hostname"
+                   autocomplete="off" spellcheck="false" aria-label="Target IP address" />
+            <div class="mc-auth">
+              <select class="v2-input mc-auth__method" id="inp-new-auth" aria-label="Target authentication method"
+                      data-key="inp-new-key" data-keybox="new-key-box" data-keytext="inp-new-keytext" data-pick="btn-new-key-pick" data-passfield="inp-new-pass" data-eye="btn-new-pass-eye" data-mirror-source="inp-old-auth">
+                <option value="password">password</option>
+                <option value="key">ssh key</option>
+              </select>
+              <div class="mc-key" id="new-key-box" hidden>
+                <div class="mc-key__row">
+                  <input class="v2-input v2-mono mc-auth__key" id="inp-new-key" type="text"
+                         placeholder="/home/you/.ssh/id_ed25519" autocomplete="off" spellcheck="false"
+                         aria-label="Target private key file (OpenSSH)" />
+                  <button type="button" class="v2-btn v2-btn--ghost mc-key__pick" id="btn-new-key-pick"
+                          data-key="inp-new-key" title="Pick the private key file on this machine">
+                    <svg class="v2-icon v2-icon--14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                         aria-hidden="true"><circle cx="7.5" cy="15.5" r="3.5"/><path d="M10.3 12.7 20 3"/><path d="M15 8l3 3"/></svg>
+                    Browse
+                  </button>
+                </div>
+                <textarea class="v2-input v2-mono mc-key__text" id="inp-new-keytext" rows="2" spellcheck="false"
+                          placeholder="or paste the private key text here (saved 0600 on this machine)"></textarea>
+              </div>
+            </div>
+            <div class="mc-pass">
+              <input class="v2-input" id="inp-new-pass" type="password" placeholder="root password"
+                     autocomplete="new-password" spellcheck="false" aria-label="Target root password" />
+              <button type="button" class="v2-iconbtn mc-pass__toggle" id="btn-new-pass-eye"
+                      data-pass="inp-new-pass" data-pass-label="target password"
+                      aria-label="Show target password" aria-pressed="false" title="Show password">
+                <svg class="v2-icon v2-icon--16 mc-pass__eye-open" viewBox="0 0 24 24" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg>
+                <svg class="v2-icon v2-icon--16 mc-pass__eye-off" viewBox="0 0 24 24" aria-hidden="true"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+              </button>
+            </div>
+            <label class="mc-samepass" for="chk-same-pass">
+              <input type="checkbox" id="chk-same-pass" checked />
+              <span>same credential as source</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- options: the verify samples/interval are fixed by the program -->
+        <div class="mc-form" role="group" aria-label="Migration options">
+          <button class="v2-btn v2-btn--primary mc-check-btn" id="btn-check" title="Verify every precondition">
+            <svg class="v2-icon v2-icon--14" viewBox="0 0 24 24" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+            Check
+          </button>
+          <button class="v2-btn v2-btn--ghost" id="btn-swap" title="Swap source and target">
+            <svg class="v2-icon v2-icon--14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                 aria-hidden="true"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
+            swap
+          </button>
+          <span class="v2-t-xs v2-mute mc-footnote">
+            Passwords stay in this browser tab and the local server process - never written to disk.
+            The target data volume is formatted and mounted automatically.
+          </span>
+        </div>
+
+        <!-- precondition check result -->
+        <div class="mc-check" id="check-result" hidden>
+          <div class="mc-check__head">
+            <span class="v2-badge" id="check-badge">
+              <span id="check-badge-text">not checked</span>
+            </span>
+            <span class="v2-t-xs v2-mute" id="check-summary">-</span>
+            <span class="v2-t-xs v2-mono v2-mute" id="check-age"></span>
+          </div>
+          <div class="mc-check__list" id="check-list" role="list"></div>
+          <div class="mc-check__actions" id="check-actions" hidden></div>
+        </div>
+
+        <!-- progress -->
+        <div class="mc-progress" id="progress-wrap" hidden>
+          <div class="v2-gauge" id="phase-gauge" role="progressbar" aria-label="Phase progress" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+            <div class="v2-gauge__head">
+              <span class="v2-gauge__label" id="phase-label">running</span>
+              <span class="v2-gauge__value"><span id="phase-pct">0</span><span class="v2-gauge__max"> %</span></span>
+            </div>
+            <div class="v2-gauge__track"><div class="v2-gauge__fill"></div></div>
+          </div>
+          <div class="mc-progress__meta">
+            <span class="v2-mono v2-t-xs" id="phase-rate">-</span>
+            <span class="v2-mono v2-t-xs v2-mute" id="phase-status">-</span>
+            <span class="v2-mono v2-t-xs v2-mute" id="phase-idle"></span>
+            <span class="v2-mono v2-t-xs v2-mute" id="phase-exit"></span>
+          </div>
+        </div>
+
+        <!-- no manual step list: the console runs the whole pipeline in order, then
+             watches the chain admit the migrated validator (the monitoring
+             dashboard is a Manage active node action, not part of a migration) -->
+        <div class="mc-actions">
+          <button class="v2-btn v2-btn--brand" id="btn-run-all">
+            <svg class="v2-icon v2-icon--14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                 aria-hidden="true"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+            Start migration
+          </button>
+          <button class="v2-btn v2-btn--danger" id="btn-run-rollback">
+            <svg class="v2-icon v2-icon--14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                 aria-hidden="true"><polyline points="9 14 4 9 9 4"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg>
+            Rollback
+          </button>
+          <button class="v2-btn v2-btn--ghost" id="btn-status">
+            <svg class="v2-icon v2-icon--14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                 aria-hidden="true"><circle cx="12" cy="12" r="9"/><line x1="12" y1="11" x2="12" y2="16"/><line x1="12" y1="8" x2="12" y2="8"/></svg>
+            Print status
+          </button>
+          <!-- the note is filled by app.js (the last identity backup, or a warning):
+               empty by default, and `:empty` hides it -->
+          <span class="v2-t-xs v2-mute mc-footnote" id="action-note"></span>
+        </div>
+
+        <div class="mc-result" id="dash-result" hidden></div>
+        </div>
+
+        <!-- =============== DASHBOARD 3: MANAGE ACTIVE NODE =============== -->
+        <div class="mc-panel" id="panel-manage" role="tabpanel" aria-label="Manage active node" hidden>
+          <div class="mc-program__head">
+            <span class="mc-program__title">Manage active node</span>
+            <span class="v2-t-xs v2-mute">
+              The validator that already runs on this host: increase its bond, exit the set and take the
+              stake back, or deploy the read-only monitoring dashboard (graphs, logs, wallet).
+            </span>
+          </div>
+          <div class="mc-pipeline" id="m-pipeline" role="list" aria-label="Manage actions"></div>
+
+          <div class="mc-endpoints">
+            <div class="mc-endpoint">
+              <span class="mc-endpoint__role">Node</span>
+              <input class="v2-input v2-mono" id="m-inp-ip" type="text" placeholder="IP address of the validator"
+                     autocomplete="off" spellcheck="false" aria-label="Validator IP address" />
+              <div class="mc-auth">
+                <select class="v2-input mc-auth__method" id="m-inp-auth" aria-label="Node authentication method"
+                        data-key="m-inp-key" data-keybox="m-key-box" data-keytext="m-inp-keytext" data-pick="m-btn-key-pick" data-passfield="m-inp-pass" data-eye="m-btn-pass-eye">
+                  <option value="password">password</option>
+                  <option value="key">ssh key</option>
+                </select>
+                <div class="mc-key" id="m-key-box" hidden>
+                  <div class="mc-key__row">
+                    <input class="v2-input v2-mono mc-auth__key" id="m-inp-key" type="text"
+                           placeholder="/home/you/.ssh/id_ed25519" autocomplete="off" spellcheck="false"
+                           aria-label="Node private key file (OpenSSH)" />
+                    <button type="button" class="v2-btn v2-btn--ghost mc-key__pick" id="m-btn-key-pick"
+                            data-key="m-inp-key" title="Pick the private key file on this machine">
+                      <svg class="v2-icon v2-icon--14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                           aria-hidden="true"><circle cx="7.5" cy="15.5" r="3.5"/><path d="M10.3 12.7 20 3"/><path d="M15 8l3 3"/></svg>
+                      Browse
+                    </button>
+                  </div>
+                  <textarea class="v2-input v2-mono mc-key__text" id="m-inp-keytext" rows="2" spellcheck="false"
+                            placeholder="or paste the private key text here (saved 0600 on this machine)"></textarea>
+                </div>
+              </div>
+              <div class="mc-pass">
+                <input class="v2-input" id="m-inp-pass" type="password" placeholder="root password"
+                       autocomplete="new-password" aria-label="Root password" />
+                <button type="button" class="v2-iconbtn mc-pass__toggle" id="m-btn-pass-eye"
+                        data-pass="m-inp-pass" data-pass-label="node password"
+                        aria-label="Show node password" aria-pressed="false" title="Show password">
+                  <svg class="v2-icon v2-icon--16 mc-pass__eye-open" viewBox="0 0 24 24" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg>
+                  <svg class="v2-icon v2-icon--16 mc-pass__eye-off" viewBox="0 0 24 24" aria-hidden="true"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Check stays with the form: it validates the address + credentials the
+               operator just typed. The node actions (bond / exit / monitor / status)
+               live in the "Live node state" section, right next to the state they
+               act on (2026-11-05). -->
+          <div class="mc-actions">
+            <button class="v2-btn v2-btn--primary" id="m-btn-check">
+              <svg class="v2-icon v2-icon--14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                   aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+              Check
+            </button>
+            <label class="mc-enroll__check" for="m-test-only"
+                   title="Update node only: run the official tool's test pass (it checks the mechanics and changes nothing)">
+              <input type="checkbox" id="m-test-only" />
+              <span>Update: test only (change nothing)</span>
+            </label>
+          </div>
+
+          <div class="mc-check" id="m-check-result" hidden>
+            <div class="mc-check__head">
+              <span class="v2-badge" id="m-check-badge">
+                <span id="m-check-badge-text">not checked</span>
+              </span>
+              <span class="v2-t-xs v2-mute" id="m-check-summary">-</span>
+              <span class="v2-t-xs v2-mono v2-mute" id="m-check-age"></span>
+            </div>
+            <div class="mc-check__list" id="m-check-list" role="list"></div>
+            <div class="mc-check__actions" id="m-check-actions" hidden></div>
+          </div>
+
+          <div class="mc-progress" id="m-progress-wrap" hidden>
+            <div class="v2-gauge" id="m-gauge" role="progressbar" aria-label="Manage progress"
+                 aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+              <div class="v2-gauge__head">
+                <span class="v2-gauge__label" id="m-phase-label">running</span>
+                <span class="v2-gauge__value"><span id="m-phase-pct">0</span><span class="v2-gauge__max"> %</span></span>
+              </div>
+              <div class="v2-gauge__track"><div class="v2-gauge__fill"></div></div>
+            </div>
+            <div class="mc-progress__meta">
+              <span class="v2-mono v2-t-xs" id="m-phase-rate">-</span>
+              <span class="v2-mono v2-t-xs v2-mute" id="m-phase-status">-</span>
+              <span class="v2-mono v2-t-xs v2-mute" id="m-phase-idle"></span>
+              <span class="v2-mono v2-t-xs v2-mute" id="m-phase-exit"></span>
+            </div>
+          </div>
+
+          <div class="mc-result" id="m-dash-result" hidden></div>
+        </div>
+
+      </section>
+
+      <section class="v2-section v2-section--compact" id="nodes" aria-label="Node state">
+        <div class="v2-section__head">
+          <span class="v2-section__title">Live node state</span>
+          <span class="v2-section__meta" id="nodes-meta">every 10s - node REST API</span>
+        </div>
+        <div class="mc-nodes" id="nodes-grid">
+          <div class="mc-node" id="node-src-card">
+            <div class="mc-node__head">
+              <span class="v2-badge" id="src-role">source</span>
+              <span class="v2-mono mc-node__ip" id="src-ip">-</span>
+              <span class="v2-badge" id="src-state"><span id="src-state-text">-</span></span>
+            </div>
+            <div class="v2-stat-strip">
+              <div class="v2-stat"><span class="v2-stat__label">Epoch</span><div class="v2-stat__value v2-mono" id="src-epoch">-</div><span class="v2-t-xs v2-mute" id="src-head">-</span></div>
+              <div class="v2-stat"><span class="v2-stat__label">Membership</span><div class="v2-stat__value" id="src-membership">-</div><span class="v2-t-xs v2-mute" id="src-nextset">-</span></div>
+              <div class="v2-stat"><span class="v2-stat__label">Enrollment</span><div class="v2-stat__value" id="src-enroll">-</div><span class="v2-t-xs v2-mute" id="src-bond">-</span></div>
+            </div>
+            <div class="mc-node__foot v2-mono v2-t-xs v2-mute" id="src-foot">-</div>
+          </div>
+
+          <div class="mc-node">
+            <div class="mc-node__head">
+              <span class="v2-badge" id="dst-role">target</span>
+              <span class="v2-mono mc-node__ip" id="dst-ip">-</span>
+              <span class="v2-badge" id="dst-state"><span id="dst-state-text">-</span></span>
+            </div>
+            <div class="v2-stat-strip">
+              <div class="v2-stat"><span class="v2-stat__label">Epoch</span><div class="v2-stat__value v2-mono" id="dst-epoch">-</div><span class="v2-t-xs v2-mute" id="dst-head">-</span></div>
+              <div class="v2-stat"><span class="v2-stat__label">Membership</span><div class="v2-stat__value" id="dst-membership">-</div><span class="v2-t-xs v2-mute" id="dst-nextset">-</span></div>
+              <div class="v2-stat"><span class="v2-stat__label">Enrollment</span><div class="v2-stat__value" id="dst-enroll">-</div><span class="v2-t-xs v2-mute" id="dst-bond">-</span></div>
+            </div>
+            <div class="mc-node__foot v2-mono v2-t-xs v2-mute" id="dst-foot">-</div>
+          </div>
+
+          <!-- ---------- manage: the actions for the node on the left ----------
+               They are part of the state they act on, so they sit right next to the
+               stats (2 columns x 2 rows, centred), and the pointer/warning line
+               below them is the note app.js fills. Deploy and Migrate hide the
+               whole block (it is the Manage tool's action set, 2026-11-05). -->
+          <div class="mc-nodeactions" id="node-actions" hidden>
+            <div class="mc-nodeactions__grid" role="group" aria-label="Manage this validator">
+              <button class="v2-btn v2-btn--primary mc-nodeactions__wide" id="m-btn-dashboard"
+                      title="Publish the read-only monitoring dashboard (asks for the host name and the certificate)">
+                <svg class="v2-icon v2-icon--14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                     aria-hidden="true"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+                Deploy Dashboard Monitor
+              </button>
+              <button class="v2-btn" id="m-btn-bond"
+                      title="Add OCT to the bond (bond_inc.sh runs as the octra user; later increases add --new automatically)">
+                <svg class="v2-icon v2-icon--14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                     aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+                Increase bond
+              </button>
+              <button class="v2-btn" id="m-btn-status"
+                      title="Read the identity, membership, bond and wallet balance from the host">
+                <svg class="v2-icon v2-icon--14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                     aria-hidden="true"><circle cx="12" cy="12" r="9"/><line x1="12" y1="11" x2="12" y2="16"/><line x1="12" y1="8" x2="12" y2="8"/></svg>
+                Print status
+              </button>
+              <button class="v2-btn" id="m-btn-upgrade"
+                      title="Run the official controls/upgrade.sh: it checks the repo in test mode first, then applies (build, restart, wait until the node is operational)">
+                <svg class="v2-icon v2-icon--14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                     aria-hidden="true"><path d="M21 12a9 9 0 1 1-3-6.7"/><polyline points="21 3 21 9 15 9"/></svg>
+                Update node (auto)
+              </button>
+              <button class="v2-btn" id="m-btn-manual"
+                      title="The README's manual path (used when the official tool cannot run): git pull, check.sh, make mcl, dune build, stop, run --rebind-runtime, stat">
+                <svg class="v2-icon v2-icon--14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                     aria-hidden="true"><path d="M14.7 6.3a4 4 0 0 1-5.4 5.4L4 17v3h3l5.3-5.3a4 4 0 0 1 5.4-5.4l-2.6 2.6 1.4 1.4 2.6-2.6a4 4 0 0 1-5.4 0z"/></svg>
+                Manual update
+              </button>
+              <button class="v2-btn" id="m-btn-diagnose"
+                      title="Read-only: why is this node not voting? pm2 state, /rpc vs /status, head_epoch moving or frozen, how far behind it is, the last catch-up refusal and rejoin.sh --check">
+                <svg class="v2-icon v2-icon--14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                     aria-hidden="true"><circle cx="11" cy="11" r="7"/><line x1="16.5" y1="16.5" x2="21" y2="21"/></svg>
+                Diagnose node
+              </button>
+              <button class="v2-btn" id="m-btn-recover"
+                      title="The solved path for a node stuck in 'ready / outside set': clean pm2 restart when it is frozen, pm2 session re-created when rejoin.sh says the data directory is used outside PM2, bounded catch-up, then rejoin/join - it signs nothing and never exits">
+                <svg class="v2-icon v2-icon--14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                     aria-hidden="true"><path d="M3 12a9 9 0 0 1 15.5-6.2"/><polyline points="21 3 21 9 15 9"/><path d="M21 12a9 9 0 0 1-15.5 6.2"/><polyline points="3 21 3 15 9 15"/></svg>
+                Fix stuck node
+              </button>
+              <button class="v2-btn mc-nodeactions__wide" id="m-btn-storage"
+                      title="controls/storage.sh --prune-prior --yes: drop the states of the previous epochs to free disk (the daily prune job does this too)">
+                <svg class="v2-icon v2-icon--14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                     aria-hidden="true"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+                Prune preserved states
+              </button>
+              <button class="v2-btn v2-btn--danger mc-nodeactions__wide" id="m-btn-exit"
+                      title="Leave the validator set, wait for the unbonding and take the stake back (the node is not deleted)">
+                <svg class="v2-icon v2-icon--14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                     aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                Exit validator
+              </button>
+              <span class="v2-t-xs v2-mute mc-nodeactions__note" id="m-action-note">
+                Critical: bond and exit need the node to be the ACTIVE validator. Increase bond = bond_inc.sh as the
+                octra user (the first increase runs plain, later ones add --new automatically). Exit = the exit is
+                signed now, the stake unlocks at the epoch the console reports, and this host retries the withdrawal
+                by itself every 15 minutes (no follow-up needed). Update = controls/upgrade.sh (tested first, then applied);
+                the manual fallback pulls and rebuilds by hand. Neither ever syncs, changes config/network.env or
+                re-enrolls the node; prune only drops the preserved states. Diagnose = evidence only; Fix stuck node =
+                bounded repair (pm2 restart / session, catch-up, rejoin, readiness) and never a new bond or an exit.
+              </span>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- ---------- 3. LIVE LOG ---------- -->
+      <section class="v2-section v2-section--compact" id="log" aria-label="Live log">
+        <div class="v2-section__head">
+          <span class="v2-section__title">Live log</span>
+          <span class="v2-section__meta" id="log-meta">streaming - 0 lines</span>
+        </div>
+
+        <div class="mc-logbar">
+          <div class="v2-seg" role="group" aria-label="Log level filter">
+            <button class="v2-seg__btn v2-seg__btn--active" data-level="all">All</button>
+            <button class="v2-seg__btn" data-level="info">Info</button>
+            <button class="v2-seg__btn" data-level="ok">OK</button>
+            <button class="v2-seg__btn" data-level="warn">Warn</button>
+            <button class="v2-seg__btn" data-level="error">Error</button>
+          </div>
+          <div class="v2-seg mc-logbar__hosts" id="seg-host" role="group" aria-label="Host filter" hidden></div>
+          <input class="v2-input mc-logbar__search" id="inp-log-filter" type="search" placeholder="filter text..." aria-label="Filter log text" />
+          <button class="v2-btn v2-btn--ghost mc-logbtn" id="btn-log-pause" aria-pressed="false" title="Pause the live log">
+            <svg class="v2-icon v2-icon--14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                 aria-hidden="true"><rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/></svg>
+            <span id="btn-log-pause-text">Pause</span>
+          </button>
+          <button class="v2-btn v2-btn--ghost mc-logbtn" id="btn-log-clear" title="Clear the log view">
+            <svg class="v2-icon v2-icon--14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                 aria-hidden="true"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+            <span>Clear</span>
+          </button>
+          <button class="v2-btn v2-btn--ghost mc-logbtn" id="btn-log-download" title="Download the log as text">
+            <svg class="v2-icon v2-icon--14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                 aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            <span>Download</span>
+          </button>
+          <span class="mc-legend" id="log-legend" hidden></span>
+        </div>
+
+        <div class="v2-log v2-log--scroll v2-log--bordered" id="log-view" role="log" aria-label="Run output">
+          <div class="v2-log__empty" id="log-empty">waiting for output...</div>
+        </div>
+      </section>
+
+
+      <!-- ---------- 4. GUIDE ---------- -->
+      <section class="v2-section v2-section--compact" id="guide" aria-label="Guide">
+        <div class="v2-section__head">
+          <span class="v2-section__title">Runbook &amp; safety</span>
+          <span class="v2-section__meta">one column per program - what it does, what is safe, what takes time</span>
+        </div>
+
+        <div class="mc-guide mc-guide--three">
+          <div class="mc-guide__col">
+            <h3 class="mc-guide__h">Deploy fresh node</h3>
+            <ul class="mc-guide__list">
+              <li><strong>Use it for:</strong> a brand-new VPS that should become an Octra node.</li>
+              <li>It prepares the machine, builds the node, creates a new wallet and syncs the chain.</li>
+              <li>When the node is up it asks for the <strong>top-up</strong> and the <strong>bond amount</strong>; after you press <strong>Enroll</strong> the console tells you the epoch the chain scheduled and keeps watching - yellow, not red - until the node is an <strong>active validator and voting</strong>. A popup appears by itself the moment that happens, even if the run is already over.</li>
+              <li>Your only input is the host and its login. Swap size is the one setting you may change.</li>
+              <li>The monitoring dashboard is <strong>not</strong> part of a deploy: publish it later from <strong>Manage active node - Deploy monitor</strong>.</li>
+              <li><strong>Takes:</strong> roughly 45-100 minutes; the chain sync is the slow part.</li>
+              <li>The machine must be <strong>empty</strong> - if a node already runs there, use Migrate.</li>
+            </ul>
+          </div>
+          <div class="mc-guide__col">
+            <h3 class="mc-guide__h">Migrate node</h3>
+            <ul class="mc-guide__list">
+              <li><strong>Use it for:</strong> moving the validator that already runs to a new machine.</li>
+              <li>It copies the wallet and the chain first, and only then stops the old node - so the downtime is short.</li>
+              <li>The old machine stays powered off afterwards: keep it as the fallback.</li>
+              <li>The run ends by watching the chain admit the migrated validator: yellow while it waits, and a popup when it starts voting.</li>
+              <li><strong>Takes:</strong> about 30-60 minutes; the validator is offline only for the final catch-up.</li>
+              <li>Never start the old node again while the new one is running - two copies of one wallet is the one thing that must not happen.</li>
+            </ul>
+          </div>
+          <div class="mc-guide__col">
+            <h3 class="mc-guide__h">Manage active node</h3>
+            <ul class="mc-guide__list">
+              <li><strong>Use it for:</strong> the validator that is already running - increasing its bond, leaving the set, updating its software or putting the monitor online.</li>
+              <li><strong>Increase bond</strong> adds OCT to the stake; the console asks for the amount (whole OCT) in a popup. Ask for a <em>new</em> increase only after the previous one is confirmed (the console handles that for you).</li>
+              <li><strong>Exit validator</strong> leaves the validator set and waits until the stake comes back to the wallet. It can take a while - the network releases the stake on its own schedule. The node itself is not deleted.</li>
+              <li>Both need the node to be the <strong>active</strong> validator, so press <strong>Check</strong> first.</li>
+              <li><strong>Node stuck in "ready / outside set"?</strong> <strong>Diagnose node</strong> shows why (pm2, RPC,
+                head frozen, epochs behind, the rejoin verdict, memory), then <strong>Fix stuck node</strong> runs the
+                bounded repair - pm2 restart / session, catch-up wait, rejoin, readiness. It signs no bond and never
+                exits, and neither button needs a passing Check: a broken node cannot pass one.</li>
+              <li>Optional: <strong>Deploy monitor</strong> puts the read-only live dashboard online (graphs, logs, wallet, consensus) - the manage actions behind it live in this tab, not on the dashboard. The popup asks for the host name and how to get the certificate - your own Cloudflare origin files, or an automatic Let's Encrypt one (the host name must already point at the machine).</li>
+              <li><strong>Update node</strong> (same section) updates the software when the developer announces a release (upstream README: "How to update (if you are already a validator)"): <span class="v2-mono">controls/upgrade.sh</span> is run in test mode first - it changes nothing - and only then with <span class="v2-mono">--apply</span> (pull, build, restart, wait, verify). Its own verdict tells you it worked: <span class="v2-mono">validator_active</span> or <span class="v2-mono">observer_synced</span>.</li>
+              <li>If that tool cannot run, <strong>Manual update</strong> does what the README lists by hand: <span class="v2-mono">git pull</span>, check, build <span class="v2-mono">mcl</span>, dune build, stop, <span class="v2-mono">run.sh --rebind-runtime</span>, stat.</li>
+              <li><strong>Prune preserved states</strong> drops the states of the previous epochs (<span class="v2-mono">storage.sh --prune-prior --yes</span>) to free disk; the daily prune job does it too.</li>
+              <li>An update <strong>never</strong> runs a sync, never changes <span class="v2-mono">config/network.env</span> and never re-enrolls: the identity and the data stay. The node is offline only for the restart.</li>
+            </ul>
+          </div>
+        </div>
+        <p class="v2-t-xs v2-mute mc-guide__foot">
+          The console only talks to the hosts you type; nothing is stored in the browser. Green means
+          done, yellow is a normal wait, red needs your attention.
+        </p>
+      </section>
+
+    </div>
+  </main>
+</div>
+
+<!-- ---------- APPROVAL MODAL (one click, no typing) ---------- -->
+<div class="mc-modal" id="confirm-modal" hidden role="dialog" aria-modal="true" aria-labelledby="confirm-title">
+  <div class="mc-modal__body">
+    <h2 class="mc-modal__title" id="confirm-title">Confirm phase</h2>
+    <p class="mc-modal__text" id="confirm-text">-</p>
+    <p class="mc-modal__text mc-enroll__note" id="confirm-risk">-</p>
+    <div class="mc-modal__actions">
+      <button class="v2-btn v2-btn--ghost" id="confirm-cancel">
+        <svg class="v2-icon v2-icon--14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+             aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        Cancel
+      </button>
+      <button class="v2-btn v2-btn--brand" id="confirm-ok">
+        <svg class="v2-icon v2-icon--14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+             aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+        Approve &amp; run
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ---------- BROWSER-NATIVE PICKERS (hidden) ---------------------------
+     The two "Browse"/"Choose folder" buttons drive these inputs instead of a
+     dialog opened by the console process: Windows refuses to activate a window
+     created by a process that has no foreground window, so the native dialog was
+     built behind the browser and the operator saw nothing. A dialog opened by
+     the browser itself is always in front, and the picked file text is what the
+     server stores (tmp/keys/ and tmp/certs/). -->
+<input type="file" id="inp-key-pick" accept=".pem,.key,.ppk,id_*,*" hidden />
+<input type="file" id="inp-cert-dir" webkitdirectory directory multiple hidden />
+
+<!-- ---------- BOND MODAL (manage: increase the bond) ---------- -->
+<div class="mc-modal" id="bond-modal" hidden role="dialog" aria-modal="true" aria-labelledby="bond-title">
+  <div class="mc-modal__body">
+    <h2 class="mc-modal__title" id="bond-title">Increase bond</h2>
+    <p class="mc-modal__text">
+      Adds OCT to the stake of the validator running on
+      <span class="v2-mono" id="bond-node">-</span>. The node signs the transaction
+      itself (<span class="v2-mono">bond_inc.sh</span> as the octra user); the first
+      increase runs plain, every later one is a new increase (<span class="v2-mono">--new</span>)
+      and is only allowed once the previous one is confirmed.
+    </p>
+    <label class="mc-field">
+      <span class="mc-field__label">Amount to add (OCT)</span>
+      <input class="v2-input v2-mono" id="bond-amount" type="number" min="1" step="1" value="1"
+             autocomplete="off" spellcheck="false" />
+    </label>
+    <p class="mc-modal__text mc-enroll__note" id="bond-note"></p>
+    <div class="mc-modal__actions">
+      <button class="v2-btn v2-btn--ghost" id="bond-cancel">
+        <svg class="v2-icon v2-icon--14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+             aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        Cancel
+      </button>
+      <button class="v2-btn v2-btn--brand" id="bond-ok">
+        <svg class="v2-icon v2-icon--14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+             aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+        Increase bond
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ---------- EXIT MODAL (manage: leave the validator set) ---------- -->
+<div class="mc-modal" id="exit-modal" hidden role="dialog" aria-modal="true" aria-labelledby="exit-title">
+  <div class="mc-modal__body">
+    <h2 class="mc-modal__title" id="exit-title">Exit validator</h2>
+    <p class="mc-modal__text">
+      This takes <span class="v2-mono" id="exit-node">-</span> out of the validator set and
+      starts the exit. The console:
+    </p>
+    <ul class="mc-guide__list">
+      <li>submits the exit transaction (the node stops voting),</li>
+      <li>reports the epoch the chain recorded the exit at and the epoch the stake unlocks at,</li>
+      <li>leaves the withdrawal to this host (a timer retries it every 15 minutes) and
+          reports again when the funds are back.</li>
+    </ul>
+    <p class="mc-modal__text">
+      The unbonding period decides how long that takes (often a day or more), so nothing has
+      to be watched or re-run: the node itself is <strong>not</strong> deleted and the wallet
+      stays valid.
+    </p>
+    <p class="mc-modal__text mc-enroll__note" id="exit-note"></p>
+    <div class="mc-modal__actions">
+      <button class="v2-btn v2-btn--ghost" id="exit-cancel">
+        <svg class="v2-icon v2-icon--14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+             aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        Keep validating
+      </button>
+      <button class="v2-btn v2-btn--danger" id="exit-ok">
+        <svg class="v2-icon v2-icon--14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+             aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        Exit validator
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ---------- MONITOR MODAL (manage: deploy the monitoring dashboard) ---------- -->
+<div class="mc-modal" id="monitor-modal" hidden role="dialog" aria-modal="true" aria-labelledby="monitor-title">
+  <div class="mc-modal__body">
+    <h2 class="mc-modal__title" id="monitor-title">Deploy monitor</h2>
+    <p class="mc-modal__text">
+      Publishes nginx + <span class="v2-mono">octra-dashboard</span> on
+      <span class="v2-mono" id="monitor-node">-</span> as a <strong>read-only</strong>
+      monitor: graphs, logs, wallet and consensus. The manage actions stay in this tab -
+      the public dashboard carries no button and no token.
+    </p>
+    <label class="mc-field">
+      <span class="mc-field__label">Domain name</span>
+      <input class="v2-input v2-mono" id="monitor-domain" type="text" placeholder="node-abcde.example.com"
+             autocomplete="off" spellcheck="false" />
+    </label>
+
+    <fieldset class="mc-ssl">
+      <legend class="mc-field__label">TLS certificate</legend>
+      <label class="mc-ssl__opt">
+        <input type="radio" name="monitor-ssl" id="monitor-ssl-cloudflare" value="cloudflare" checked />
+        <span>
+          <strong>Cloudflare origin certificate</strong>
+          <em>upload fullchain.pem + privkey.pem from a folder on this machine</em>
+        </span>
+      </label>
+      <div class="mc-ssl__body" id="monitor-cf-row">
+        <div class="mc-key__row">
+          <input class="v2-input v2-mono" id="monitor-certdir" type="text"
+                 placeholder="C:\certs\onode" autocomplete="off" spellcheck="false"
+                 aria-label="Folder with fullchain.pem and privkey.pem" />
+          <button type="button" class="v2-btn v2-btn--ghost mc-key__pick" id="monitor-certdir-pick"
+                  title="Open the folder picker and choose the folder with the two PEM files">
+            <svg class="v2-icon v2-icon--14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                 aria-hidden="true"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+            Choose folder
+          </button>
+        </div>
+        <span class="v2-t-xs v2-mute" id="monitor-certdir-note">the folder must contain fullchain.pem and privkey.pem</span>
+      </div>
+      <label class="mc-ssl__opt">
+        <input type="radio" name="monitor-ssl" id="monitor-ssl-certbot" value="certbot" />
+        <span>
+          <strong>Let's Encrypt (certbot)</strong>
+          <em>issued on the server - DNS must already point at the node and port 80 must be open</em>
+        </span>
+      </label>
+      <div class="mc-ssl__body" id="monitor-le-row" hidden>
+        <label class="mc-field">
+          <span class="mc-field__label">Contact e-mail (optional)</span>
+          <input class="v2-input v2-mono" id="monitor-email" type="email" placeholder="you@example.com"
+                 autocomplete="off" spellcheck="false" />
+        </label>
+        <span class="v2-t-xs v2-mute">certbot renews the certificate by itself (systemd timer)</span>
+      </div>
+    </fieldset>
+
+    <label class="mc-enroll__check" for="monitor-force">
+      <input type="checkbox" id="monitor-force" />
+      <span>Force redeploy (ignore the checkpoint of an identical earlier deploy)</span>
+    </label>
+    <p class="mc-modal__text mc-enroll__note" id="monitor-note"></p>
+    <div class="mc-modal__actions">
+      <button class="v2-btn v2-btn--ghost" id="monitor-cancel">
+        <svg class="v2-icon v2-icon--14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+             aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        Cancel
+      </button>
+      <button class="v2-btn v2-btn--brand" id="monitor-ok">
+        <svg class="v2-icon v2-icon--14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+             aria-hidden="true"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+        Deploy monitor
+      </button>
+    </div>
+  </div>
+</div>
+
+<div class="mc-modal" id="enroll-modal" hidden role="dialog" aria-modal="true" aria-labelledby="enroll-title">
+  <div class="mc-modal__body">
+    <h2 class="mc-modal__title" id="enroll-title">Ready for enrollment</h2>
+    <p class="mc-modal__text">
+      The node is built, started and verified - its wallet exists and is online as an
+      <strong>observer</strong>. Enrolling spends the bond from that wallet, so:
+    </p>
+    <ol class="mc-guide__list">
+      <li>send OCTRA to the wallet address below (at least the amount you enter),</li>
+      <li>tick the confirmation when the transfer is done,</li>
+      <li>press <strong>Enroll</strong> - the console then runs
+          <span class="v2-mono">enroll - promote - verify</span> and keeps watching the chain:
+          the set fold admits the validator and it starts voting by itself. You get a popup the
+          moment that happens, even if the run has already ended.</li>
+    </ol>
+    <div class="mc-enroll__addr">
+      <span class="mc-field__label">Wallet address (top this up)</span>
+      <span class="v2-mono mc-enroll__value" id="enroll-address">reading...</span>
+    </div>
+    <label class="mc-field">
+      <span class="mc-field__label">Bond amount to enroll (OCT)</span>
+      <input class="v2-input" id="enroll-bond" type="number" min="1" step="1" value="1" />
+    </label>
+    <label class="mc-enroll__check" for="enroll-funded">
+      <input type="checkbox" id="enroll-funded" />
+      <span>I already topped up this wallet - enroll now</span>
+    </label>
+    <p class="mc-modal__text mc-enroll__note" id="enroll-note"></p>
+    <div class="mc-modal__actions">
+      <button class="v2-btn v2-btn--ghost" id="enroll-cancel">
+        <svg class="v2-icon v2-icon--14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+             aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        Later
+      </button>
+      <button class="v2-btn v2-btn--brand" id="enroll-ok" disabled>
+        <svg class="v2-icon v2-icon--14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+             aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg>
+        Enroll
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ---------- ACTIVATION MODAL (the chain admitted the validator) ---------- -->
+<!-- The console watches the node after enrollment: the set fold admits a new
+     validator and its first duty epoch starts voting. The moment the node reports
+     validator_active = true this opens by itself - even when the run is long over -
+     so nobody has to poll controls/stat.sh by hand (2026-11-05). -->
+<div class="mc-modal" id="activation-modal" hidden role="dialog" aria-modal="true" aria-labelledby="activation-title">
+  <div class="mc-modal__body">
+    <h2 class="mc-modal__title" id="activation-title">Validator is active</h2>
+    <p class="mc-modal__text">
+      The chain admitted this validator and it is <strong>voting</strong> now.
+    </p>
+    <div class="mc-enroll__addr">
+      <span class="mc-field__label">Node</span>
+      <span class="v2-mono mc-enroll__value" id="activation-node">-</span>
+    </div>
+    <div class="mc-enroll__addr">
+      <span class="mc-field__label">Activation epoch</span>
+      <span class="v2-mono mc-enroll__value" id="activation-epoch">-</span>
+    </div>
+    <p class="mc-modal__text mc-enroll__note" id="activation-note"></p>
+    <div class="mc-modal__actions">
+      <button class="v2-btn v2-btn--brand" id="activation-ok">
+        <svg class="v2-icon v2-icon--14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+             aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+        Close
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ---------- EXIT MODAL (the exit is on chain: this is when the money is back) ---------- -->
+<!-- An exit is a chain deadline, not a finished job: the set releases the validator
+     at a fold and the bond unlocks at `withdraw_epoch` - weeks later on this
+     network. The console reports both epochs and the distance to them, keeps
+     following the unbonding in the background (the host retries the withdrawal by
+     itself) and opens this popup again the moment validator_bond reaches 0. -->
+<div class="mc-modal" id="exit-state-modal" hidden role="dialog" aria-modal="true" aria-labelledby="exit-state-title">
+  <div class="mc-modal__body">
+    <h2 class="mc-modal__title" id="exit-state-title">Exit accepted</h2>
+    <p class="mc-modal__text" id="exit-state-text">
+      The validator left the set. The stake unlocks when the chain reaches the epoch below.
+    </p>
+    <div class="mc-enroll__addr">
+      <span class="mc-field__label">Node</span>
+      <span class="v2-mono mc-enroll__value" id="exit-state-node">-</span>
+    </div>
+    <div class="mc-enroll__addr">
+      <span class="mc-field__label">Exit epoch</span>
+      <span class="v2-mono mc-enroll__value" id="exit-state-epoch">-</span>
+    </div>
+    <div class="mc-enroll__addr">
+      <span class="mc-field__label">Stake unlocks at epoch</span>
+      <span class="v2-mono mc-enroll__value" id="exit-state-unlock">-</span>
+    </div>
+    <div class="mc-enroll__addr">
+      <span class="mc-field__label">Epochs left</span>
+      <span class="v2-mono mc-enroll__value" id="exit-state-remaining">-</span>
+    </div>
+    <div class="mc-enroll__addr">
+      <span class="mc-field__label">Estimated wait</span>
+      <span class="v2-mono mc-enroll__value" id="exit-state-eta">-</span>
+    </div>
+    <p class="mc-modal__text mc-enroll__note" id="exit-state-note"></p>
+    <div class="mc-modal__actions">
+      <button class="v2-btn v2-btn--brand" id="exit-state-ok">
+        <svg class="v2-icon v2-icon--14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+             aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+        Close
+      </button>
+    </div>
+  </div>
+</div>
+
+<script src="assets/v2.2/js/synteq-ui-v2.js"></script>
+<script src="app.js?v=3.0.0"></script>
+</body>
+</html>
+
+

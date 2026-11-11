@@ -1,0 +1,29 @@
+[Unit]
+Description=Octra Node Live Monitor (dashboard backend)
+Documentation=https://github.com/octra-labs/lite_node
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/opt/octra/dashboard
+ExecStart=/usr/bin/python3 /opt/octra/dashboard/server.py --port 9090
+Restart=always
+RestartSec=3
+# Read-only telemetry collector: keep it cheap and predictable
+Nice=5
+TimeoutStopSec=10
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=octra-dashboard
+
+# Optional overrides
+#Environment=OCTRA_API_PORT=8080
+
+# Hardening (the backend only needs to read /proc, pm2 state and log files)
+NoNewPrivileges=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

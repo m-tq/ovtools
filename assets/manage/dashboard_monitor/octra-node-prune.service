@@ -1,0 +1,16 @@
+[Unit]
+Description=Prune Octra node logs and junk files (daily)
+Documentation=file:/usr/local/sbin/octra-node-prune
+After=local-fs.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/sbin/octra-node-prune
+Nice=10
+IOSchedulingClass=idle
+# The program never fails the unit for a skipped step; a non-zero exit means
+# it could not even start (permissions / missing binary).
+SuccessExitStatus=0
+
+[Install]
+WantedBy=multi-user.target

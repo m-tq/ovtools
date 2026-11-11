@@ -1,0 +1,61 @@
+/* ==========================================================================
+   SYNTEQ UI V2 — 01. CORE DESIGN TOKENS (tokens.css)
+   Lean, fluid, responsive-first. No color values here (see theme-*.css).
+   ========================================================================== */
+:root {
+  /* Typography — Google Sans Code as primary, mono fallback */
+  --v2-font-sans: 'Google Sans Code', 'DM Sans', system-ui, -apple-system, sans-serif;
+  --v2-font-mono: 'Google Sans Code', 'JetBrains Mono', ui-monospace, monospace;
+
+  /* Fluid type scale (clamp keeps it responsive without media queries) */
+  --v2-text-xs: 11px;
+  --v2-text-sm: 12px;
+  --v2-text-md: 13px;
+  --v2-text-lg: 15px;
+  --v2-text-xl: 18px;
+  --v2-text-2xl: clamp(22px, 2.4vw, 28px);
+  --v2-text-3xl: clamp(26px, 3.2vw, 34px);
+
+  --v2-fw-regular: 400;
+  --v2-fw-medium: 500;
+  --v2-fw-semibold: 600;
+  --v2-fw-bold: 700;
+  --v2-leading-tight: 1.2;
+  --v2-leading-base: 1.5;
+
+  /* Spacing — 4px base scale (lightweight, fewer steps than V1) */
+  --v2-space-1: 4px;
+  --v2-space-2: 8px;
+  --v2-space-3: 12px;
+  --v2-space-4: 16px;
+  --v2-space-5: 20px;
+  --v2-space-6: 24px;
+  --v2-space-7: 32px;
+  --v2-space-8: 40px;
+  --v2-space-9: 56px;
+
+  /* Radius — minimal two-tier (V2 favors near-flat surfaces) */
+  --v2-radius-micro: 2px;   /* micro badges, status dots, chart caps */
+  --v2-radius-control: 5px; /* buttons, inputs, segmented, nav items */
+
+  /* Layout shell tokens (drive the viewport-locked grid) */
+  --v2-aside-w: clamp(204px, 17vw, 240px);
+  --v2-topbar-h: 52px;
+  --v2-bottomnav-h: 60px;
+
+  /* Content column — every .v2-section is centred inside this measure */
+  --v2-content-max: 1200px;
+  /* Bottom dock item width — drives the overflow (More / drag) threshold */
+  --v2-nav-item-w: 80px;
+
+  /* Motion — lightweight, single easing curve */
+  --v2-ease: cubic-bezier(0.16, 1, 0.3, 1);
+  --v2-dur-instant: 120ms;
+  --v2-dur-fast: 180ms;
+  --v2-dur-normal: 280ms;
+  --v2-dur-slow: 420ms;
+
+  /* Hairline separator weights */
+  --v2-line-h: 1px;
+  --v2-line-h-strong: 1px;
+}

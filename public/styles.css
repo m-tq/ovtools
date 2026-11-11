@@ -1,0 +1,552 @@
+/* ==========================================================================
+   Octra Migration Console - app layer on top of Synteq UI V2
+   Only layout for console-specific blocks; colours come from the tokens so
+   light/dark switching keeps working.
+   ========================================================================== */
+
+/* An author `display` rule (flex/grid) beats the UA rule behind [hidden], so
+   panels styled with display:flex would stay visible when we hide them.
+   https://html.spec.whatwg.org/multipage/rendering.html#hidden-elements */
+[hidden] { display: none !important; }
+
+.mc-hero { display: flex; align-items: flex-end; justify-content: space-between; gap: var(--v2-space-4); }
+.mc-hero__title-row { display: flex; align-items: center; gap: var(--v2-space-3); flex-wrap: wrap; }
+.mc-hero__title {
+  margin: 0;
+  font-size: var(--v2-text-2xl);
+  font-weight: var(--v2-fw-semibold);
+  letter-spacing: -0.01em;
+  color: var(--v2-text-strong);
+}
+.mc-hero__meta {
+  display: flex; align-items: center; gap: var(--v2-space-2);
+  margin-top: var(--v2-space-2); flex-wrap: wrap;
+}
+.mc-hero__sep { opacity: 0.4; }
+
+/* ---- safety banner ------------------------------------------------------ */
+.mc-alert {
+  display: flex; flex-direction: column; gap: 2px;
+  margin: var(--v2-space-3) 0 0;
+  padding-left: var(--v2-space-3);
+  border-left: 2px solid var(--v2-status-warning);
+}
+.mc-alert__row { font-size: var(--v2-text-xs); color: var(--v2-text); }
+.mc-alert__row--err { color: var(--v2-status-error); }
+.mc-alert__row--warn { color: var(--v2-status-warning); }
+
+/* ---- endpoints: one row per field (host above, password below) --------- */
+.mc-endpoints {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: var(--v2-space-5);
+  align-items: start;
+  margin: var(--v2-space-5) 0 var(--v2-space-4);
+}
+.mc-endpoint { display: flex; flex-direction: column; gap: var(--v2-space-2); min-width: 0; }
+.mc-endpoint__role {
+  font-size: var(--v2-text-xs);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--v2-text-subtle);
+}
+.mc-endpoint .v2-input { width: 100%; }
+.mc-samepass {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 2px;
+  font-size: var(--v2-text-xs);
+  color: var(--v2-text-subtle);
+  cursor: pointer;
+  user-select: none;
+}
+.mc-samepass input { width: 14px; height: 14px; accent-color: var(--v2-brand); cursor: pointer; }
+.mc-samepass input:disabled + span { opacity: 0.6; }
+
+/* passwords: masked input + a show/hide toggle (never rendered back by the app) */
+.mc-pass { display: flex; align-items: center; gap: 6px; min-width: 0; }
+.mc-pass .v2-input { flex: 1 1 auto; min-width: 0; }
+.mc-pass__toggle { flex: 0 0 auto; }
+.mc-pass__toggle .mc-pass__eye-off { display: none; }
+.mc-pass__toggle[aria-pressed="true"] { color: var(--v2-brand); }
+.mc-pass__toggle[aria-pressed="true"] .mc-pass__eye-open { display: none; }
+.mc-pass__toggle[aria-pressed="true"] .mc-pass__eye-off { display: inline-flex; }
+.mc-pass__toggle[disabled] { opacity: 0.4; cursor: not-allowed; }
+
+/* ---- options row ------------------------------------------------------- */
+.mc-form {
+  display: flex;
+  align-items: flex-end;
+  align-content: flex-start;
+  gap: var(--v2-space-3);
+  flex-wrap: wrap;
+  margin: 0 0 var(--v2-space-4);
+}
+.mc-field { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.mc-field__label {
+  font-size: var(--v2-text-xs);
+  color: var(--v2-text-subtle);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.mc-field--sm { width: 106px; flex: 0 0 auto; }
+.mc-field--grow { flex: 1 1 220px; min-width: 180px; }
+.mc-form .v2-input, .mc-modal .v2-input { width: 100%; }
+
+/* ---- pipeline result (dashboard URL / failure notice) ------------------ */
+.mc-result {
+  margin-top: var(--v2-space-4);
+  padding-left: var(--v2-space-3);
+  border-left: 2px solid var(--v2-line);
+  font-size: var(--v2-text-sm);
+  color: var(--v2-text);
+  word-break: break-word;
+}
+.mc-result--ok { border-left-color: var(--v2-brand); color: var(--v2-text-strong); }
+.mc-result--err { border-left-color: var(--v2-status-error); color: var(--v2-status-error); }
+
+/* ---- progress ---------------------------------------------------------- */
+.mc-progress { display: flex; flex-direction: column; gap: var(--v2-space-2); margin-bottom: var(--v2-space-4); }
+.mc-progress__meta { display: flex; gap: var(--v2-space-4); flex-wrap: wrap; }
+
+/* ---- precondition check ------------------------------------------------ */
+.mc-check { border-top: 1px solid var(--v2-line); border-bottom: 1px solid var(--v2-line); margin-bottom: var(--v2-space-4); }
+.mc-check__head {
+  display: flex; align-items: center; gap: var(--v2-space-3); flex-wrap: wrap;
+  padding: var(--v2-space-3) 0;
+}
+.mc-check__list { display: flex; flex-direction: column; }
+.mc-check__row {
+  display: grid;
+  grid-template-columns: 58px minmax(0, 1.1fr) minmax(0, 1.5fr);
+  gap: var(--v2-space-3);
+  align-items: baseline;
+  padding: 6px 0;
+  border-top: 1px solid var(--v2-line);
+  font-size: var(--v2-text-xs);
+}
+.mc-check__status {
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  font-weight: var(--v2-fw-semibold);
+  text-transform: uppercase;
+  color: var(--v2-text-subtle);
+}
+.mc-check__row--ok .mc-check__status { color: var(--v2-brand); }
+.mc-check__row--warn .mc-check__status { color: var(--v2-status-warning); }
+.mc-check__row--fail .mc-check__status { color: var(--v2-status-error); }
+.mc-check__label { color: var(--v2-text); }
+.mc-check__detail {
+  color: var(--v2-text-subtle);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.mc-check__actions {
+  display: flex;
+  align-items: center;
+  gap: var(--v2-space-3);
+  flex-wrap: wrap;
+  padding: var(--v2-space-3) 0;
+  border-top: 1px solid var(--v2-line);
+}
+.mc-check__hint { font-size: var(--v2-text-xs); color: var(--v2-status-warning); }
+
+/* ---- actions ----------------------------------------------------------- */
+.mc-actions {
+  display: flex; align-items: center; gap: var(--v2-space-3); flex-wrap: wrap;
+  /* a wrapped row must not stretch its lines (the buttons then look like they
+     carry extra padding top and bottom) */
+  align-content: flex-start;
+  margin-top: var(--v2-space-5);
+  padding-top: var(--v2-space-4);
+  border-top: 1px solid var(--v2-line);
+}
+.mc-check-btn { display: inline-flex; align-items: center; gap: 6px; }
+.mc-footnote { flex: 1 1 240px; min-width: 200px; }
+/* an empty note takes no room at all (the migrate pipeline note, the modal notes) */
+.mc-footnote:empty, .mc-enroll__note:empty { display: none; }
+/* .mc-footnote is a *row* item: inside .mc-actions it takes a flexible width.
+   As a direct child of .mc-panel (column flex) the same `flex: 1 1 240px` means
+   240px of HEIGHT - that was the empty gap under the Manage buttons. */
+.mc-panel > .mc-footnote { flex: 0 0 auto; min-width: 0; }
+
+/* ---- manage actions, inside the "Live node state" section ------------- */
+/* They act on the node whose stats are on the left, so they live in the same
+   grid: two columns x two rows, centred both ways, and the note spans both
+   columns underneath (2026-11-05). Deploy/Migrate hide the whole block. */
+.mc-nodeactions {
+  display: flex; align-items: center; justify-content: center;
+  padding: var(--v2-space-4) 0 var(--v2-space-4) var(--v2-space-4);
+  border-left: 1px solid var(--v2-line);
+}
+.mc-nodeactions__grid {
+  display: grid; grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--v2-space-2); width: 100%;
+}
+.mc-nodeactions__grid .v2-btn {
+  justify-content: center; min-width: 0; font-weight: var(--v2-fw-medium);
+}
+.mc-nodeactions__grid .v2-btn svg { display: block; flex: 0 0 auto; }
+.mc-nodeactions__wide { grid-column: 1 / -1; }
+.mc-nodeactions__note { grid-column: 1 / -1; display: block; line-height: 1.45; }
+/* the manage tool shows ONE node card, so it needs no pair divider */
+.mc-nodes--manage > .mc-node { border-left: 0; padding-left: 0; }
+@media (max-width: 900px) {
+  .mc-nodes { grid-template-columns: 1fr; }
+  .mc-node + .mc-node { border-left: 0; padding-left: 0; border-top: 1px solid var(--v2-line); }
+  .mc-nodeactions { border-left: 0; border-top: 1px solid var(--v2-line); padding: var(--v2-space-4) 0 0; }
+}
+/* an inline SVG sits on the text baseline and adds descender space under the
+   label: block layout keeps the button height exactly 32px */
+.mc-actions .v2-btn svg, .mc-logbtn svg, .mc-settings__save svg { display: block; flex: 0 0 auto; }
+/* a disabled manage action (Check not passed yet) keeps a plain border */
+.mc-nodeactions__grid .v2-btn[disabled] { border-color: var(--v2-line); }
+.mc-hero__main { min-width: 0; }
+.mc-guide__col { min-width: 0; }
+
+/* ---- node cards (flat, hairline separated) ----------------------------- */
+.mc-nodes { display: grid; grid-template-columns: 1fr 1fr; gap: 0; border-top: 1px solid var(--v2-line); }
+.mc-node { padding: var(--v2-space-4) var(--v2-space-3) var(--v2-space-4) 0; display: flex; flex-direction: column; gap: var(--v2-space-3); }
+.mc-node + .mc-node { border-left: 1px solid var(--v2-line); padding-left: var(--v2-space-4); }
+.mc-node__head { display: flex; align-items: center; gap: var(--v2-space-2); flex-wrap: wrap; }
+.mc-node__ip { color: var(--v2-text-strong); font-size: var(--v2-text-md); }
+.mc-node__foot { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* ---- console state badge (sidebar footer) ------------------------------ */
+/* One word, coloured by the run state: Idle / Running / Waiting / Watching /
+   Done / Failed / Offline. The phase detail lives in the topbar badge. */
+.mc-dockstatus {
+  font-size: var(--v2-text-xs);
+  padding: 2px 8px;
+  border-radius: 999px;
+  max-width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+}
+.v2-aside__footer { gap: 6px; }
+
+/* ---- program tabs + the three dashboards -------------------------------- */
+/* One row, three equal buttons; they stack only when the window is narrow. */
+.mc-tabs {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--v2-space-3);
+  margin: var(--v2-space-4) 0 var(--v2-space-4);
+}
+@media (max-width: 760px) {
+  .mc-tabs { grid-template-columns: minmax(0, 1fr); }
+}
+.mc-tab {
+  display: flex; flex-direction: column; gap: 2px; align-items: flex-start;
+  padding: var(--v2-space-3) var(--v2-space-4); text-align: left; cursor: pointer;
+  border: 1px solid var(--v2-line-strong); border-radius: var(--v2-radius-control);
+  background: var(--v2-inset); color: var(--v2-text);
+  min-width: 0;
+}
+.mc-tab + .mc-tab { margin-left: 0; }
+.mc-tab:hover { border-color: var(--v2-line-accent); }
+.mc-tab--active {
+  border-color: var(--v2-brand);
+  background: color-mix(in srgb, var(--v2-brand) 8%, var(--v2-inset));
+}
+.mc-tab__title { font-size: var(--v2-text-md); font-weight: var(--v2-fw-semibold); color: var(--v2-text-strong); }
+.mc-tab--active .mc-tab__title { color: var(--v2-brand); }
+.mc-tab__hint { font-size: var(--v2-text-xs); color: var(--v2-text-subtle); }
+.mc-panel { display: flex; flex-direction: column; gap: var(--v2-space-3); }
+.mc-endpoints--single { grid-template-columns: minmax(0, 1fr); }
+.mc-endpoints--single .mc-endpoint { max-width: 560px; }
+.mc-program__head { display: flex; align-items: baseline; gap: var(--v2-space-3); flex-wrap: wrap; }
+.mc-program__title { font-size: var(--v2-text-md); font-weight: var(--v2-fw-semibold); color: var(--v2-text-strong); }
+.mc-pipeline { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; }
+.mc-pipeline__step {
+  padding: 2px 8px; font-size: var(--v2-text-xs); font-family: var(--v2-font-mono);
+  border: 1px solid var(--v2-line); border-radius: var(--v2-radius-micro);
+  background: var(--v2-inset); color: var(--v2-text-subtle);
+}
+.mc-pipeline__step--main { border-color: var(--v2-brand); color: var(--v2-brand); }
+.mc-pipeline__step--critical { border-color: color-mix(in srgb, var(--v2-status-warning) 60%, transparent); }
+.mc-pipeline__sep { color: var(--v2-text-subtle); font-size: var(--v2-text-xs); }
+
+/* ---- endpoints + per-host auth ----------------------------------------- */
+/* The auth row is its own small grid: method on the left, the key (or the
+   password below it) on the right, so every host lines up the same way. */
+.mc-auth {
+  display: grid;
+  grid-template-columns: minmax(96px, 0.32fr) minmax(0, 1fr);
+  align-items: start;
+  gap: 6px;
+}
+.mc-auth__method { width: 100%; min-width: 0; font-size: var(--v2-text-sm); }
+.mc-auth__key { width: 100%; min-width: 0; font-size: var(--v2-text-sm); }
+.mc-key { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.mc-key[hidden] { display: none; }
+.mc-key__row { display: flex; align-items: center; gap: 6px; min-width: 0; }
+.mc-key__row .v2-input { flex: 1 1 auto; min-width: 0; }
+.mc-key__pick { flex: 0 0 auto; white-space: nowrap; }
+.mc-key__row .v2-btn svg { display: block; flex: 0 0 auto; }
+.mc-key__text {
+  width: 100%; min-height: 46px; resize: vertical;
+  font-family: var(--v2-font-mono); font-size: var(--v2-text-xs);
+}
+.mc-endpoint .mc-auth + .mc-pass { margin-top: 2px; }
+/* The node role moved into the action row (right before Start deploy): align the
+   label+select with the buttons instead of centring them. */
+.mc-actions--deploy { align-items: flex-end; }
+.mc-actions--deploy .mc-role-field { width: 116px; flex: 0 0 auto; }
+
+/* Project settings: swap is the only thing to type; the save button must be
+   the obvious next step, and the dashboard-off row carries the two ways out. */
+.mc-settings { margin-top: 0; align-items: flex-end; }
+/* the swap input is the last thing in its label: aligning to the bottom (flex-end)
+   puts the Save button on the same line as the field the operator edits */
+/* Project settings carry the swap size only: the dashboard checkbox that used to
+   sit here moved to the Manage active node tab (Deploy monitor), so its rule is
+   gone (2026-11-05). */
+.mc-settings__save {
+  flex: 0 0 auto; min-width: 150px;
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--v2-brand) 35%, transparent),
+              0 6px 18px -10px color-mix(in srgb, var(--v2-brand) 70%, transparent);
+}
+.mc-settings__off {
+  display: flex; align-items: center; gap: var(--v2-space-2); flex-wrap: wrap;
+  margin-top: var(--v2-space-2);
+  padding: var(--v2-space-2) var(--v2-space-3);
+  border-left: 2px solid var(--v2-status-warning);
+  background: color-mix(in srgb, var(--v2-status-warning) 6%, transparent);
+  border-radius: var(--v2-radius-control);
+}
+.mc-settings__off[hidden] { display: none; }
+
+/* ---- log toolbar ------------------------------------------------------- */
+.mc-logbar {
+  display: flex; align-items: center; gap: var(--v2-space-2); flex-wrap: wrap;
+  align-content: flex-start;
+  margin-bottom: var(--v2-space-3);
+}
+/* ---- disabled controls ------------------------------------------------- */
+.v2-btn[disabled], .v2-seg__btn[disabled] { opacity: 0.45; cursor: not-allowed; }
+.v2-btn[disabled]:hover { background: transparent; }
+
+.mc-logbar__search { flex: 1 1 180px; min-width: 140px; }
+/* log toolbar buttons (pause / clear / download): same weight as the filter
+   segments so the row reads as one control strip */
+.mc-logbtn {
+  display: inline-flex; align-items: center; gap: 6px;
+  flex: 0 0 auto;
+  padding: 5px 10px;
+  border: 1px solid var(--v2-line);
+  background: var(--v2-inset);
+  font-size: var(--v2-text-xs);
+  color: var(--v2-text-subtle);
+}
+.mc-logbtn:hover:not(:disabled) { border-color: var(--v2-line-accent); color: var(--v2-text-strong); }
+.mc-logbtn[aria-pressed="true"] {
+  border-color: var(--v2-brand);
+  color: var(--v2-brand);
+  background: color-mix(in srgb, var(--v2-brand) 10%, transparent);
+}
+.mc-logbar__hosts .v2-seg__btn { font-size: 10px; }
+#log-view { --v2-log-h: min(46vh, 460px); }
+
+/* per-host colouring in the log: the chip carries a SRC/DST role tag, so the
+   source and the target are distinguishable by shape as well as by colour */
+.mc-hostchip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  overflow: hidden;
+  font-size: 10px;
+  opacity: 0.95;
+}
+.mc-hostchip__role {
+  flex: 0 0 auto;
+  padding: 0 3px;
+  border: 1px solid currentColor;
+  border-radius: var(--v2-radius-micro);
+  font-size: 9px;
+  font-weight: var(--v2-fw-medium);
+  letter-spacing: 0.06em;
+  line-height: 1.35;
+  opacity: 0.85;
+}
+.mc-hostchip__role--src { background: transparent; }
+.mc-hostchip__role--dst { background: color-mix(in srgb, currentColor 18%, transparent); }
+.mc-hostchip__ip { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* The chip colours the log uses for the host. --v2-tel-out was a rose/red token
+   and an operator read a healthy step as an error (2026-11-04). The two roles now
+   have explicit NON-red hues: emerald for the source, sky for the target. */
+:root {
+  --mc-role-src: #34d399;
+  --mc-role-dst: #38bdf8;
+}
+
+/* A line the operator must not miss in a 1500-row log: the manage token, the
+   published URL, the wallet address, a completed milestone. Brand-tinted, never
+   red - red stays the error colour. */
+.v2-log__row--key {
+  border-left-color: var(--v2-brand);
+  background: color-mix(in srgb, var(--v2-brand) 8%, transparent);
+}
+.v2-log__row--key .v2-log__msg { color: var(--v2-text-strong); font-weight: var(--v2-fw-medium); }
+.v2-log__row--key .v2-log__level { color: var(--v2-brand); border-color: color-mix(in srgb, var(--v2-brand) 45%, transparent); }
+
+/* log rows: a step marker opens a block, quiet progress lines recede, a clean
+   result gets a green edge (the same language the warn/error rows already use) */
+.v2-log__row--ok { border-left-color: color-mix(in srgb, var(--v2-status-running) 45%, transparent); }
+.v2-log__row--muted .v2-log__msg { color: var(--v2-text-subtle); }
+.mc-row--step {
+  margin-top: var(--v2-space-2);
+  padding-top: var(--v2-space-2);
+  border-top: var(--v2-line-h) solid var(--v2-line);
+}
+.mc-row--step .v2-log__msg { color: var(--v2-text-strong); font-weight: var(--v2-fw-medium); }
+.mc-row--step .v2-log__level { color: var(--v2-text-subtle); }
+.mc-legend {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--v2-space-3);
+  margin-left: auto;
+}
+.mc-legend__item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--v2-text-xs);
+  color: var(--v2-text-subtle);
+}
+.mc-legend__dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+/* ---- guide ------------------------------------------------------------- */
+.mc-guide {
+  display: grid; grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--v2-space-5); border-top: 1px solid var(--v2-line); padding-top: var(--v2-space-4);
+}
+.mc-guide__h {
+  margin: 0 0 var(--v2-space-2);
+  font-size: var(--v2-text-xs);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--v2-text-subtle);
+  font-weight: var(--v2-fw-medium);
+}
+.mc-guide__list { margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 6px; }
+.mc-guide__list li { font-size: var(--v2-text-sm); color: var(--v2-text); line-height: 1.5; }
+.mc-guide--three { align-items: start; }
+.mc-guide__foot { margin: var(--v2-space-3) 0 0; }
+@media (max-width: 980px) {
+  .mc-guide { grid-template-columns: minmax(0, 1fr); gap: var(--v2-space-4); }
+}
+
+/* ---- enroll popup (deploy: validator) ---------------------------------- */
+.mc-enroll__addr { display: flex; flex-direction: column; gap: 4px; }
+.mc-enroll__value {
+  padding: 6px 8px;
+  background: var(--v2-inset);
+  border: 1px solid var(--v2-line);
+  border-radius: var(--v2-radius-control);
+  color: var(--v2-text-strong);
+  overflow-wrap: anywhere;
+  user-select: all;
+}
+.mc-enroll__check {
+  display: inline-flex; align-items: center; gap: 8px;
+  font-size: var(--v2-text-xs); color: var(--v2-text);
+  cursor: pointer; user-select: none;
+}
+.mc-enroll__check input { width: 14px; height: 14px; accent-color: var(--v2-brand); cursor: pointer; }
+.mc-enroll__note { color: var(--v2-status-warning); }
+.mc-enroll__note:empty { display: none; }
+.mc-err { color: var(--v2-status-error); }
+.mc-ok { color: var(--v2-status-success); }
+
+/* ---- confirm modal ----------------------------------------------------- */
+.mc-modal {
+  position: fixed; inset: 0; z-index: 90;
+  display: grid; place-items: center;
+  padding: var(--v2-space-4);
+  background: rgba(0, 0, 0, 0.62);
+  backdrop-filter: blur(2px);
+}
+.mc-modal[hidden] { display: none; }
+.mc-modal__body {
+  width: min(460px, 100%);
+  max-height: calc(100vh - 2rem);
+  max-height: calc(100dvh - 2rem);
+  overflow-y: auto;
+  background: var(--v2-canvas);
+  border: 1px solid var(--v2-line-strong);
+  border-radius: var(--v2-radius-control);
+  padding: var(--v2-space-5);
+  display: flex; flex-direction: column; gap: var(--v2-space-3);
+}
+.mc-modal__title { margin: 0; font-size: var(--v2-text-lg); color: var(--v2-text-strong); }
+.mc-modal__text { margin: 0; font-size: var(--v2-text-sm); color: var(--v2-text-subtle); line-height: 1.55; }
+.mc-modal__actions { display: flex; justify-content: flex-end; gap: var(--v2-space-2); margin-top: var(--v2-space-2); }
+
+/* TLS choice inside the monitor modal: two radio cards, the picked one gets a
+   brand border and only its detail rows are shown */
+.mc-ssl { margin: 0; padding: 0; border: 0; display: flex; flex-direction: column; gap: var(--v2-space-2); }
+.mc-ssl > legend { padding: 0; margin-bottom: 6px; }
+.mc-ssl__opt {
+  display: flex; align-items: flex-start; gap: 10px;
+  padding: var(--v2-space-3);
+  border: 1px solid var(--v2-line);
+  border-radius: var(--v2-radius-control);
+  background: var(--v2-inset);
+  cursor: pointer; user-select: none;
+}
+.mc-ssl__opt:has(input:checked) {
+  border-color: var(--v2-brand);
+  background: color-mix(in srgb, var(--v2-brand) 7%, var(--v2-inset));
+}
+.mc-ssl__opt input { width: 15px; height: 15px; margin-top: 2px; accent-color: var(--v2-brand); cursor: pointer; }
+.mc-ssl__opt span { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.mc-ssl__opt strong { font-size: var(--v2-text-sm); color: var(--v2-text-strong); font-weight: var(--v2-fw-medium); }
+.mc-ssl__opt em { font-size: var(--v2-text-xs); color: var(--v2-text-subtle); font-style: normal; line-height: 1.45; }
+.mc-ssl__body { display: flex; flex-direction: column; gap: 6px; padding: 0 var(--v2-space-3) 0 34px; min-width: 0; }
+.mc-ssl__body[hidden] { display: none; }
+/* a stored path has no spaces: let it break instead of stretching the modal
+   (a long C:\...\tmp\certs\... line used to widen the dialog) */
+.mc-ssl__body span, .mc-modal__text, .mc-enroll__note { overflow-wrap: anywhere; min-width: 0; }
+
+/* ---- a field that failed validation ------------------------------------ */
+/* The message alone was too easy to miss, and a button that "does nothing" is
+   the worst feedback: the field is outlined, focused and explained. */
+.v2-input.mc-invalid,
+.v2-input.mc-invalid:focus {
+  border-color: var(--v2-status-error);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--v2-status-error) 45%, transparent);
+}
+
+
+/* ---- responsive -------------------------------------------------------- */
+@media (max-width: 900px) {
+  .mc-endpoints { grid-template-columns: 1fr; gap: var(--v2-space-4); }
+  .mc-nodes { grid-template-columns: 1fr; }
+  .mc-node + .mc-node { border-left: 0; border-top: 1px solid var(--v2-line); padding-left: 0; }
+  .mc-guide { grid-template-columns: 1fr; gap: var(--v2-space-4); }
+}
+@media (max-width: 620px) {
+  .mc-hero__title { font-size: var(--v2-text-xl); }
+  .mc-field--sm { width: 100%; }
+  .mc-field--grow { width: 100%; }
+}
+@media (max-width: 440px) {
+  /* the folder input + its picker no longer fit on one line: stack them so the
+     icon and the caption are never clipped */
+  .mc-ssl__body .mc-key__row { flex-wrap: wrap; }
+  .mc-ssl__body .mc-key__pick { width: 100%; }
+  /* long manage labels ("Update node (auto)") do not fit two 174px columns */
+  .mc-nodeactions__grid { grid-template-columns: 1fr; }
+  .mc-nodeactions__wide { grid-column: auto; }
+}
+

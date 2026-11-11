@@ -1,0 +1,242 @@
+/* ==========================================================================
+   SYNTEQ UI V2 — 10. BOTTOM NAVIGATION DOCK (components/sidebar.css)
+
+   Layout rules
+   • Items are centred while they fit (safe centre → never clips to the left).
+   • When they no longer fit: the strip is drag-scrollable + a "More" drop-up
+     lists every item that is out of view (progressive overflow).
+   • Group labels are NOT rendered in the dock — icon + label is enough.
+   ========================================================================== */
+.v2-aside {
+  position: relative;
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
+  min-height: 0;
+  min-width: 0;                   /* never let the dock widen the app grid */
+  overflow: visible;              /* allows the More drop-up to escape upward */
+  background: var(--v2-sidebar);
+  border-top: var(--v2-line-h) solid var(--v2-line);
+  z-index: 20;
+  will-change: transform, opacity;
+  transition: transform var(--v2-dur-normal) var(--v2-ease), opacity var(--v2-dur-fast) var(--v2-ease);
+}
+.v2-aside__brand {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--v2-space-2);
+  min-width: 148px;
+  height: 100%;
+  padding: 0 var(--v2-space-4);
+  background: var(--v2-sidebar);
+  color: var(--v2-text-strong);
+  font-size: var(--v2-text-lg);
+  font-weight: var(--v2-fw-semibold);
+  border-right: var(--v2-line-h) solid var(--v2-line);
+  flex-shrink: 0;
+  text-decoration: none;
+  z-index: 2;
+}
+.v2-aside__brand-mark { width: 20px; height: 20px; border-radius: var(--v2-radius-micro); background: var(--v2-brand); display: inline-flex; align-items: center; justify-content: center; color: var(--v2-text-on-accent); flex-shrink: 0; }
+
+/* Nav strip — safe centring + optional drag scroll */
+.v2-nav {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  align-items: stretch;
+  justify-content: flex-start;    /* safe fallback for older engines */
+  justify-content: safe center;   /* centre while it fits, never clip */
+  gap: var(--v2-space-1);
+  padding: var(--v2-space-2);
+  overflow-x: auto;
+  overflow-y: hidden;
+  overscroll-behavior-x: contain;
+  scroll-behavior: smooth;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  -webkit-user-select: none;
+  user-select: none;
+  touch-action: pan-x;
+}
+.v2-nav.has-overflow { cursor: grab; }
+.v2-nav::-webkit-scrollbar { display: none; }
+.v2-nav.is-dragging { cursor: grabbing; scroll-behavior: auto; }
+.v2-nav[data-overflow-start="true"] { box-shadow: inset 24px 0 18px -18px var(--v2-canvas); }
+.v2-nav[data-overflow-end="true"]   { box-shadow: inset -24px 0 18px -18px var(--v2-canvas); }
+.v2-nav[data-overflow-start="true"][data-overflow-end="true"] {
+  box-shadow: inset 24px 0 18px -18px var(--v2-canvas), inset -24px 0 18px -18px var(--v2-canvas);
+}
+
+/* Legacy group labels — intentionally hidden inside the horizontal dock */
+.v2-nav__group-label { display: none; }
+
+/* Nav item — icon over label, vertically centred in the dock */
+.v2-nav__item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  text-align: center;
+  gap: var(--v2-space-1);
+  flex: 0 0 auto;
+  min-width: var(--v2-nav-item-w, 84px);
+  max-width: 148px;
+  min-height: 44px;
+  padding: var(--v2-space-1) var(--v2-space-2);
+  border-radius: var(--v2-radius-control);
+  color: var(--v2-text);
+  font-size: var(--v2-text-xs);
+  line-height: 1.3;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-decoration: none;
+  -webkit-user-drag: none;
+}
+.v2-nav__item > svg { flex-shrink: 0; }
+.v2-nav__item .v2-icon { color: var(--v2-text-subtle); flex-shrink: 0; }
+.v2-nav__item:hover { background: var(--v2-hover); color: var(--v2-text-strong); }
+.v2-nav__item:hover .v2-icon { color: var(--v2-text); }
+.v2-nav__item:focus-visible { z-index: 3; }
+.v2-nav__item--active,
+.v2-nav__item.is-active {
+  color: var(--v2-text-strong);
+  font-weight: var(--v2-fw-semibold);
+  background: color-mix(in srgb, var(--v2-brand) 12%, transparent);
+  box-shadow: inset 0 3px 0 var(--v2-brand);
+}
+.v2-nav__item--active .v2-icon,
+.v2-nav__item.is-active .v2-icon { color: var(--v2-brand); }
+.v2-nav__badge {
+  position: absolute;
+  top: 3px;
+  right: 12px;
+  font-size: var(--v2-text-xs);
+  color: var(--v2-text-subtle);
+  font-variant-numeric: tabular-nums;
+  pointer-events: none;
+}
+
+/* "More" trigger — only rendered when the strip overflows */
+.v2-nav__more {
+  display: flex;
+  flex: 0 0 auto;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  width: 56px;
+  margin: var(--v2-space-2) var(--v2-space-2) var(--v2-space-2) 0;
+  border-radius: var(--v2-radius-control);
+  color: var(--v2-text-subtle);
+  font-size: 9px;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  background: var(--v2-sidebar);
+  border-left: var(--v2-line-h) solid var(--v2-line);
+}
+.v2-nav__more[hidden] { display: none; }
+.v2-nav__more:hover { background: var(--v2-hover); color: var(--v2-text-strong); }
+.v2-nav__more[aria-expanded="true"] { background: var(--v2-hover); color: var(--v2-text-strong); }
+.v2-nav__more .v2-icon { color: currentColor; }
+
+/* Drop-up menu (progressive overflow) */
+.v2-nav__menu {
+  position: absolute;
+  right: var(--v2-space-3);
+  bottom: calc(100% + var(--v2-space-2));
+  z-index: 40;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 208px;
+  max-width: min(320px, calc(100vw - var(--v2-space-6)));
+  max-height: min(60vh, 420px);
+  overflow-y: auto;
+  padding: var(--v2-space-2);
+  background: var(--v2-sidebar);
+  border: var(--v2-line-h) solid var(--v2-line-strong);
+  border-radius: var(--v2-radius-control);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, .45);
+  animation: v2-drop-up var(--v2-dur-fast) var(--v2-ease) both;
+}
+.v2-nav__menu[hidden] { display: none; }
+.v2-nav__menu-item {
+  display: flex;
+  align-items: center;
+  gap: var(--v2-space-2);
+  min-height: 34px;
+  padding: var(--v2-space-2) var(--v2-space-3);
+  border-radius: var(--v2-radius-control);
+  color: var(--v2-text);
+  font-size: var(--v2-text-sm);
+  text-decoration: none;
+  white-space: nowrap;
+}
+.v2-nav__menu-item:hover { background: var(--v2-hover); color: var(--v2-text-strong); }
+.v2-nav__menu-item .v2-icon { color: var(--v2-text-subtle); }
+.v2-nav__menu-item.is-active { background: color-mix(in srgb, var(--v2-brand) 12%, transparent); color: var(--v2-text-strong); font-weight: var(--v2-fw-semibold); }
+.v2-nav__menu-item.is-active .v2-icon { color: var(--v2-brand); }
+.v2-nav__menu-item .v2-nav__badge { position: static; margin-left: auto; }
+
+/* Footer — account row */
+.v2-aside__footer {
+  padding: var(--v2-space-2) var(--v2-space-3);
+  border-left: var(--v2-line-h) solid var(--v2-line);
+  display: flex;
+  align-items: center;
+  gap: var(--v2-space-2);
+  font-size: var(--v2-text-xs);
+  color: var(--v2-text-subtle);
+  flex-shrink: 0;
+  min-height: 48px;
+  background: var(--v2-sidebar);
+}
+.v2-aside__footer .v2-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--v2-status-running); flex-shrink: 0; }
+
+/* ── Breakpoints ─────────────────────────────────────────────────── */
+@media (max-width: 1080px) {
+  .v2-nav__item { min-width: 78px; }
+}
+@media (max-width: 860px) {
+  .v2-aside__brand { min-width: 56px; width: 56px; padding: 0; font-size: 0; }
+  .v2-nav__item { min-width: 72px; font-size: var(--v2-text-xs); }
+  .v2-aside__footer { min-width: 54px; padding: var(--v2-space-2); justify-content: center; }
+  .v2-aside__footer .v2-user__info { display: none; }
+  .v2-nav__more { width: 48px; }
+}
+@media (max-width: 520px) {
+  .v2-aside__brand { min-width: 48px; width: 48px; }
+  .v2-nav { padding: var(--v2-space-1); gap: 2px; }
+  .v2-nav__item { min-width: 64px; max-width: 108px; padding: 2px var(--v2-space-1); }
+  .v2-nav__item .v2-icon { width: 15px; height: 15px; }
+  .v2-nav__more { width: 44px; margin: var(--v2-space-1) var(--v2-space-1) var(--v2-space-1) 0; font-size: 0; }
+  .v2-nav__more .v2-icon { width: 18px; height: 18px; }
+  .v2-aside__footer { min-width: 44px; min-height: 40px; }
+}
+@media (max-width: 380px) {
+  .v2-aside__brand { min-width: 42px; width: 42px; }
+  .v2-nav__item { min-width: 58px; font-size: 10px; }
+  .v2-nav__badge { right: 6px; }
+}
+@media (hover: none) {
+  .v2-nav.has-overflow { cursor: default; }
+  .v2-nav.is-dragging { cursor: default; }
+}
+@media (max-height: 480px) and (orientation: landscape) {
+  .v2-aside__brand { min-width: 52px; }
+  .v2-nav { padding: var(--v2-space-1) var(--v2-space-2); }
+  .v2-nav__item {
+    flex-direction: row;
+    min-width: 0;
+    max-width: none;
+    min-height: 36px;
+    padding: 0 var(--v2-space-3);
+    gap: var(--v2-space-2);
+  }
+  .v2-nav__badge { position: static; margin-left: var(--v2-space-1); }
+  .v2-nav__menu { max-height: 70vh; }
+}

@@ -1,0 +1,143 @@
+{
+  "schema": 1,
+  "description": "Octra validator task assets. The console may clone this repository on the VPS and copy only the task it runs.",
+  "entrypoints": {
+    "deploy": "assets/deploy/40-start-node.sh",
+    "migrate": "assets/migrate/03-pull-state.sh",
+    "manage": "assets/manage/30-status.sh",
+    "upgrade": "assets/upgrade/20-upgrade.sh",
+    "dashboard_monitor": "assets/manage/dashboard_monitor/deploy-dashboard.sh"
+  },
+  "tasks": {
+    "common": {
+      "source": "assets/common",
+      "target": "/root",
+      "dependsOn": [],
+      "files": [
+        "bond-inspect.sh",
+        "config.sh",
+        "extract-data.sh",
+        "harden-host.sh",
+        "install-deps.sh",
+        "node-enroll.sh",
+        "node-setup.sh",
+        "node-start.sh",
+        "node-stop.sh",
+        "node-upgrade.sh",
+        "pre-run.sh",
+        "promote-validator.sh"
+      ]
+    },
+    "deploy": {
+      "source": "assets/deploy",
+      "target": "/root/deploy",
+      "dependsOn": [
+        "common"
+      ],
+      "files": [
+        "10-prepare-host.sh",
+        "20-install-toolchain.sh",
+        "30-setup-node.sh",
+        "40-start-node.sh",
+        "50-verify.sh",
+        "60-enroll.sh",
+        "70-promote.sh",
+        "lib.sh"
+      ],
+      "entrypoint": "assets/deploy/40-start-node.sh"
+    },
+    "migrate": {
+      "source": "assets/migrate",
+      "target": "/root/migrate",
+      "dependsOn": [
+        "common"
+      ],
+      "files": [
+        "00-backup-identity.sh",
+        "01-prepare-target.sh",
+        "02-authorize-pull.sh",
+        "03-pull-state.sh",
+        "04-stop-source.sh",
+        "05-finalize-target.sh",
+        "06-start-target.sh",
+        "07-verify.sh",
+        "08-rollback.sh",
+        "lib.sh"
+      ],
+      "entrypoint": "assets/migrate/03-pull-state.sh"
+    },
+    "manage": {
+      "source": "assets/manage",
+      "target": "/root/manage",
+      "dependsOn": [
+        "common"
+      ],
+      "files": [
+        "10-bond-increase.sh",
+        "10-diagnose-node.sh",
+        "20-exit-validator.sh",
+        "25-recover-node.sh",
+        "30-status.sh",
+        "40-exit-withdraw.sh",
+        "bond_inc.sh",
+        "lib.sh"
+      ],
+      "entrypoint": "assets/manage/30-status.sh"
+    },
+    "upgrade": {
+      "source": "assets/upgrade",
+      "target": "/root/upgrade",
+      "dependsOn": [
+        "common"
+      ],
+      "files": [
+        "10-preflight.sh",
+        "20-upgrade.sh",
+        "30-manual-upgrade.sh",
+        "40-storage-prune.sh",
+        "50-status.sh",
+        "lib.sh"
+      ],
+      "entrypoint": "assets/upgrade/20-upgrade.sh"
+    },
+    "dashboard_monitor": {
+      "source": "assets/manage/dashboard_monitor",
+      "target": "/root/dashboard",
+      "dependsOn": [],
+      "files": [
+        "app.js",
+        "assets/v2.2/css/base.css",
+        "assets/v2.2/css/components/content.css",
+        "assets/v2.2/css/components/controls.css",
+        "assets/v2.2/css/components/data.css",
+        "assets/v2.2/css/components/icons.css",
+        "assets/v2.2/css/components/motion.css",
+        "assets/v2.2/css/components/shell.css",
+        "assets/v2.2/css/components/sidebar.css",
+        "assets/v2.2/css/components/topbar.css",
+        "assets/v2.2/css/fonts.css",
+        "assets/v2.2/css/synteq-ui-v2.css",
+        "assets/v2.2/css/theme-dark.css",
+        "assets/v2.2/css/theme-light.css",
+        "assets/v2.2/css/tokens.css",
+        "assets/v2.2/fonts/GoogleSansCode-Medium.ttf",
+        "assets/v2.2/fonts/GoogleSansCode-Regular.ttf",
+        "assets/v2.2/fonts/GoogleSansCode-SemiBold.ttf",
+        "assets/v2.2/js/synteq-ui-v2.js",
+        "deploy-dashboard.sh",
+        "favicon.svg",
+        "index.html",
+        "nginx-octra.conf",
+        "octra-dashboard.service",
+        "octra-node-prune.cron",
+        "octra-node-prune.service",
+        "octra-node-prune.timer",
+        "prune-node-junk.sh",
+        "server.py",
+        "ssl-certbot.sh",
+        "styles.css"
+      ],
+      "entrypoint": "assets/manage/dashboard_monitor/deploy-dashboard.sh"
+    }
+  }
+}

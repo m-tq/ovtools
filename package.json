@@ -1,0 +1,57 @@
+{
+  "name": "ovtools",
+  "version": "1.0.0",
+  "description": "Octra Validator Tools - production-grade CLI and web console for deploying, migrating, and managing Octra validators",
+  "main": "dist/index.js",
+  "bin": {
+    "ovtools": "./bin/ovtools.js",
+    "ovt": "./bin/ovtools.js"
+  },
+  "files": [
+    "bin/",
+    "dist/",
+    "public/",
+    "assets/",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "dev:web": "node --watch bin/ovtools.js web --port 9099",
+    "start": "node bin/ovtools.js",
+    "cli": "node bin/ovtools.js",
+    "test": "node --test dist/test/*.test.js",
+    "prepublishOnly": "npm run build",
+    "prepare": "npm run build"
+  },
+  "keywords": [
+    "octra",
+    "validator",
+    "blockchain",
+    "devops",
+    "ssh",
+    "deployment"
+  ],
+  "author": "m-tq",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/m-tq/ovtools.git"
+  },
+  "homepage": "https://github.com/m-tq/ovtools#readme",
+  "bugs": {
+    "url": "https://github.com/m-tq/ovtools/issues"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "dependencies": {
+    "ssh2": "^1.16.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.17.0",
+    "@types/ssh2": "^1.15.0",
+    "typescript": "^5.6.0"
+  }
+}

@@ -1,0 +1,12 @@
+# /etc/cron.d/octra-node-prune - installed by dashboard/deploy-dashboard.sh
+# Daily cleanup of node-generated junk (operator log rotation, core dumps,
+# dashboard __pycache__, journal vacuum). The program itself carries the
+# policy; this file only says "once a day".
+# Keep this file ASCII-only and LF-only: Debian cron reads it as bytes and
+# rejects a CRLF or non-ASCII line with "bad minute", ignoring the whole file.
+SHELL=/bin/bash
+PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+MAILTO=""
+
+# m  h  dom mon dow user  command
+40 3 * * * root /usr/local/sbin/octra-node-prune >> /var/log/octra-node-prune.cron.log 2>&1

@@ -1,0 +1,38 @@
+/* ==========================================================================
+   SYNTEQ UI V2 — 02. DARK THEME (theme-dark.css) [default]
+   Flat surfaces, hairline separators. No card elevation.
+   ========================================================================== */
+:root,
+[data-theme="dark"],
+.theme-dark {
+  color-scheme: dark;
+
+  /* Text — 3-step hierarchy (WCAG AA on canvas) */
+  --v2-text: #d6dada;        /* body / labels */
+  --v2-text-strong: #f4f6f6; /* high-emphasis values, hostnames, active */
+  --v2-text-subtle: #7a8080; /* metadata, units, timestamps */
+  --v2-text-on-accent: #06120f;
+
+  /* Flat surfaces — V2 removes the raised/strong/muted ladder from V1 */
+  --v2-canvas: #0a0b0b;  /* main app background */
+  --v2-sidebar: #070808;  /* navigation background (slightly off canvas) */
+  --v2-hover: #161919;   /* interactive hover/active surface */
+  --v2-inset: #101212;   /* inset rows / inputs / gauge track */
+
+  /* Line separators (the primary structural device in V2 — replaces cards) */
+  --v2-line: #1c2020;        /* default hairline */
+  --v2-line-strong: #2b3030; /* emphasized separator */
+  --v2-line-accent: #1f3a30; /* accent-tinted separator (brand edge) */
+
+  /* Semantic accents */
+  --v2-brand: #00e599;
+  --v2-status-running: #34d399;
+  --v2-status-warning: #fbbf24;
+  --v2-status-error: #f87171;
+  --v2-tel-in: #34d399;
+  --v2-tel-out: #fb7185;
+  --v2-track: #1a1d1d;       /* gauge empty track */
+
+  /* Theme-toggle icon glyph color */
+  --v2-glyph: #9aa0a0;
+}

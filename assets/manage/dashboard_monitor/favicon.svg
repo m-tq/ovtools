@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 50 50" fill="none" role="img" aria-label="Octra Node">
+  <style>
+    /* Octra mark — ring, same geometry as docs.octra.org/favicon.svg.
+       currentColor keeps the glyph reusable when inlined; setting it here
+       makes the standalone favicon render brand green and follow the
+       browser colour scheme. */
+    svg { color: #00e599; }
+    @media (prefers-color-scheme: light) { svg { color: #059669; } }
+    circle { stroke: currentColor; }
+  </style>
+  <circle cx="25" cy="25" r="21" stroke-width="8"/>
+</svg>
+

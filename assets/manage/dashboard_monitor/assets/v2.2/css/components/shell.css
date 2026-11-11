@@ -1,0 +1,51 @@
+/* Synteq UI V2 viewport-locked shell with a sticky bottom navigation dock. */
+.v2-app {
+  --v2-nav-current: var(--v2-bottomnav-h);
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-template-rows: var(--v2-topbar-h) minmax(0, 1fr) var(--v2-nav-current);
+  grid-template-areas: "topbar" "main" "aside";
+  height: 100dvh;
+  width: 100%;
+  overflow: hidden;
+  background: var(--v2-canvas);
+  transition: grid-template-rows var(--v2-dur-normal) var(--v2-ease);
+}
+.v2-app.nav-collapsed { --v2-nav-current: 0px; }
+.v2-app.nav-collapsed .v2-aside { transform: translateY(100%); opacity: 0; pointer-events: none; }
+.v2-aside { grid-area: aside; min-height: 0; }
+.v2-topbar { grid-area: topbar; min-height: 0; }
+.v2-main { grid-area: main; min-height: 0; min-width: 0; overflow: hidden; display: flex; }
+.v2-content {
+  flex: 1;
+  min-width: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: var(--v2-space-5) clamp(var(--v2-space-4), 4vw, var(--v2-space-7));
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: var(--v2-space-7);
+  scroll-padding-top: var(--v2-space-4);
+}
+.v2-content--fullscreen > .v2-section {
+  min-height: calc(100dvh - var(--v2-topbar-h) - var(--v2-nav-current, var(--v2-bottomnav-h)));
+  justify-content: center;
+  padding-block: var(--v2-space-8);
+  scroll-margin-top: var(--v2-space-4);
+}
+@media (max-width: 860px) {
+  .v2-content { padding: var(--v2-space-4); gap: var(--v2-space-6); }
+}
+@media (max-width: 420px) {
+  :root { --v2-topbar-h: 48px; }
+  .v2-content { padding: var(--v2-space-3); gap: var(--v2-space-5); }
+}
+@media (max-height: 480px) and (orientation: landscape) {
+  :root {
+    --v2-topbar-h: 48px;
+    --v2-bottomnav-h: 52px;
+  }
+  .v2-content { gap: var(--v2-space-5); }
+}

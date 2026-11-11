@@ -1,0 +1,374 @@
+/* ==========================================================================
+   SYNTEQ UI V2 — 10. TEXT-FIRST DATA VIZ (components/data.css)
+   Simplest visualization: stat blocks, key-value rows, slim gauges,
+   inline sparklines, and a tiny bar chart. No card chrome around them.
+   ========================================================================== */
+
+/* ---- Stat block (big number + unit + optional spark) ---- */
+.v2-stat {
+  display: flex;
+  flex-direction: column;
+  gap: var(--v2-space-1);
+  min-width: 0;
+}
+.v2-stat__label {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--v2-space-2);
+  font-size: var(--v2-text-xs);
+  color: var(--v2-text-subtle);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.v2-stat__value {
+  font-size: var(--v2-text-2xl);
+  font-weight: var(--v2-fw-medium);
+  color: var(--v2-text-strong);
+  line-height: var(--v2-leading-tight);
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+}
+.v2-stat__value .v2-unit {
+  font-size: var(--v2-text-md);
+  color: var(--v2-text-subtle);
+  font-weight: var(--v2-fw-regular);
+  margin-left: var(--v2-space-1);
+}
+.v2-stat__delta {
+  font-size: var(--v2-text-xs);
+  font-variant-numeric: tabular-nums;
+}
+.v2-stat__delta--up { color: var(--v2-status-running); }
+.v2-stat__delta--down { color: var(--v2-status-error); }
+
+/* ---- Key-value rows (no card — hairline between rows) ---- */
+.v2-kv {
+  display: flex;
+  flex-direction: column;
+}
+.v2-kv__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--v2-space-3);
+  padding: var(--v2-space-3) 0;
+  border-top: var(--v2-line-h) solid var(--v2-line);
+  font-size: var(--v2-text-md);
+  min-width: 0;                  /* allow children to shrink/truncate */
+}
+.v2-kv__row:first-child { border-top: none; }
+.v2-kv__label {
+  color: var(--v2-text-subtle);
+  display: inline-flex;
+  align-items: center;
+  gap: var(--v2-space-2);
+  flex-shrink: 0;                /* label never collapses */
+}
+.v2-kv__value {
+  color: var(--v2-text-strong);
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;           /* truncate long mono values by default */
+}
+.v2-kv__value .v2-mono { font-size: var(--v2-text-md); }
+
+/* ---- Slim gauge: label + value on one line, bar beneath ---- */
+.v2-gauge {
+  display: flex;
+  flex-direction: column;
+  gap: var(--v2-space-2);
+}
+.v2-gauge__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--v2-space-3);
+  font-size: var(--v2-text-md);
+}
+.v2-gauge__label {
+  color: var(--v2-text);
+  display: inline-flex;
+  align-items: center;
+  gap: var(--v2-space-2);
+}
+.v2-gauge__value {
+  color: var(--v2-text-strong);
+  font-variant-numeric: tabular-nums;
+  font-weight: var(--v2-fw-medium);
+  white-space: nowrap;           /* prevent value wrapping on narrow gauges */
+}
+.v2-gauge__value .v2-gauge__max {
+  color: var(--v2-text-subtle);
+  font-weight: var(--v2-fw-regular);
+}
+.v2-gauge__track {
+  position: relative;
+  height: 6px;
+  width: 100%;
+  background: var(--v2-track);
+  border-radius: 999px;
+  overflow: hidden;
+}
+.v2-gauge__fill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 0%;
+  border-radius: 999px;
+  background: var(--v2-text-strong);
+  transition: width var(--v2-dur-slow) var(--v2-ease);
+}
+.v2-gauge__fill--ok { background: var(--v2-status-running); }
+.v2-gauge__fill--warn { background: var(--v2-status-warning); }
+.v2-gauge__fill--err { background: var(--v2-status-error); }
+.v2-gauge__fill--brand { background: var(--v2-brand); }
+
+/* ---- Inline sparkline (SVG) ---- */
+.v2-spark {
+  display: block;
+  width: 100%;
+  height: var(--v2-spark-h, 40px);   /* override per instance or with --tall */
+  overflow: hidden;          /* prevent path from bleeding outside container */
+  flex-shrink: 0;
+}
+.v2-spark--tall { --v2-spark-h: 56px; }
+/* Empty state is published by renderSparkline(): style it if you need to */
+.v2-spark[data-v2-spark-empty] { opacity: 0.35; }
+.v2-spark__line {
+  fill: none;
+  stroke: var(--v2-brand);
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+}
+.v2-spark__area {
+  fill: var(--v2-brand);
+  opacity: 0.12;
+}
+.v2-spark__dot {
+  fill: var(--v2-brand);
+}
+.v2-spark--out .v2-spark__line { stroke: var(--v2-tel-out); }
+.v2-spark--out .v2-spark__area { fill: var(--v2-tel-out); }
+.v2-spark--out .v2-spark__dot { fill: var(--v2-tel-out); }
+
+/* ---- Tiny bar chart (network I/O) — text-first alt ---- */
+.v2-bars {
+  display: grid;
+  /* minmax(0, 1fr): a track may shrink to nothing instead of forcing a minimum
+     width, so the grid can always hold the requested column count */
+  grid-template-columns: repeat(var(--v2-bars-cols, 24), minmax(0, 1fr));
+  align-items: end;
+  /* 1px, not var(--v2-space-1) = 4px: with a full 20-minute buffer (240 columns)
+     the gaps alone were 239 x 4px - wider than the panel - so every track collapsed
+     to 0 px and the Network I/O chart rendered blank while a fresh deploy (a few
+     samples) looked fine (2026-11-04). */
+  gap: 1px;
+  height: 72px;
+  width: 100%;
+}
+.v2-bars__col {
+  display: flex;
+  flex-direction: column-reverse;
+  justify-content: flex-start;
+  gap: 1px;
+  min-width: 0;
+  height: 100%;
+  cursor: pointer;
+}
+.v2-bars__seg {
+  width: 100%;
+  min-height: 1px;
+  border-radius: var(--v2-radius-micro);
+  transition: opacity var(--v2-dur-fast) var(--v2-ease), height var(--v2-dur-normal) var(--v2-ease);
+}
+.v2-bars__seg--in { background: var(--v2-tel-in); }
+.v2-bars__seg--out { background: var(--v2-tel-out); opacity: 0.55; }
+.v2-bars__col:hover .v2-bars__seg { opacity: 1; }
+/* Padding columns (renderBars minCols) hold the layout but carry no data */
+.v2-bars__col--pad { cursor: default; }
+.v2-bars[data-v2-bars-empty] { opacity: 0.35; }
+
+/* ---- Legend (text-first) ---- */
+.v2-legend {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--v2-space-4);
+  font-size: var(--v2-text-xs);
+  color: var(--v2-text-subtle);
+  font-variant-numeric: tabular-nums;
+}
+.v2-legend__item { display: inline-flex; align-items: center; gap: var(--v2-space-2); }
+.v2-legend__sw { width: 8px; height: 8px; border-radius: 2px; }
+.v2-legend__sw--in { background: var(--v2-tel-in); }
+.v2-legend__sw--out { background: var(--v2-tel-out); }
+
+/* ---- Status pill (text-first, no card) ---- */
+.v2-status {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--v2-space-2);
+  font-size: var(--v2-text-sm);
+  color: var(--v2-text-strong);
+  font-variant-numeric: tabular-nums;
+}
+.v2-dot {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: var(--v2-status-running);
+  flex-shrink: 0;
+}
+.v2-dot--stopped { background: var(--v2-status-error); }
+.v2-dot--reboot { background: var(--v2-status-warning); animation: v2-pulse 1s infinite ease-in-out; }
+/* Semantic variants (kept separate from --stopped/--reboot for back-compat) */
+.v2-dot--ok    { background: var(--v2-status-running); }
+.v2-dot--warn  { background: var(--v2-status-warning); }
+.v2-dot--err   { background: var(--v2-status-error); }
+.v2-dot--idle  { background: var(--v2-text-subtle); }
+/* Dots nested in a badge follow the badge's type scale */
+.v2-badge .v2-dot { width: 5px; height: 5px; }
+
+/* ---- Data table — slim, hairline rows, tabular numbers ---- */
+.v2-table-wrap {
+  width: 100%;
+  overflow-x: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--v2-line-strong) transparent;
+}
+.v2-table-wrap::-webkit-scrollbar { height: 6px; }
+.v2-table-wrap::-webkit-scrollbar-thumb { background: var(--v2-line-strong); border-radius: 3px; }
+
+.v2-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--v2-text-sm);
+  font-variant-numeric: tabular-nums;
+}
+.v2-table th {
+  text-align: left;
+  padding: var(--v2-space-2) var(--v2-space-3);
+  font-size: var(--v2-text-xs);
+  font-weight: var(--v2-fw-medium);
+  color: var(--v2-text-subtle);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+  border-bottom: var(--v2-line-h) solid var(--v2-line);
+}
+.v2-table td {
+  padding: var(--v2-space-2) var(--v2-space-3);
+  border-top: var(--v2-line-h) solid var(--v2-line);
+  color: var(--v2-text);
+  white-space: nowrap;
+}
+.v2-table tbody tr:first-child td { border-top: none; }
+.v2-table tbody tr:hover td { background: var(--v2-hover); }
+
+/* Cell modifiers: numbers right-aligned in mono, quiet metadata, dimmed rows */
+.v2-table__num { text-align: right; font-family: var(--v2-font-mono); }
+.v2-table__mono { font-family: var(--v2-font-mono); }
+.v2-table__mute { color: var(--v2-text-subtle); }
+.v2-table tr.is-stale td,
+.v2-table td.is-stale { color: var(--v2-text-subtle); }
+.v2-table--fixed { table-layout: fixed; }
+
+@media (max-width: 520px) {
+  .v2-table th, .v2-table td { padding: var(--v2-space-2); }
+}
+
+/* ---- Log viewer — mono rows with level accents ---- */
+.v2-log {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  font-family: var(--v2-font-mono);
+  font-size: 11px;
+  line-height: 1.55;
+}
+.v2-log--scroll {
+  max-height: var(--v2-log-h, 420px);
+  overflow-y: auto;
+  overflow-x: hidden;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: var(--v2-line-strong) transparent;
+}
+.v2-log--scroll::-webkit-scrollbar { width: 8px; }
+.v2-log--scroll::-webkit-scrollbar-thumb { background: var(--v2-line-strong); border-radius: 4px; }
+.v2-log--bordered {
+  border-top: var(--v2-line-h) solid var(--v2-line);
+  border-bottom: var(--v2-line-h) solid var(--v2-line);
+  padding-block: var(--v2-space-2);
+}
+
+.v2-log__row {
+  display: flex;
+  align-items: baseline;
+  gap: var(--v2-space-3);
+  padding: 3px var(--v2-space-2);
+  border-left: 2px solid transparent;
+  min-width: 0;
+}
+.v2-log__row:hover { background: var(--v2-hover); }
+.v2-log__row--warn { border-left-color: color-mix(in srgb, var(--v2-status-warning) 70%, transparent); }
+.v2-log__row--error {
+  border-left-color: var(--v2-status-error);
+  background: color-mix(in srgb, var(--v2-status-error) 6%, transparent);
+}
+
+.v2-log__ts {
+  flex-shrink: 0;
+  color: var(--v2-text-subtle);
+  font-variant-numeric: tabular-nums;
+}
+.v2-log__level {
+  flex-shrink: 0;
+  width: 44px;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--v2-text-subtle);
+}
+.v2-log__level--warn { color: var(--v2-status-warning); }
+.v2-log__level--error,
+.v2-log__level--fatal { color: var(--v2-status-error); }
+.v2-log__comp {
+  flex-shrink: 0;
+  min-width: 62px;
+  color: var(--v2-brand);
+  font-size: 10px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.v2-log__msg {
+  flex: 1;
+  min-width: 0;
+  color: var(--v2-text);
+  overflow-wrap: anywhere;
+}
+.v2-log__empty {
+  padding: var(--v2-space-4);
+  text-align: center;
+  font-family: var(--v2-font-sans);
+  font-size: var(--v2-text-xs);
+  color: var(--v2-text-subtle);
+}
+
+@media (max-width: 720px) { .v2-log__comp { display: none; } }
+@media (max-width: 420px) {
+  .v2-log__ts { display: none; }
+  .v2-log__level { width: 38px; }
+}
+
+@keyframes v2-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.45; transform: scale(0.8); }
+}
+
+@media (max-width: 520px) {
+  .v2-stat__value { font-size: var(--v2-text-xl); }
+  .v2-bars { height: 56px; }
+}

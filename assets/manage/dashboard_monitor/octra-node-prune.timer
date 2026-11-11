@@ -1,0 +1,12 @@
+[Unit]
+Description=Daily Octra node prune (log rotation + junk cleanup)
+Documentation=file:/usr/local/sbin/octra-node-prune
+
+[Timer]
+OnCalendar=*-*-* 03:40:00
+RandomizedDelaySec=600
+Persistent=true
+Unit=octra-node-prune.service
+
+[Install]
+WantedBy=timers.target
