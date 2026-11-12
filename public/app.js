@@ -690,6 +690,11 @@
 
   function renderRunner(s) {
     state.runner = s;
+    if (s.domain) {
+      state.settings = state.settings || {};
+      state.settings.dashboardDomain = s.domain;
+      syncMonitorDomainField(false);
+    }
     var running = !!s.running;
     // which run this page is following (a finished run from an earlier session
     // arrives through /api/state too, and must not drive the UI), then what the
@@ -1132,6 +1137,7 @@
     settings = settings || {};
     state.settings = settings;
     if ($('set-swap')) { $('set-swap').value = String(settings.swapGB); }
+    syncMonitorDomainField(false);
     syncDashboardGate();
   }
 
@@ -1463,9 +1469,9 @@
     if (settingsSection) { settingsSection.hidden = program === 'manage'; }
 
     // one app, three tools: the app name is fixed, the tool is the hero title
-    document.title = 'Validator Management System';
-    setText('topbar-title', 'Validator Management');
-    setText('hero-title', meta ? meta.label : 'Validator Management');
+    document.title = 'Octra Validator Tools';
+    setText('topbar-title', 'Validator Tools');
+    setText('hero-title', meta ? meta.label : 'Validator Tools');
     var orchPath = (meta && meta.orchestrator) || (state.cfg && state.cfg.orchestrator) || '';
     var orchName = orchPath ? String(orchPath).replace(/^.*[\\/]/, '') : '-';
     var orchOk = (meta && typeof meta.orchestratorPresent === 'boolean')
@@ -1484,7 +1490,6 @@
 
     renderPipelineInto('d-pipeline', programMetaById('deploy'), 'deploy');
     renderPipelineInto('pipeline-list', programMetaById('migrate'), 'migrate');
-    renderPipelineInto('m-pipeline', programMetaById('manage'), 'manage');
 
     var dashWarning = (state.cfg && !state.cfg.dashboardPresent)
       ? 'WARNING: dashboard assets are missing - the dashboard will not be deployed.' : '';
@@ -1517,7 +1522,8 @@
     if (nodesGrid) {
       nodesGrid.className = 'mc-nodes' + (oneHostProgram(program) ? ' mc-nodes--manage' : '');
     }
-    setText('hero-project', (state.cfg && state.cfg.projectRoot || '').replace(/^.*[\\/]/, '') || 'project');
+    setText('hero-project', (state.cfg && state.cfg.projectRoot) || 'project');
+    if (program === 'manage') syncMonitorDomainField(false);
 
     // the source node card belongs to the migration dashboard
     var srcCard = panelId('node-src-card');
@@ -1710,6 +1716,24 @@
     return 'node-' + clean.slice(-5) + '.' + suffix;
   }
 
+  /* The domain of an existing monitor deploy: the running/finished job reports
+     it, and /api/settings keeps the last one. When it exists the manage tab
+     reuses it instead of asking for the host name again. */
+  function existingMonitorDomain() {
+    var raw = (state.runner && state.runner.domain)
+      || (state.settings && state.settings.dashboardDomain)
+      || '';
+    return String(raw).replace(/^https?:\/\//i, '').replace(/\/+$/, '').trim().toLowerCase();
+  }
+
+  function syncMonitorDomainField(force) {
+    var field = panelId('monitor-domain');
+    if (!field) return;
+    var known = existingMonitorDomain();
+    if (!known) return;
+    if (force || !String(field.value || '').trim()) field.value = known;
+  }
+
   /* A field that failed validation must be impossible to miss: message next to
      it, red outline, focus - plus a tip on the button that was pressed. "The
      button did nothing" is the worst possible feedback. */
@@ -1749,10 +1773,10 @@
     if (busy()) { tip(panelId('m-btn-dashboard'), 'A phase is already running', 'err'); return; }
     setText('monitor-node', p.newIp);
     var domain = panelId('monitor-domain');
+    syncMonitorDomainField(true);
     if (domain && !String(domain.value || '').trim()) {
       var nodeAddr = (state.nodes.dst && state.nodes.dst.address) || '';
-      domain.value = (state.settings && state.settings.dashboardDomain)
-        || suggestDomain(nodeAddr) || '';
+      domain.value = suggestDomain(nodeAddr) || '';
     }
     clearFieldError('monitor-domain', 'monitor-note');
     clearFieldError('monitor-certdir', '');
@@ -2674,7 +2698,7 @@
     getJSON('/api/config').then(function (cfg) {
       state.cfg = cfg;
       state.program = restoreProgram(cfg);
-      setText('hero-project', (cfg.projectRoot || '').replace(/^.*[\\/]/, '') || 'project');
+      setText('hero-project', cfg.projectRoot || 'project');
       renderProgram();
 
       var note = $('action-note');

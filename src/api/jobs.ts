@@ -255,6 +255,8 @@ export class JobManager {
         }
       } else {
         await orch.run();
+        const manage = orch as ManageOrchestrator;
+        if (manage.dashboardUrl) this.state.domain = manage.dashboardUrl.replace(/^https?:\/\//, '').replace(/\/$/, '');
         if (phase === 'exit') this.startExitWatch(this.state.newIp!);
       }
       this.state.exitCode = 0;

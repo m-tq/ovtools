@@ -71,7 +71,7 @@ test('web API: ping, config, static UI, approval gate, settings', async () => {
     const index = await fetch(`${base}/`);
     assert.equal(index.status, 200);
     const html = await index.text();
-    assert.match(html, /Validator Management System/);
+    assert.match(html, /Octra Validator Tools/);
     assert.match(html, /assets\/v2\.2\/css\/synteq-ui-v2\.css/);
     assert.match(html, /Deploy Dashboard Monitor/);
     assert.match(html, /mc-nodeactions__wide/);

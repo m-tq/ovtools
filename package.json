@@ -4,8 +4,8 @@
   "description": "Octra Validator Tools - production-grade CLI and web console for deploying, migrating, and managing Octra validators",
   "main": "dist/index.js",
   "bin": {
-    "ovtools": "./bin/ovtools.js",
-    "ovt": "./bin/ovtools.js"
+    "ovtools": "bin/ovtools.js",
+    "ovt": "bin/ovtools.js"
   },
   "files": [
     "bin/",

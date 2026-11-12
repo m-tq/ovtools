@@ -1,7 +1,13 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-label="Octra migration console">
-  <rect width="32" height="32" rx="7" fill="#0a0b0b"/>
-  <g fill="none" stroke="#00e599" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
-    <path d="M7 11h14l-3.5-3.5"/>
-    <path d="M25 21H11l3.5 3.5"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 50 50" fill="none" role="img" aria-label="ovtools">
+  <style>
+    /* Octra ring (docs.octra.org/assets/logo.svg) in the project brand colour,
+       with the ovtools "t" mark inside. */
+    svg { color: #00e599; }
+    @media (prefers-color-scheme: light) { svg { color: #059669; } }
+  </style>
+  <circle cx="25" cy="25" r="21" stroke="currentColor" stroke-width="7.5"/>
+  <g stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M25 12V29a3.5 3.5 0 0 0 3.5 3.5"/>
+    <path d="M20 19.5H30"/>
   </g>
 </svg>

@@ -214,18 +214,46 @@
 .mc-node__ip { color: var(--v2-text-strong); font-size: var(--v2-text-md); }
 .mc-node__foot { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
-/* ---- console state badge (sidebar footer) ------------------------------ */
+/* ---- console state label (sidebar footer) ------------------------------- */
 /* One word, coloured by the run state: Idle / Running / Waiting / Watching /
-   Done / Failed / Offline. The phase detail lives in the topbar badge. */
+   Done / Failed / Offline. The phase detail lives in the topbar badge. The
+   label is plain text next to the dot - no pill wrapper. */
 .mc-dockstatus {
   font-size: var(--v2-text-xs);
-  padding: 2px 8px;
-  border-radius: 999px;
+  padding: 0;
+  border-radius: 0;
+  background: transparent;
   max-width: 100%;
   white-space: nowrap;
   overflow: hidden;
+  text-overflow: ellipsis;
 }
 .v2-aside__footer { gap: 6px; }
+
+/* ---- brand mark: Octra ring + "vt" in the project colour ---------------- */
+.v2-aside__brand-mark {
+  width: 22px;
+  height: 22px;
+  background: transparent;
+  color: var(--v2-brand);
+}
+
+/* ---- bottom navigation: active item colours icon + text only ------------ */
+.v2-nav__item--active,
+.v2-nav__item.is-active,
+.v2-nav__item--active:hover,
+.v2-nav__item.is-active:hover {
+  background: transparent;
+  box-shadow: none;
+  color: var(--v2-brand);
+}
+.v2-nav__item--active .v2-icon,
+.v2-nav__item.is-active .v2-icon,
+.v2-nav__item--active:hover .v2-icon,
+.v2-nav__item.is-active:hover .v2-icon { color: var(--v2-brand); }
+
+/* the data directory is a full path now: let it wrap instead of overflowing */
+#hero-project { overflow-wrap: anywhere; }
 
 /* ---- program tabs + the three dashboards -------------------------------- */
 /* One row, three equal buttons; they stack only when the window is narrow. */

@@ -4,11 +4,11 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <meta name="color-scheme" content="dark light" />
-  <meta name="description" content="Validator Management System - deploy, migrate and manage Octra validators" />
-  <title>Validator Management System</title>
-  <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+  <meta name="description" content="Octra Validator Tools - deploy, migrate and manage Octra validators" />
+  <title>Octra Validator Tools</title>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg?v=2.2.1" />
   <link rel="stylesheet" href="assets/v2.2/css/synteq-ui-v2.css?v=2.2.1" />
-  <link rel="stylesheet" href="styles.css?v=2.1.3" />
+  <link rel="stylesheet" href="styles.css?v=2.1.4" />
 </head>
 <body>
 
@@ -19,8 +19,12 @@
     <a href="#console" class="v2-aside__brand" id="aside-brand"
        aria-label="Validator Management System" title="Validator Management System">
       <span class="v2-aside__brand-mark" aria-hidden="true">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4">
-          <path d="M4 7h13l-3-3" /><path d="M20 17H7l3 3" />
+        <svg width="20" height="20" viewBox="0 0 50 50" fill="none">
+          <circle cx="25" cy="25" r="21" stroke="currentColor" stroke-width="7.5" />
+          <g stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M25 12V29a3.5 3.5 0 0 0 3.5 3.5" />
+            <path d="M20 19.5H30" />
+          </g>
         </svg>
       </span>
     </a>
@@ -49,9 +53,9 @@
       <!-- Bottom-right of the navigation: ONE word for the console state
            (Idle / Running / Done / Failed / Offline). The phase detail stays in
            the topbar badge, the same split the monitor uses. The dot stays
-           outside the badge: one indicator per row, never a dot inside a pill. -->
+           outside the label: one indicator per row, never a dot inside a pill. -->
       <span class="v2-dot" id="dock-dot" aria-hidden="true"></span>
-      <span class="v2-badge mc-dockstatus" id="dock-status" title="Console state">
+      <span class="mc-dockstatus" id="dock-status" title="Console state">
         <span id="dock-status-text">Idle</span>
       </span>
     </div>
@@ -67,7 +71,7 @@
     <div class="v2-topbar__left">
       <span class="v2-topbar__crumb v2-mono">octra</span>
       <span class="v2-topbar__sep" aria-hidden="true">/</span>
-      <span class="v2-topbar__title" id="topbar-title">Validator Management</span>
+      <span class="v2-topbar__title" id="topbar-title">Validator Tools</span>
       <span class="v2-badge" id="topbar-status" title="Phase state">
         <span id="topbar-status-text">idle</span>
       </span>
@@ -97,7 +101,7 @@
         <div class="mc-hero">
           <div class="mc-hero__main">
             <div class="mc-hero__title-row">
-              <h1 class="mc-hero__title" id="hero-title">Validator Management</h1>
+              <h1 class="mc-hero__title" id="hero-title">Validator Tools</h1>
               <span class="v2-badge" id="hero-state-badge">
                 <span id="hero-state-text">idle</span>
               </span>
@@ -110,7 +114,7 @@
               <span class="v2-t-xs v2-mute">route <span class="v2-mono" id="hero-route-text">-</span></span>
               <span class="mc-hero__sep" aria-hidden="true">-</span>
               <span class="v2-t-xs v2-mute">
-                project <span class="v2-mono" id="hero-project">-</span>
+                data <span class="v2-mono" id="hero-project">-</span>
               </span>
               <span class="mc-hero__sep" aria-hidden="true">-</span>
               <span class="v2-t-xs v2-mute">elapsed <span class="v2-mono" id="hero-elapsed">-</span></span>
@@ -478,7 +482,6 @@
               stake back, or deploy the read-only monitoring dashboard (graphs, logs, wallet).
             </span>
           </div>
-          <div class="mc-pipeline" id="m-pipeline" role="list" aria-label="Manage actions"></div>
 
           <div class="mc-endpoints">
             <div class="mc-endpoint">
@@ -1073,7 +1076,7 @@
 </div>
 
 <script src="assets/v2.2/js/synteq-ui-v2.js"></script>
-<script src="app.js?v=3.0.0"></script>
+  <script src="app.js?v=3.0.2"></script>
 </body>
 </html>
 
