@@ -237,6 +237,20 @@
   border-radius: 0;
 }
 
+/* -- Bottom navigation: active item colours icon + text only -------- */
+.v2-nav__item--active,
+.v2-nav__item.is-active,
+.v2-nav__item--active:hover,
+.v2-nav__item.is-active:hover {
+  background: transparent;
+  box-shadow: none;
+  color: var(--v2-brand);
+}
+.v2-nav__item--active .v2-icon,
+.v2-nav__item.is-active .v2-icon,
+.v2-nav__item--active:hover .v2-icon,
+.v2-nav__item.is-active:hover .v2-icon { color: var(--v2-brand); }
+
 /* -- Log toolbar (the viewer itself is a framework component) ------- */
 .log-toolbar {
   display: flex;

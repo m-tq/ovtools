@@ -17,7 +17,8 @@ export interface PrerunState {
 
 const HOST_TOOL_PACKAGES: Record<string, string> = {
   bash: 'bash', sed: 'sed', grep: 'grep', awk: 'gawk', tar: 'tar', gzip: 'gzip',
-  curl: 'curl', git: 'git', rsync: 'rsync', jq: 'jq', pgrep: 'psmisc', pkill: 'psmisc',
+  curl: 'curl', wget: 'wget', git: 'git', rsync: 'rsync', jq: 'jq', pgrep: 'psmisc', pkill: 'psmisc',
+  ssh: 'openssh-client', 'ssh-keygen': 'openssh-client',
   nproc: 'coreutils', lsblk: 'util-linux', findmnt: 'util-linux', blkid: 'util-linux',
   wipefs: 'util-linux', 'mkfs.ext4': 'e2fsprogs', 'systemd-run': 'systemd',
   nginx: 'nginx', certbot: 'certbot', python3: 'python3', make: 'build-essential',

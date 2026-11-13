@@ -45,8 +45,10 @@ export class DeployOrchestrator extends BaseOrchestrator {
       }
 
       await this.preflight(this.client);
-      await this.pushScripts(this.client, ['deploy']);
+      // Install the tools before the asset sync so a bare host does not fall
+      // back to a bundle/tar just because git is missing.
       await this.ensureHostTools(this.client, undefined, 'deploy host tools');
+      await this.pushScripts(this.client, ['deploy']);
       await this.harden(this.client);
 
       if (phase === 'deploy' || phase === 'all') {

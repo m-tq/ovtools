@@ -42,7 +42,8 @@ export class ManageOrchestrator extends BaseOrchestrator {
       const phase = this.config.phase;
       const isUpgrade = phase === 'upgrade' || phase === 'manual' || phase === 'storage';
       await this.preflight(this.client);
-      await this.pushScripts(this.client, isUpgrade ? ['upgrade'] : ['manage']);
+      // Tools first, then the asset sync (git clone instead of a bundle fallback
+      // on a host that simply does not have git yet).
       if (isUpgrade) {
         await this.ensureHostTools(
           this.client,
@@ -52,6 +53,7 @@ export class ManageOrchestrator extends BaseOrchestrator {
       } else {
         await this.ensureHostTools(this.client, undefined, 'manage host tools');
       }
+      await this.pushScripts(this.client, isUpgrade ? ['upgrade'] : ['manage']);
 
       switch (phase) {
         case 'status': await this.stepStatus(); break;

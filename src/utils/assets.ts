@@ -549,16 +549,27 @@ export class AssetSync {
   }
 
   private async verifyScripts(tasks: string[]): Promise<void> {
-    const dirs = tasks.filter(t => TASK_ASSET_DIRS[t as keyof typeof TASK_ASSET_DIRS]);
+    const files = await localAssetFiles('scripts', tasks);
+    const expected = files.map(f => f.rel.startsWith('common/')
+      ? `/root/${f.rel.slice('common/'.length)}`
+      : `/root/${f.rel}`);
+    if (!expected.length) throw new Error('no bundled scripts to verify');
+    const quoted = expected.map(shellQuote).join(' ');
     const chmod = await this.client.exec(
-      `chmod +x /root/*.sh ${dirs.map(d => `/root/${d}/*.sh`).join(' ')} 2>/dev/null || true; test -f /root/config.sh${dirs.map(d => ` && test -d /root/${d}`).join('')}`,
+      `chmod +x ${quoted} 2>/dev/null || true`,
       { timeout: 120000 }
     );
-    if (chmod.exitCode !== 0) throw new Error(`scripts are incomplete on ${this.client.host}`);
-    const loop = (paths: string) =>
-      `for f in ${paths}; do [ -e "$f" ] || continue; bash -n "$f" >/dev/null 2>&1 || { echo "SYNTAX_ERROR: $f"; bash -n "$f" 2>&1 | head -2; bad=1; }; done`;
+    if (chmod.exitCode !== 0) throw new Error(`could not mark the scripts executable on ${this.client.host}`);
+    const missing = await this.client.exec(
+      `missing=""; for f in ${quoted}; do [ -f "$f" ] || missing="$missing $f"; done; printf '%s' "$missing"`,
+      { timeout: 120000 }
+    );
+    const absent = missing.stdout.trim().split(/\s+/).filter(Boolean);
+    if (absent.length) {
+      throw new Error(`scripts are incomplete on ${this.client.host}: missing ${absent.slice(0, 10).join(', ')}${absent.length > 10 ? ' (+' + (absent.length - 10) + ' more)' : ''}`);
+    }
     const syntax = await this.client.exec(
-      `bad=0; ${loop('/root/*.sh')}; ${dirs.map(d => loop(`/root/${d}/*.sh`)).join('; ')}; exit $bad`,
+      `bad=0; for f in ${quoted}; do bash -n "$f" >/dev/null 2>&1 || { echo "SYNTAX_ERROR: $f"; bash -n "$f" 2>&1 | head -2; bad=1; }; done; exit $bad`,
       { timeout: 300000 }
     );
     if (syntax.exitCode !== 0) {

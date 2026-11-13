@@ -8,6 +8,13 @@ import { STATE_FILES, VERIFY_SAMPLES, VERIFY_INTERVAL, BACKUP_DIR } from '../con
 import { ensureDir } from '../utils/helpers';
 import * as path from 'path';
 
+// Tools the migration itself runs on the SOURCE host (snapshot, rsync serve,
+// authorized_keys, stop). The target needs the full host-tool set.
+const MIGRATE_SOURCE_TOOLS = [
+  'bash', 'sed', 'grep', 'awk', 'tar', 'gzip', 'curl', 'git', 'rsync',
+  'jq', 'pgrep', 'pkill', 'nproc', 'du', 'python3',
+];
+
 export class MigrateOrchestrator extends BaseOrchestrator {
   private config: MigrateConfig;
   private statePair: string;
@@ -44,13 +51,15 @@ export class MigrateOrchestrator extends BaseOrchestrator {
       }
 
       await this.preflight(this.oldClient);
+      // Tools first: the asset sync must use the real transport (git clone)
+      // instead of silently falling back to a bundle/tar on a bare host.
+      await this.ensureHostTools(this.oldClient, MIGRATE_SOURCE_TOOLS, 'source host tools');
       await this.pushScripts(this.oldClient, ['migrate']);
-      await this.ensureHostTools(this.oldClient, undefined, 'source host tools');
 
       if (this.newClient) {
         await this.preflight(this.newClient);
-        await this.pushScripts(this.newClient, ['migrate']);
         await this.ensureHostTools(this.newClient, undefined, 'target host tools');
+        await this.pushScripts(this.newClient, ['migrate']);
       }
 
       if (phase === 'backup') {

@@ -41,7 +41,7 @@ export function compareVersions(a: string, b: string): number {
   return left.pre < right.pre ? -1 : 1;
 }
 
-async function currentVersion(): Promise<string> {
+export async function currentVersion(): Promise<string> {
   try {
     const pkg = await readJSON<{ version?: string }>(path.join(PROJECT_ROOT, 'package.json'));
     return pkg?.version || '0.0.0';

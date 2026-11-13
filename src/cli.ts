@@ -5,7 +5,7 @@ import { createMigrateOrchestrator } from './orchestrator/migrate';
 import { createManageOrchestrator } from './orchestrator/manage';
 import { startWebServer } from './api/server';
 import { openBrowser } from './utils/browser';
-import { checkForUpdate, updateNotice } from './utils/update';
+import { checkForUpdate, currentVersion, updateNotice } from './utils/update';
 import { DEFAULT_ASSETS_REPO, DEFAULT_ROLE, SETTINGS_FILE } from './constants';
 import { normalizeSettings } from './api/jobs';
 import type { DeployConfig, HostAuth, ManageConfig, ManagePhase, MigrateConfig, Settings } from './types';
@@ -244,7 +244,7 @@ export async function main(argv = process.argv.slice(2)): Promise<number> {
     return 0;
   }
   if (argv[0] === 'version' || argv[0] === '--version' || argv[0] === '-v') {
-    process.stdout.write('ovtools 1.0.0\n');
+    process.stdout.write(`ovtools ${await currentVersion()}\n`);
     return 0;
   }
   if (!argv.length) {
