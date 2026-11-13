@@ -4,8 +4,8 @@ import { ensureDir, readJSON, writeJSON } from './helpers';
 
 const CACHE_FILE = path.join(OVTOOLS_HOME, 'update-check.json');
 const REGISTRY_URL = 'https://registry.npmjs.org/ovtools/latest';
-const TTL_MS = 12 * 60 * 60 * 1000;
-const FETCH_TIMEOUT_MS = 2500;
+const TTL_MS = 60 * 60 * 1000;
+const FETCH_TIMEOUT_MS = 3000;
 
 interface UpdateCache {
   checkedAt: number;
@@ -78,15 +78,25 @@ export async function checkForUpdate(): Promise<UpdateInfo | null> {
   }
 
   let latest = cache?.latest ?? null;
-  const fresh = cache && Date.now() - cache.checkedAt < TTL_MS;
-  if (!fresh) {
-    latest = await fetchLatest();
-    try {
-      await ensureDir(OVTOOLS_HOME);
-      await writeJSON(CACHE_FILE, { checkedAt: Date.now(), latest } satisfies UpdateCache);
-    } catch {
-      // cache is an optimization only
+  const fresh = Boolean(cache && Date.now() - cache.checkedAt < TTL_MS);
+  // A cache that names an older release than the one we are running is
+  // provably stale (the operator upgraded since it was written). Never trust
+  // it, even inside the TTL - that was the "no update notice after npm -g"
+  // case: the cache still said 1.0.1 while the installed CLI was 1.0.4.
+  const olderThanRunning = Boolean(latest && compareVersions(version, latest) > 0);
+  if (!fresh || olderThanRunning) {
+    const fetched = await fetchLatest();
+    if (fetched) {
+      latest = fetched;
+      try {
+        await ensureDir(OVTOOLS_HOME);
+        await writeJSON(CACHE_FILE, { checkedAt: Date.now(), latest } satisfies UpdateCache);
+      } catch {
+        // cache is an optimization only
+      }
     }
+    // A failed fetch must not poison the cache with `null` for a whole TTL:
+    // keep the previous value (if any) and retry on the next launch.
   }
   if (!latest || compareVersions(latest, version) <= 0) return null;
   return { current: version, latest, hasUpdate: true };

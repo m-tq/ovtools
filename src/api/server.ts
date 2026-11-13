@@ -2,6 +2,7 @@ import * as http from 'http';
 import * as fs from 'fs/promises';
 import * as path from 'path';
 import * as crypto from 'crypto';
+import { spawn } from 'child_process';
 import type { CheckEnvelope, JobRequest, Settings } from '../types';
 import {
   BACKUP_DIR,
@@ -170,6 +171,25 @@ async function handleApi(req: http.IncomingMessage, res: http.ServerResponse, ur
 
   if (method === 'GET' && pathname === '/api/ping') return sendJson(res, { ok: true, status: 'ok', timestamp: new Date().toISOString() });
   if (method === 'GET' && pathname === '/api/config') return sendJson(res, await configPayload());
+
+  if (method === 'POST' && pathname === '/api/open-data') {
+    try {
+      await ensureDir(OVTOOLS_HOME);
+      const opener = process.platform === 'win32' ? 'explorer.exe'
+        : process.platform === 'darwin' ? 'open' : 'xdg-open';
+      await new Promise<void>((resolve, reject) => {
+        const child = spawn(opener, [OVTOOLS_HOME], { detached: true, stdio: 'ignore' });
+        child.once('error', reject);
+        child.once('spawn', () => {
+          child.unref();
+          resolve();
+        });
+      });
+      return sendJson(res, { ok: true, path: OVTOOLS_HOME });
+    } catch (err) {
+      return fail(res, 500, `could not open the data folder: ${(err as Error).message}`);
+    }
+  }
 
   if (pathname === '/api/settings') {
     const saved = await loadSettings();

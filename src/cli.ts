@@ -203,6 +203,16 @@ async function runManage(p: Parsed, defaultPhase?: ManagePhase): Promise<void> {
   await logger.flush();
 }
 
+async function printUpdateNotice(): Promise<void> {
+  if (process.env.OVTOOLS_NO_UPDATE_CHECK === '1' || process.env.OVTOOLS_NO_UPDATE_CHECK === 'true') return;
+  try {
+    const update = await checkForUpdate();
+    if (update) process.stdout.write(updateNotice(update));
+  } catch {
+    // update checks never block the console
+  }
+}
+
 async function launchConsole(port: number, host: string, autoPort: boolean, open: boolean): Promise<number> {
   let server: Awaited<ReturnType<typeof startWebServer>> | null = null;
   let chosen = port;
@@ -248,17 +258,9 @@ export async function main(argv = process.argv.slice(2)): Promise<number> {
     return 0;
   }
   if (!argv.length) {
-    if (process.env.OVTOOLS_NO_UPDATE_CHECK !== '1' && process.env.OVTOOLS_NO_UPDATE_CHECK !== 'true') {
-      try {
-        const update = await checkForUpdate();
-        if (update) {
-          process.stdout.write(updateNotice(update));
-          return 0;
-        }
-      } catch {
-        // update checks never block the console
-      }
-    }
+    // Show the notice but still open the console: blocking the launch just
+    // because a newer release exists left the operator with no UI at all.
+    await printUpdateNotice();
     return launchConsole(9091, '127.0.0.1', true, true);
   }
   const command = argv[0];
@@ -285,6 +287,7 @@ export async function main(argv = process.argv.slice(2)): Promise<number> {
         const port = explicitPort ?? 9091;
         const host = str(parsed, 'host') || '127.0.0.1';
         const open = !bool(parsed, 'no-open');
+        await printUpdateNotice();
         return launchConsole(port, host, explicitPort === undefined, open);
       }
       default:

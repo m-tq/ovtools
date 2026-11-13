@@ -37,6 +37,30 @@ test('phase catalogue exposes all three programs', async () => {
   assert.equal(constants.phaseMeta('migrate', 'nope'), undefined);
 });
 
+test('every menu gets a step plan with a concrete goal', async () => {
+  const { buildStepPlan } = await import('../steps');
+  const deploy = buildStepPlan('deploy', 'deploy', { role: 'validator', bond: 1_000_000 });
+  assert.ok(deploy);
+  assert.equal(deploy!.steps.length, 7);
+  assert.match(deploy!.goal, /active and voting/);
+  assert.equal(deploy!.steps[0].id, 'prep');
+  assert.equal(deploy!.steps[deploy!.steps.length - 1].id, 'promote');
+  assert.ok(deploy!.steps.every(s => s.goal.length > 10));
+
+  const migrate = buildStepPlan('migrate', 'all');
+  assert.ok(migrate);
+  assert.deepEqual(migrate!.steps.map(s => s.id), ['backup', 'prep', 'pull', 'switch', 'finalize', 'verify']);
+  assert.match(migrate!.goal, /voting again/);
+
+  for (const phase of ['bond', 'exit', 'upgrade', 'manual', 'storage', 'dashboard', 'diagnose', 'recover', 'status']) {
+    const plan = buildStepPlan('manage', phase);
+    assert.ok(plan, phase);
+    assert.ok(plan!.goal.length > 5, phase);
+    assert.ok(plan!.steps.length >= 1, phase);
+  }
+  assert.equal(buildStepPlan('manage', 'nope'), null);
+});
+
 test('state manager persists completed steps', async () => {
   const os = await import('os');
   const path = await import('path');

@@ -7,6 +7,7 @@ import { DeployOrchestrator } from '../orchestrator/deploy';
 import { MigrateOrchestrator } from '../orchestrator/migrate';
 import { ManageOrchestrator } from '../orchestrator/manage';
 import { getEnrollment, probeNode } from './nodes';
+import { buildStepPlan } from '../steps';
 
 const IP_RE = /^[0-9a-fA-F.:]{3,45}$/;
 const DEFAULT_SETTINGS: Settings = {
@@ -130,6 +131,13 @@ export class JobManager {
       }
     }
     this.clearWatchers();
+    const role = request.role === 'observer' ? 'observer' : DEFAULT_ROLE;
+    const bondRaw = this.rawBond(request);
+    const stepPlan = buildStepPlan(program, phase, {
+      role,
+      bond: bondRaw,
+      dashboard: Boolean(request.domain || settings.dashboardDomain),
+    });
     this.state = {
       running: true,
       program,
@@ -143,6 +151,7 @@ export class JobManager {
       awaiting: null,
       activation: null,
       watching: null,
+      stepInfo: stepPlan ? { ...stepPlan, index: 0, status: 'running' } : null,
       exitWatching: null,
       progress: null,
       status: null,
@@ -156,9 +165,7 @@ export class JobManager {
     this.logger = logger;
 
     try {
-      const role = request.role === 'observer' ? 'observer' : DEFAULT_ROLE;
       if (program === 'deploy') {
-        const bondRaw = this.rawBond(request);
         this.orchestrator = new DeployOrchestrator(
           {
             ip: newIp,
@@ -242,26 +249,48 @@ export class JobManager {
             address: deploy.awaitingEnroll.address,
             bond: deploy.awaitingEnroll.bond,
           };
+          this.focusStep('enroll');
         }
         if (deploy.dashboardUrl) this.state.domain = deploy.dashboardUrl.replace(/^https?:\/\//, '').replace(/\/$/, '');
         const shouldWatch = deploy.awaitingEnroll === null
           && ['deploy', 'all', 'enroll', 'promote', 'verify'].includes(phase);
-        if (shouldWatch) this.startActivationWatch(this.state.newIp!);
+        if (shouldWatch) this.startActivationWatch(this.state.newIp!, phase, true);
+        else this.state.watching = null;
       } else if (program === 'migrate') {
         const migrate = orch as MigrateOrchestrator;
         await migrate.run();
         if (phase === 'all' || phase === 'auto' || phase === 'verify' || migrate.activationPending) {
-          this.startActivationWatch(this.state.newIp!);
+          this.startActivationWatch(this.state.newIp!, phase, true);
+        } else {
+          this.state.watching = null;
         }
       } else {
         await orch.run();
         const manage = orch as ManageOrchestrator;
         if (manage.dashboardUrl) this.state.domain = manage.dashboardUrl.replace(/^https?:\/\//, '').replace(/\/$/, '');
         if (phase === 'exit') this.startExitWatch(this.state.newIp!);
+        else if (manage.softStop) {
+          // A manage task can finish with WAITING-FOLD/WAITING-SYNC/WAITING-RPC.
+          // Follow the node in the background and close the modal only when the
+          // tool's own wait resolves (recover waits for activation; the others
+          // are confirmed by a healthy probe).
+          this.startActivationWatch(this.state.newIp!, phase, phase === 'recover');
+        } else {
+          this.state.watching = null;
+        }
+      }
+      if (this.state.stepInfo) {
+        if (this.state.awaiting || this.state.watching || this.state.exitWatching) {
+          this.state.stepInfo.status = 'waiting';
+        } else {
+          this.completeStep();
+        }
       }
       this.state.exitCode = 0;
     } catch (err) {
       this.state.exitCode = 1;
+      this.state.watching = null;
+      if (this.state.stepInfo) this.state.stepInfo.status = 'failed';
       const msg = err instanceof Error ? err.message : String(err);
       this.logger?.log(`run failed: ${msg}`, 'error', { program });
     } finally {
@@ -320,6 +349,29 @@ export class JobManager {
     return Number.isFinite(raw) && raw > 0 ? Math.round(raw) : 0;
   }
 
+  private advanceStep(id: string): void {
+    const info = this.state.stepInfo;
+    if (!info) return;
+    const index = info.steps.findIndex(step => step.id === id);
+    if (index < 0) return;
+    if (index > info.index) info.index = index;
+    if (info.status !== 'done' && info.status !== 'failed') info.status = 'running';
+  }
+
+  private focusStep(id: string): void {
+    const info = this.state.stepInfo;
+    if (!info) return;
+    const index = info.steps.findIndex(step => step.id === id);
+    if (index >= 0) info.index = index;
+  }
+
+  private completeStep(): void {
+    const info = this.state.stepInfo;
+    if (!info) return;
+    info.index = Math.max(0, info.steps.length - 1);
+    info.status = 'done';
+  }
+
   private onEntry(entry: LogEntry): void {
     this.lastLogAt = Date.now();
     this.state.lastSeq = entry.seq;
@@ -333,6 +385,30 @@ export class JobManager {
     const statusMatch = /^status\s*=\s*(RUNNING|DONE|FAILED|WAITING-[A-Z-]+)\s*(.*)$/i.exec(entry.line);
     if (statusMatch) {
       this.state.status = { state: statusMatch[1].toUpperCase(), detail: statusMatch[2].trim() };
+    }
+
+    // Long finalizations announce themselves in the log before the run ends
+    // ("waiting for rpc", "still waiting: ...", "waiting for the set fold").
+    // Surface them as a live waiting popup while the phase keeps running; the
+    // post-run watcher takes over the same state when the process exits.
+    const phaseMatch = /===\s*Phase:\s*([A-Za-z0-9_-]+)\s*===/i.exec(entry.line);
+    if (phaseMatch) this.advanceStep(phaseMatch[1]);
+
+    const waitLine = /still waiting:|waiting for rpc|waiting for the process|validator is online but not a member|waiting for the set fold|waiting for the fold|catch-up:|waiting for (activation|confirmation)/i.test(entry.line);
+    const waitingStatus = statusMatch ? /^WAITING-/i.test(statusMatch[1]) : false;
+    if ((waitLine || waitingStatus) && this.state.running && this.state.newIp) {
+      const prior = this.state.watching;
+      const same = Boolean(prior && prior.ip === this.state.newIp);
+      const detail = entry.line.replace(/^.*?\[(migrate|deploy|manage)\]\s*/i, '').trim().slice(0, 220);
+      this.state.watching = {
+        ip: this.state.newIp,
+        since: same && prior ? prior.since : Date.now(),
+        phase: [this.state.program, this.state.phase].filter(Boolean).join(' / '),
+        activation: prior ? prior.activation : true,
+        state: 'WAITING-CONFIRMATION',
+        detail: detail || entry.line.slice(0, 220),
+        checkedAt: Date.now(),
+      };
     }
 
     const progress = /([\d,]+)\s+(\d+)%\s+([\d.]+\s*[kKMG]?B\/s)/.exec(entry.line);
@@ -349,21 +425,92 @@ export class JobManager {
     }
   }
 
-  private startActivationWatch(ip: string): void {
+  private startActivationWatch(ip: string, phase?: string, followActivation = true): void {
     if (!ip) return;
     this.clearActivation();
-    this.state.watching = { ip };
-    const deadline = Date.now() + 6 * 3600 * 1000;
+    const previous = this.state.watching;
+    const since = previous && previous.ip === ip ? previous.since : Date.now();
+    const initial = this.state.status;
+    const phaseLabel = [this.state.program, phase].filter(Boolean).join(' / ') || phase;
+    this.state.watching = {
+      ip,
+      since,
+      phase: phaseLabel,
+      activation: followActivation,
+      state: initial?.state || previous?.state,
+      detail: initial?.detail || previous?.detail,
+      checkedAt: 0,
+      active: false,
+      scheduled: false,
+    };
+    this.logger?.log(
+      `waiting for ${followActivation ? 'activation' : 'confirmation'} on ${ip} - the console follows up in the background every 60s`,
+      'warn',
+      { program: this.state.program, host: ip }
+    );
+
+    const deadline = since + (followActivation ? 6 * 3600 * 1000 : 30 * 60 * 1000);
+    let lastHead: number | null = null;
+    let lastMove = Date.now();
+    let misses = 0;
+    let healthy = 0;
+    let lastProblem: string | null = null;
+
     const tick = async () => {
       if (Date.now() > deadline) {
         this.state.watching = null;
+        if (this.state.stepInfo) this.state.stepInfo.status = 'failed';
         this.clearActivation();
         return;
       }
       try {
-        const summary = await probeNode(ip);
-        const validator = summary.validator || {};
-        if (validator.active) {
+        const probe = await probeNode(ip);
+        const validator = probe.validator || {};
+        const chain = probe.chain || {};
+        const headValue = chain.head_epoch ?? validator.head_epoch;
+        const head = Number.isFinite(Number(headValue)) ? Number(headValue) : null;
+        const epochValue = chain.epoch;
+        const epoch = Number.isFinite(Number(epochValue)) ? Number(epochValue) : null;
+        const active = Boolean(validator.active);
+        const scheduled = Boolean(validator.scheduled);
+        if (head !== null) {
+          if (lastHead === null) {
+            lastHead = head;
+            lastMove = Date.now();
+          } else if (head !== lastHead) {
+            lastHead = head;
+            lastMove = Date.now();
+          }
+        }
+        misses = 0;
+        let problem: string | null = null;
+        if (!probe.reachable) {
+          problem = `node did not answer the status probe${probe.error ? ` (${probe.error})` : ''}`;
+        } else if (head !== null && Date.now() - lastMove > 10 * 60 * 1000) {
+          problem = `head_epoch ${head} has not moved for ${Math.floor((Date.now() - lastMove) / 60000)} minutes`;
+        }
+        if (problem && problem !== lastProblem) {
+          this.logger?.log(`follow-up: ${problem}`, 'warn', { program: this.state.program, host: ip });
+        }
+        lastProblem = problem;
+        const status = this.state.status;
+        this.state.watching = {
+          ip,
+          since,
+          phase: phaseLabel,
+          activation: followActivation,
+          state: status?.state,
+          detail: status?.detail,
+          checkedAt: Date.now(),
+          reachable: probe.reachable,
+          epoch,
+          headEpoch: head,
+          enrollment: validator.state ?? null,
+          active,
+          scheduled,
+          problem,
+        };
+        if (followActivation && active) {
           this.state.activation = {
             id: `${ip}:${validator.activate_epoch || validator.head_epoch || Date.now()}`,
             ip,
@@ -371,10 +518,41 @@ export class JobManager {
             bond: Number(validator.bond) || undefined,
           };
           this.state.watching = null;
+          this.completeStep();
           this.clearActivation();
+          this.logger?.log(`validator on ${ip} is active - confirmation received`, 'ok', { program: this.state.program, host: ip });
+          return;
         }
-      } catch {
-        // node not reachable yet: keep watching
+        if (!followActivation) {
+          if (probe.reachable && !problem) healthy += 1;
+          else healthy = 0;
+          if (healthy >= 2) {
+            this.logger?.log(`follow-up confirmed: ${ip} is responding - no blocker found`, 'ok', { program: this.state.program, host: ip });
+            this.state.watching = null;
+            this.completeStep();
+            this.clearActivation();
+          }
+        }
+      } catch (err) {
+        misses += 1;
+        healthy = 0;
+        const message = err instanceof Error ? err.message : String(err);
+        const problem = misses >= 2 ? `follow-up probe failed: ${message}` : lastProblem;
+        if (misses >= 2 && problem !== lastProblem) {
+          this.logger?.log(`follow-up: ${problem}`, 'warn', { program: this.state.program, host: ip });
+        }
+        lastProblem = problem;
+        const current = this.state.watching;
+        this.state.watching = {
+          ...(current || { ip, since, phase: phaseLabel, activation: followActivation }),
+          ip,
+          since,
+          phase: phaseLabel,
+          activation: followActivation,
+          checkedAt: Date.now(),
+          reachable: false,
+          problem,
+        };
       }
     };
     void tick();
@@ -417,6 +595,7 @@ export class JobManager {
         };
         if (done) {
           this.state.exitWatching = null;
+          this.completeStep();
           this.clearExit();
         }
       } catch {

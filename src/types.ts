@@ -179,6 +179,39 @@ export interface JobActivation {
   bond?: number;
 }
 
+export interface JobWatching {
+  ip: string;
+  since: number;
+  phase?: string;
+  activation?: boolean;
+  state?: string;
+  detail?: string;
+  checkedAt?: number;
+  reachable?: boolean;
+  epoch?: number | null;
+  headEpoch?: number | null;
+  enrollment?: string | null;
+  active?: boolean;
+  scheduled?: boolean;
+  problem?: string | null;
+}
+
+export interface JobStep {
+  id: string;
+  label: string;
+  goal: string;
+}
+
+export interface StepPlan {
+  goal: string;
+  steps: JobStep[];
+}
+
+export interface JobStepInfo extends StepPlan {
+  index: number;
+  status: 'running' | 'waiting' | 'done' | 'failed';
+}
+
 export interface JobState {
   running: boolean;
   program?: string;
@@ -197,7 +230,8 @@ export interface JobState {
   domain?: string;
   awaiting?: JobWaiting | null;
   activation?: JobActivation | null;
-  watching?: { ip: string } | null;
+  watching?: JobWatching | null;
+  stepInfo?: JobStepInfo | null;
   exitWatching?: { ip: string } | null;
   exitInfo?: {
     id: string;

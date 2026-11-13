@@ -23,6 +23,88 @@
   margin-top: var(--v2-space-2); flex-wrap: wrap;
 }
 .mc-hero__sep { opacity: 0.4; }
+.mc-hero__store {
+  display: flex; align-items: center; justify-content: flex-end;
+  gap: 6px; flex-wrap: wrap; min-width: 0; max-width: 46%;
+  margin-left: auto;
+}
+.mc-hero__store .v2-t-xs { min-width: 0; text-align: right; }
+.mc-hero__store #hero-project { overflow-wrap: anywhere; }
+@media (max-width: 860px) {
+  .mc-hero { flex-wrap: wrap; }
+  .mc-hero__store { max-width: 100%; margin-left: 0; justify-content: flex-start; }
+  .mc-hero__store .v2-t-xs { text-align: left; }
+}
+
+/* ---- sticky per-step banner in Live log -------------------------------- */
+.mc-stepbar {
+  position: sticky; top: 8px; z-index: 20;
+  display: flex; flex-direction: column; gap: 6px;
+  margin: 0 0 var(--v2-space-3);
+  padding: 10px 12px;
+  background: color-mix(in srgb, var(--v2-canvas) 88%, transparent);
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--v2-line);
+  border-left: 3px solid var(--v2-brand);
+  border-radius: var(--v2-radius-control);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+}
+.mc-stepbar__head { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.mc-stepbar__count {
+  font-family: var(--v2-font-mono); font-size: var(--v2-text-xs);
+  letter-spacing: 0.04em; font-weight: var(--v2-fw-semibold); color: var(--v2-brand);
+}
+.mc-stepbar__label { font-size: var(--v2-text-sm); font-weight: var(--v2-fw-semibold); color: var(--v2-text-strong); }
+.mc-stepbar__goal { font-size: var(--v2-text-xs); color: var(--v2-text-subtle); }
+.mc-stepbar__goal-label {
+  margin-right: 4px; color: var(--v2-brand); font-weight: var(--v2-fw-semibold);
+  letter-spacing: 0.04em; text-transform: uppercase;
+}
+.mc-stepbar__stepgoal { font-size: var(--v2-text-xs); color: var(--v2-text-subtle); opacity: 0.9; }
+.mc-stepbar__steps { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 2px; }
+.mc-stepchip {
+  display: inline-flex; align-items: center; gap: 6px; flex: 0 0 auto;
+  padding: 4px 8px; border: 1px solid var(--v2-line); border-radius: 999px;
+  background: var(--v2-inset); color: var(--v2-text-subtle);
+  font-size: var(--v2-text-xs); white-space: nowrap;
+}
+.mc-stepchip__n { font-family: var(--v2-font-mono); opacity: 0.7; }
+.mc-stepchip--done {
+  color: var(--v2-status-success);
+  border-color: color-mix(in srgb, var(--v2-status-success) 45%, transparent);
+}
+.mc-stepchip--current {
+  color: var(--v2-text-on-accent); background: var(--v2-brand);
+  border-color: var(--v2-brand); font-weight: var(--v2-fw-semibold);
+}
+.mc-stepbar--waiting { border-left-color: var(--v2-status-warning); }
+.mc-stepbar--done { border-left-color: var(--v2-status-success); }
+.mc-stepbar--failed { border-left-color: var(--v2-status-error); }
+
+/* ---- running tasks page ------------------------------------------------ */
+.mc-tasks { display: grid; gap: var(--v2-space-2); }
+.mc-task {
+  display: flex; flex-direction: column; gap: 6px;
+  padding: 12px; border: 1px solid var(--v2-line);
+  border-left: 2px solid var(--v2-line);
+  border-radius: var(--v2-radius-control); background: var(--v2-inset);
+}
+.mc-task--running { border-left-color: var(--v2-brand); }
+.mc-task--waiting { border-left-color: var(--v2-status-warning); }
+.mc-task--failed { border-left-color: var(--v2-status-error); }
+.mc-task--empty { color: var(--v2-text-subtle); font-size: var(--v2-text-sm); border-style: dashed; }
+.mc-task__head { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.mc-task__title { font-size: var(--v2-text-sm); font-weight: var(--v2-fw-semibold); color: var(--v2-text-strong); }
+.mc-task__meta { font-size: var(--v2-text-xs); color: var(--v2-text-subtle); }
+.mc-task__detail { font-size: var(--v2-text-xs); color: var(--v2-text-subtle); line-height: 1.5; }
+.mc-task__detail--problem { color: var(--v2-status-error); }
+.mc-task__log {
+  overflow: hidden; padding: 6px 8px; border-radius: var(--v2-radius-control);
+  background: var(--v2-canvas); color: var(--v2-text-subtle);
+  font-family: var(--v2-font-mono); font-size: var(--v2-text-xs);
+  white-space: nowrap; text-overflow: ellipsis;
+}
+.mc-task__actions { display: flex; gap: 6px; flex-wrap: wrap; }
 
 /* ---- safety banner ------------------------------------------------------ */
 .mc-alert {
@@ -493,6 +575,28 @@
 .mc-enroll__check input { width: 14px; height: 14px; accent-color: var(--v2-brand); cursor: pointer; }
 .mc-enroll__note { color: var(--v2-status-warning); }
 .mc-enroll__note:empty { display: none; }
+.mc-waiting__problem { color: var(--v2-status-error); }
+.mc-waiting__log {
+  margin: 0;
+  padding: 10px 12px;
+  max-height: 120px;
+  overflow: auto;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  background: var(--v2-inset);
+  border: 1px solid var(--v2-line);
+  border-left: 2px solid var(--v2-status-warning);
+  border-radius: var(--v2-radius-control);
+  color: var(--v2-text-subtle);
+  font-family: var(--v2-font-mono);
+  font-size: var(--v2-text-xs);
+  line-height: 1.5;
+}
+.mc-log--flash { animation: mc-log-flash 1.8s ease-out; }
+@keyframes mc-log-flash {
+  0% { box-shadow: 0 0 0 2px var(--v2-brand); }
+  100% { box-shadow: 0 0 0 2px transparent; }
+}
 .mc-err { color: var(--v2-status-error); }
 .mc-ok { color: var(--v2-status-success); }
 

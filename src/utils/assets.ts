@@ -408,10 +408,22 @@ export class AssetSync {
     url: string,
     ref: string
   ): Promise<AssetSyncResult | null> {
-    this.logger.log(`--> [${this.client.host}] git clone/pull ${url} (${ref})`, 'step', { host: this.client.host, program: this.program });
-    await cloneAssets(this.client, url, ref);
     const localHash = await localAssetHash(kind, tasks);
-    const remoteHash = await remoteAssetHash(this.client, kind, tasks);
+    const repoExists = (await this.client.exec(
+      `test -d ${shellQuote(REMOTE_CLONE + '/.git')} && echo yes || echo no`,
+      { timeout: 60000 }
+    )).stdout.includes('yes');
+    const currentHash = repoExists
+      ? await remoteAssetHash(this.client, kind, tasks).catch(() => '')
+      : '';
+    let remoteHash = currentHash;
+    if (!repoExists || currentHash !== localHash) {
+      this.logger.log(`--> [${this.client.host}] git clone/pull ${url} (${ref})`, 'step', { host: this.client.host, program: this.program });
+      await cloneAssets(this.client, url, ref);
+      remoteHash = await remoteAssetHash(this.client, kind, tasks);
+    } else {
+      this.logger.log(`--> [${this.client.host}] git repo already present and up to date - clone/pull skipped`, 'step', { host: this.client.host, program: this.program });
+    }
     if (localHash !== remoteHash) {
       throw new Error(`the repository assets (${ref}) differ from this package - push the latest assets first`);
     }

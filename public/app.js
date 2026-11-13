@@ -57,7 +57,12 @@
     // per activation, even though /api/state keeps returning it)
     seenActivation: null,
     // ...and the id of the exit report already shown (pending -> done is a new id)
-    seenExit: null
+    seenExit: null,
+    // waiting-for-confirmation popup: one popup per watched run, and a dismissed
+    // run stays dismissed while the background follow-up keeps running
+    seenWaiting: null,
+    waitingClosed: null,
+    tasksSig: null
   };
 
   /* - DOM helpers - */
@@ -712,6 +717,9 @@
     var mine = !s.program || s.program === state.program;
     // a pipeline pause always ends with one question: the enrollment top-up
     if (!running && s.awaiting && mine) { showAwaitPrompt(s.awaiting); }
+    // long finalization: mirror the background follow-up in a popup
+    if (mine && s.watching && s.watching.ip) { showWaiting(s.watching, s.status); }
+    else { hideWaiting(); }
     // the console watched the chain admit this validator: tell the operator once,
     // whatever the run is doing (it can arrive hours after the run ended)
     if (mine && s.activation) { showActivation(s.activation); }
@@ -747,6 +755,8 @@
 
     $('btn-stop').disabled = !running;
     applyGating();
+    renderStepBar(s);
+    renderTasks(s);
     if (!mine) {
       // another program's run: keep its progress out of this panel
       var idleWrap = $('progress-wrap');
@@ -800,6 +810,234 @@
     box.textContent = s.phase === 'dashboard'
       ? 'Monitoring dashboard live on https://' + host + '/ - node ' + s.newIp
       : 'Validator live on ' + s.newIp + ' - monitoring dashboard: https://' + host + '/';
+  }
+
+  /* -- sticky step banner (every program runs a plan with a goal) ---------- */
+  function stepStatusVariant(status) {
+    if (status === 'done') return 'v2-badge--ok';
+    if (status === 'failed') return 'v2-badge--err';
+    return 'v2-badge--warn';
+  }
+
+  function renderStepBar(run) {
+    var bar = panelId('stepbar');
+    if (!bar) return;
+    var info = run && run.stepInfo && run.program === state.program ? run.stepInfo : null;
+    if (!info || !info.steps || !info.steps.length) {
+      bar.hidden = true;
+      return;
+    }
+    var total = info.steps.length;
+    var index = Math.min(Math.max(Number(info.index) || 0, 0), total - 1);
+    var current = info.steps[index] || { label: '-', goal: '-' };
+    var status = info.status || 'running';
+    var done = status === 'done';
+    setText('stepbar-count', 'STEP ' + (index + 1) + '/' + total);
+    setText('stepbar-label', current.label);
+    setText('stepbar-goal', info.goal || current.goal || '-');
+    setText('stepbar-stepgoal', 'This step: ' + (current.goal || '-'));
+    badge('stepbar-state', stepStatusVariant(status), status);
+    bar.className = 'mc-stepbar mc-stepbar--' + status;
+    var box = panelId('stepbar-steps');
+    if (box) {
+      box.textContent = '';
+      info.steps.forEach(function (step, i) {
+        var chip = document.createElement('div');
+        var cls = 'mc-stepchip';
+        if (done || i < index) cls += ' mc-stepchip--done';
+        else if (i === index) cls += ' mc-stepchip--current';
+        chip.className = cls;
+        var n = document.createElement('span');
+        n.className = 'mc-stepchip__n';
+        n.textContent = (done || i < index) ? '\u2713' : String(i + 1);
+        var label = document.createElement('span');
+        label.textContent = step.label;
+        chip.appendChild(n);
+        chip.appendChild(label);
+        chip.title = step.goal || step.label;
+        box.appendChild(chip);
+      });
+    }
+    bar.hidden = false;
+  }
+
+  /* -- running tasks page: live run + every background follow-up ----------- */
+  function lastLogLine(program) {
+    var store = state.logs[program];
+    if (!store || !store.length) return '';
+    var entry = store[store.length - 1];
+    return String((entry && entry.line) || '').slice(0, 260);
+  }
+
+  function goToLog(program) {
+    if (program && program !== state.program) setProgram(program);
+    var section = panelId('log');
+    if (section && section.scrollIntoView) section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  function addTaskCard(list, options) {
+    var card = document.createElement('div');
+    card.className = 'mc-task mc-task--' + (options.tone || 'running');
+    var head = document.createElement('div');
+    head.className = 'mc-task__head';
+    var title = document.createElement('span');
+    title.className = 'mc-task__title';
+    title.textContent = options.title;
+    head.appendChild(title);
+    if (options.badge) {
+      var badgeNode = document.createElement('span');
+      badgeNode.className = 'v2-badge ' + (options.badgeVariant || 'v2-badge--warn');
+      var badgeText = document.createElement('span');
+      badgeText.textContent = options.badge;
+      badgeNode.appendChild(badgeText);
+      head.appendChild(badgeNode);
+    }
+    if (options.meta) {
+      var meta = document.createElement('span');
+      meta.className = 'mc-task__meta';
+      meta.textContent = options.meta;
+      head.appendChild(meta);
+    }
+    card.appendChild(head);
+    if (options.detail) {
+      var detail = document.createElement('div');
+      detail.className = 'mc-task__detail' + (options.problem ? ' mc-task__detail--problem' : '');
+      detail.textContent = options.detail;
+      card.appendChild(detail);
+    }
+    if (options.log) {
+      var log = document.createElement('div');
+      log.className = 'mc-task__log';
+      log.textContent = options.log;
+      card.appendChild(log);
+    }
+    if (options.actions && options.actions.length) {
+      var actions = document.createElement('div');
+      actions.className = 'mc-task__actions';
+      options.actions.forEach(function (action) {
+        var btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'v2-btn v2-btn--ghost';
+        btn.textContent = action.label;
+        btn.addEventListener('click', action.run);
+        actions.appendChild(btn);
+      });
+      card.appendChild(actions);
+    }
+    list.appendChild(card);
+  }
+
+  function renderTasks(run) {
+    var list = panelId('tasks-list');
+    if (!list) return;
+    var s = run || {};
+    // While the job is still running its own wait is already represented by the
+    // "Running" card; the separate follow-up card starts once the process exits.
+    var watching = !s.running && s.watching && s.watching.ip ? s.watching : null;
+    var exitWatching = !s.running && s.exitWatching && s.exitWatching.ip ? s.exitWatching : null;
+    var awaiting = s.awaiting && s.awaiting.action ? s.awaiting : null;
+    var active = (s.running ? 1 : 0) + (watching ? 1 : 0) + (exitWatching ? 1 : 0) + (awaiting ? 1 : 0);
+    var sig = JSON.stringify({
+      running: s.running,
+      program: s.program,
+      phase: s.phase,
+      step: s.step,
+      exitCode: s.exitCode,
+      stepInfo: s.stepInfo,
+      watching: watching,
+      exitWatching: exitWatching,
+      exitInfo: s.exitInfo,
+      awaiting: awaiting,
+      log: s.program ? lastLogLine(s.program) : '',
+    });
+    if (state.tasksSig === sig) return;
+    state.tasksSig = sig;
+
+    var badge = panelId('nav-tasks-badge');
+    if (badge) {
+      badge.textContent = String(active);
+      badge.hidden = active === 0;
+    }
+    setText('tasks-meta', active ? active + ' active' : 'no active background work');
+
+    list.textContent = '';
+    if (s.running) {
+      var info = s.stepInfo;
+      var index = info ? Math.min(Math.max(Number(info.index) || 0, 0), info.steps.length - 1) : -1;
+      var current = info && index >= 0 ? info.steps[index] : null;
+      var detail = current
+        ? 'STEP ' + (index + 1) + '/' + info.steps.length + ' - ' + current.label + ': ' + current.goal
+        : (s.step || s.phase || 'working');
+      addTaskCard(list, {
+        tone: 'running',
+        title: 'Running: ' + ((programMetaById(s.program) || {}).label || s.program || 'task'),
+        badge: s.phase || 'running',
+        badgeVariant: 'v2-badge--warn',
+        meta: 'started ' + (s.startedAt ? new Date(s.startedAt * 1000).toLocaleTimeString() : '-') +
+          (s.elapsedSec !== undefined ? ' - ' + fmtElapsed(s.elapsedSec) : ''),
+        detail: detail,
+        log: lastLogLine(s.program),
+        actions: [{ label: 'Open log', run: function () { goToLog(s.program); } }],
+      });
+    }
+    if (watching) {
+      var waited = watching.since ? fmtElapsed(Math.max(0, Math.round((Date.now() - watching.since) / 1000))) : '-';
+      var bits = [];
+      if (watching.epoch !== null && watching.epoch !== undefined) bits.push('epoch ' + watching.epoch);
+      if (watching.enrollment) bits.push('enrollment ' + watching.enrollment);
+      if (watching.active === true) bits.push('active');
+      else if (watching.scheduled === true) bits.push('scheduled');
+      else if (watching.active === false) bits.push('not active yet');
+      addTaskCard(list, {
+        tone: watching.problem ? 'failed' : 'waiting',
+        title: 'Background follow-up: ' + (watching.phase || 'finalization'),
+        badge: watching.problem ? 'blocker' : (watching.activation ? 'waiting for activation' : 'waiting for confirmation'),
+        badgeVariant: watching.problem ? 'v2-badge--err' : 'v2-badge--warn',
+        meta: watching.ip + ' - since ' + waited +
+          (watching.checkedAt ? ' - last check ' + new Date(watching.checkedAt).toLocaleTimeString() : ''),
+        detail: (watching.detail || watching.state || '') + (bits.length ? ' (' + bits.join(', ') + ')' : '') +
+          (watching.problem ? ' - ' + watching.problem : ''),
+        problem: Boolean(watching.problem),
+        log: lastLogLine(s.program),
+        actions: [
+          { label: 'Details', run: function () { state.waitingClosed = null; showWaiting(watching, s.status); } },
+          { label: 'Open log', run: function () { goToLog(s.program); } },
+        ],
+      });
+    }
+    if (exitWatching) {
+      var info2 = s.exitInfo || {};
+      addTaskCard(list, {
+        tone: 'waiting',
+        title: 'Background follow-up: exit / unbonding',
+        badge: 'waiting',
+        badgeVariant: 'v2-badge--warn',
+        meta: exitWatching.ip + (info2.withdraw_epoch ? ' - unlocks at epoch ' + info2.withdraw_epoch : ''),
+        detail: info2.remaining !== null && info2.remaining !== undefined
+          ? info2.remaining + ' epoch(s) until the stake is back'
+          : 'The host retries the withdrawal by itself.',
+        log: lastLogLine(s.program),
+        actions: [{ label: 'Open log', run: function () { goToLog(s.program); } }],
+      });
+    }
+    if (awaiting) {
+      addTaskCard(list, {
+        tone: 'waiting',
+        title: 'Paused: enrollment needs funding',
+        badge: 'action required',
+        badgeVariant: 'v2-badge--warn',
+        meta: awaiting.ip || '-',
+        detail: 'Fund ' + (awaiting.address || 'the wallet') + ' then submit the bond (' +
+          ((Number(awaiting.bond) || 0) / 1000000) + ' OCT).',
+        actions: [{ label: 'Open prompt', run: function () { showAwaitPrompt(awaiting); } }],
+      });
+    }
+    if (!active) {
+      var empty = document.createElement('div');
+      empty.className = 'mc-task mc-task--empty';
+      empty.textContent = 'No running tasks. Long finalizations and background follow-ups appear here automatically.';
+      list.appendChild(empty);
+    }
   }
 
   function pollState() {
@@ -977,6 +1215,86 @@
   function closeActivation() {
     var modal = $('activation-modal');
     if (modal) { modal.hidden = true; }
+  }
+
+  /* -- waiting-for-confirmation popup: long finalization --------------------
+     Deploy/migrate/manage can finish their own phases while the chain still has
+     to confirm the result (set fold, state-sync, recover). The server keeps a
+     background follow-up and this popup mirrors it: one popup per watched run,
+     live status, and a shortcut that flashes the live log. Closing it never stops
+     the follow-up. --------------------------------------------------------- */
+  function waitingKey(watching) {
+    return String((watching && watching.ip) || '') + ':' + String((watching && watching.since) || 0);
+  }
+
+  function showWaiting(watching, status) {
+    var modal = panelId('waiting-modal');
+    if (!modal || !watching || !watching.ip) return;
+    var key = waitingKey(watching);
+    if (state.waitingClosed === key) {
+      // A dismissed wait stays dismissed unless the follow-up finds a blocker.
+      if (!watching.problem) return;
+      state.waitingClosed = null;
+    }
+    var stateText = watching.state || (status && status.state) || 'waiting for confirmation';
+    var detail = watching.detail || (status && status.detail) || '';
+    var bits = [];
+    if (watching.epoch !== null && watching.epoch !== undefined) bits.push('epoch ' + watching.epoch);
+    if (watching.headEpoch !== null && watching.headEpoch !== undefined) bits.push('head ' + watching.headEpoch);
+    if (watching.enrollment) bits.push('enrollment ' + watching.enrollment);
+    if (watching.active === true) bits.push('active');
+    else if (watching.scheduled === true) bits.push('scheduled');
+    else if (watching.active === false) bits.push('not active yet');
+    if (watching.reachable === false) bits.push('node unreachable');
+    bits.push(watching.checkedAt
+      ? 'checked ' + new Date(watching.checkedAt).toLocaleTimeString()
+      : 'first check pending');
+
+    setText('waiting-node', watching.ip);
+    setText('waiting-phase', watching.phase || stateText);
+    setText('waiting-state', detail ? stateText + ' - ' + detail : stateText);
+    setText('waiting-progress', bits.join(' - '));
+    var logLine = panelId('waiting-log-line');
+    if (logLine) logLine.textContent = detail ? stateText + ' ' + detail : stateText;
+    var note = panelId('waiting-detail');
+    if (note) {
+      note.textContent = watching.problem
+        ? 'Follow-up found a blocker: ' + watching.problem + '. The log is still streaming - keep the source off and act on the last error.'
+        : 'The console keeps checking in the background every 60s. Do not start the source or repeat this task until the finalization is confirmed.';
+      note.className = 'mc-modal__text mc-enroll__note' + (watching.problem ? ' mc-waiting__problem' : '');
+    }
+    modal.dataset.waitingKey = key;
+    modal.hidden = false;
+    state.seenWaiting = key;
+  }
+
+  function hideWaiting() {
+    var modal = panelId('waiting-modal');
+    if (modal) modal.hidden = true;
+  }
+
+  function closeWaiting() {
+    var modal = panelId('waiting-modal');
+    if (!modal) return;
+    state.waitingClosed = modal.dataset.waitingKey
+      || waitingKey(state.runner && state.runner.watching)
+      || null;
+    modal.hidden = true;
+  }
+
+  function focusLogPanel() {
+    closeWaiting();
+    var section = panelId('log');
+    if (section && section.scrollIntoView) {
+      section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+    var view = panelId('log-view');
+    if (view) {
+      view.classList.remove('mc-log--flash');
+      void view.offsetWidth;
+      view.classList.add('mc-log--flash');
+      setTimeout(function () { view.classList.remove('mc-log--flash'); }, 2000);
+    }
   }
 
   /* -- the exit popup: when the stake comes back --------------------------------
@@ -1543,6 +1861,8 @@
     renderNode('dst', cached ? cached.dst : null);
     safetyChecks();
     applyGating();
+    renderStepBar(state.runner || null);
+    renderTasks(state.runner || null);
     renderRoute();
   }
 
@@ -2446,6 +2766,17 @@
       tip(ev.currentTarget, 'Refreshed');
     });
 
+    var openData = panelId('btn-open-data');
+    if (openData) {
+      openData.addEventListener('click', function (ev) {
+        postJSON('/api/open-data', {}).then(function () {
+          tip(ev.currentTarget, 'Opened data folder');
+        }).catch(function (err) {
+          tip(ev.currentTarget, (err && err.message) || 'Could not open folder');
+        });
+      });
+    }
+
     // one console, two dashboards: the tabs swap the whole panel
     var segPrograms = $('seg-programs');
     if (segPrograms) {
@@ -2628,6 +2959,17 @@
     if (activationModal) {
       activationModal.addEventListener('keydown', function (ev) {
         if (ev.key === 'Escape') closeActivation();
+      });
+    }
+    // the waiting popup (background follow-up of a long finalization)
+    var waitingClose = panelId('waiting-close');
+    if (waitingClose) waitingClose.addEventListener('click', closeWaiting);
+    var waitingLog = panelId('waiting-log');
+    if (waitingLog) waitingLog.addEventListener('click', focusLogPanel);
+    var waitingModal = panelId('waiting-modal');
+    if (waitingModal) {
+      waitingModal.addEventListener('keydown', function (ev) {
+        if (ev.key === 'Escape') closeWaiting();
       });
     }
     // the exit popup (unlock epoch + the moment the stake is back)

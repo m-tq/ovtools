@@ -8,7 +8,7 @@
   <title>Octra Validator Tools</title>
   <link rel="icon" type="image/svg+xml" href="favicon.svg?v=2.2.1" />
   <link rel="stylesheet" href="assets/v2.2/css/synteq-ui-v2.css?v=2.2.1" />
-  <link rel="stylesheet" href="styles.css?v=2.1.4" />
+  <link rel="stylesheet" href="styles.css?v=2.1.6" />
 </head>
 <body>
 
@@ -37,6 +37,11 @@
       <a href="#nodes" class="v2-nav__item">
         <svg class="v2-icon v2-icon--16" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="7" rx="1"/><rect x="3" y="13" width="18" height="7" rx="1"/><line x1="7" y1="7.5" x2="7.01" y2="7.5"/><line x1="7" y1="16.5" x2="7.01" y2="16.5"/></svg>
         Nodes
+      </a>
+      <a href="#tasks" class="v2-nav__item">
+        <svg class="v2-icon v2-icon--16" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16"/><path d="M4 12h16"/><path d="M4 18h10"/><circle cx="19" cy="18" r="2"/></svg>
+        Running tasks
+        <span class="v2-nav__badge" id="nav-tasks-badge" hidden>0</span>
       </a>
       <a href="#log" class="v2-nav__item">
         <svg class="v2-icon v2-icon--16" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="13" y2="17"/></svg>
@@ -113,12 +118,16 @@
               <span class="mc-hero__sep" aria-hidden="true">-</span>
               <span class="v2-t-xs v2-mute">route <span class="v2-mono" id="hero-route-text">-</span></span>
               <span class="mc-hero__sep" aria-hidden="true">-</span>
-              <span class="v2-t-xs v2-mute">
-                data <span class="v2-mono" id="hero-project">-</span>
-              </span>
-              <span class="mc-hero__sep" aria-hidden="true">-</span>
               <span class="v2-t-xs v2-mute">elapsed <span class="v2-mono" id="hero-elapsed">-</span></span>
             </div>
+          </div>
+          <div class="mc-hero__store">
+            <span class="v2-t-xs v2-mute">data <span class="v2-mono" id="hero-project">-</span></span>
+            <button class="v2-iconbtn" id="btn-open-data" title="Open data folder" aria-label="Open data folder">
+              <svg class="v2-icon v2-icon--16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+              </svg>
+            </button>
           </div>
         </div>
 
@@ -684,11 +693,31 @@
         </div>
       </section>
 
-      <!-- ---------- 3. LIVE LOG ---------- -->
+      <!-- ---------- 3. RUNNING TASKS ---------- -->
+      <section class="v2-section v2-section--compact" id="tasks" aria-label="Running tasks">
+        <div class="v2-section__head">
+          <span class="v2-section__title">Running Tasks</span>
+          <span class="v2-section__meta" id="tasks-meta">no active background work</span>
+        </div>
+        <div class="mc-tasks" id="tasks-list"></div>
+      </section>
+
+      <!-- ---------- 4. LIVE LOG ---------- -->
       <section class="v2-section v2-section--compact" id="log" aria-label="Live log">
         <div class="v2-section__head">
           <span class="v2-section__title">Live log</span>
           <span class="v2-section__meta" id="log-meta">streaming - 0 lines</span>
+        </div>
+
+        <div class="mc-stepbar" id="stepbar" hidden>
+          <div class="mc-stepbar__head">
+            <span class="mc-stepbar__count" id="stepbar-count">STEP 1/1</span>
+            <span class="mc-stepbar__label" id="stepbar-label">-</span>
+            <span class="v2-badge" id="stepbar-state"><span id="stepbar-state-text">running</span></span>
+          </div>
+          <div class="mc-stepbar__goal"><span class="mc-stepbar__goal-label">Goal</span> <span id="stepbar-goal">-</span></div>
+          <div class="mc-stepbar__stepgoal" id="stepbar-stepgoal">-</div>
+          <div class="mc-stepbar__steps" id="stepbar-steps"></div>
         </div>
 
         <div class="mc-logbar">
@@ -1032,6 +1061,48 @@
   </div>
 </div>
 
+<!-- ---------- WAITING MODAL (long finalization: follow-up runs in background) ---------- -->
+<!-- Deploy/migrate/manage can return while the chain is still confirming the
+     result (set fold, state-sync, recover). The server keeps probing the node
+     every 60s; this popup shows the live state and stays dismissible without
+     stopping the follow-up. -->
+<div class="mc-modal" id="waiting-modal" hidden role="dialog" aria-modal="true" aria-labelledby="waiting-title">
+  <div class="mc-modal__body">
+    <h2 class="mc-modal__title" id="waiting-title">Waiting for confirmation</h2>
+    <p class="mc-modal__text">
+      The task reached its finalization step. The console is following the node in
+      the background and will confirm whether the chain accepted it or whether a
+      blocker remains.
+    </p>
+    <div class="mc-enroll__addr">
+      <span class="mc-field__label">Node</span>
+      <span class="v2-mono mc-enroll__value" id="waiting-node">-</span>
+    </div>
+    <div class="mc-enroll__addr">
+      <span class="mc-field__label">Task</span>
+      <span class="v2-mono mc-enroll__value" id="waiting-phase">-</span>
+    </div>
+    <div class="mc-enroll__addr">
+      <span class="mc-field__label">State</span>
+      <span class="v2-mono mc-enroll__value" id="waiting-state">-</span>
+    </div>
+    <div class="mc-enroll__addr">
+      <span class="mc-field__label">Follow-up</span>
+      <span class="v2-mono mc-enroll__value" id="waiting-progress">-</span>
+    </div>
+    <pre class="mc-waiting__log" id="waiting-log-line">waiting for the first follow-up check...</pre>
+    <p class="mc-modal__text mc-enroll__note" id="waiting-detail"></p>
+    <div class="mc-modal__actions">
+      <button class="v2-btn v2-btn--ghost" id="waiting-log">
+        <svg class="v2-icon v2-icon--14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+             aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h10"/></svg>
+        View live log
+      </button>
+      <button class="v2-btn v2-btn--brand" id="waiting-close">Close</button>
+    </div>
+  </div>
+</div>
+
 <!-- ---------- EXIT MODAL (the exit is on chain: this is when the money is back) ---------- -->
 <!-- An exit is a chain deadline, not a finished job: the set releases the validator
      at a fold and the bond unlocks at `withdraw_epoch` - weeks later on this
@@ -1076,7 +1147,7 @@
 </div>
 
 <script src="assets/v2.2/js/synteq-ui-v2.js"></script>
-  <script src="app.js?v=3.0.2"></script>
+  <script src="app.js?v=3.0.4"></script>
 </body>
 </html>
 
