@@ -9,131 +9,131 @@
   <link rel="icon" type="image/svg+xml" href="favicon.svg?v=2.1.3" />
   <!-- Asset URLs carry a version: nginx/Cloudflare cache css+js for a day, so a
        deploy must change these query strings (or the folder path) to bust it. -->
-  <link rel="stylesheet" href="assets/v2.2/css/synteq-ui-v2.css" />
-  <link rel="stylesheet" href="styles.css?v=2.2.2" />
+  <link rel="stylesheet" href="assets/css/synteq-ui.css?v=1.0.6" />
+  <link rel="stylesheet" href="styles.css?v=2.2.3" />
 </head>
 <body>
 
-<div class="v2-app" id="app">
+<div class="sq-app" id="app">
 
   <!-- --------------- NAVIGATION DOCK --------------- -->
-  <aside class="v2-aside" aria-label="Primary navigation" id="sidebar">
-    <a href="#overview" class="v2-aside__brand" id="aside-brand"
+  <aside class="sq-aside" aria-label="Primary navigation" id="sidebar">
+    <a href="#overview" class="sq-aside__brand" id="aside-brand"
        aria-label="Validator Monitoring System" title="Validator Monitoring System">
-      <span class="v2-aside__brand-mark" aria-hidden="true">
+      <span class="sq-aside__brand-mark" aria-hidden="true">
         <svg width="14" height="14" viewBox="0 0 50 50" fill="none" aria-hidden="true">
           <circle cx="25" cy="25" r="21" stroke="currentColor" stroke-width="8" />
         </svg>
       </span>
     </a>
 
-    <nav class="v2-nav" aria-label="Monitoring sections">
-      <a href="#overview" class="v2-nav__item v2-nav__item--active" aria-current="page">
-        <svg class="v2-icon v2-icon--16" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg>
+    <nav class="sq-nav" aria-label="Monitoring sections">
+      <a href="#overview" class="sq-nav__item sq-nav__item--active" aria-current="page">
+        <svg class="sq-icon sq-icon--16" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg>
         Overview
       </a>
-      <a href="#consensus" class="v2-nav__item">
-        <svg class="v2-icon v2-icon--16" viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="2" width="6" height="4" rx="1"/><rect x="2" y="16" width="6" height="4" rx="1"/><rect x="16" y="16" width="6" height="4" rx="1"/><line x1="12" y1="6" x2="12" y2="11"/><line x1="5" y1="16" x2="10" y2="12"/><line x1="19" y1="16" x2="14" y2="12"/></svg>
+      <a href="#consensus" class="sq-nav__item">
+        <svg class="sq-icon sq-icon--16" viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="2" width="6" height="4" rx="1"/><rect x="2" y="16" width="6" height="4" rx="1"/><rect x="16" y="16" width="6" height="4" rx="1"/><line x1="12" y1="6" x2="12" y2="11"/><line x1="5" y1="16" x2="10" y2="12"/><line x1="19" y1="16" x2="14" y2="12"/></svg>
         Consensus
       </a>
-      <a href="#resources" class="v2-nav__item">
-        <svg class="v2-icon v2-icon--16" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><line x1="9" y1="2" x2="9" y2="4"/><line x1="15" y1="2" x2="15" y2="4"/><line x1="9" y1="20" x2="9" y2="22"/><line x1="15" y1="20" x2="15" y2="22"/><line x1="20" y1="9" x2="22" y2="9"/><line x1="20" y1="14" x2="22" y2="14"/><line x1="2" y1="9" x2="4" y2="9"/><line x1="2" y1="14" x2="4" y2="14"/></svg>
+      <a href="#resources" class="sq-nav__item">
+        <svg class="sq-icon sq-icon--16" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><line x1="9" y1="2" x2="9" y2="4"/><line x1="15" y1="2" x2="15" y2="4"/><line x1="9" y1="20" x2="9" y2="22"/><line x1="15" y1="20" x2="15" y2="22"/><line x1="20" y1="9" x2="22" y2="9"/><line x1="20" y1="14" x2="22" y2="14"/><line x1="2" y1="9" x2="4" y2="9"/><line x1="2" y1="14" x2="4" y2="14"/></svg>
         Resources
       </a>
-      <a href="#peers" class="v2-nav__item">
-        <svg class="v2-icon v2-icon--16" viewBox="0 0 24 24" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+      <a href="#peers" class="sq-nav__item">
+        <svg class="sq-icon sq-icon--16" viewBox="0 0 24 24" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
         Peers
       </a>
-      <a href="#process" class="v2-nav__item">
-        <svg class="v2-icon v2-icon--16" viewBox="0 0 24 24" aria-hidden="true"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>
+      <a href="#process" class="sq-nav__item">
+        <svg class="sq-icon sq-icon--16" viewBox="0 0 24 24" aria-hidden="true"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>
         Process
       </a>
-      <a href="#logs" class="v2-nav__item">
-        <svg class="v2-icon v2-icon--16" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="14" y2="17"/></svg>
+      <a href="#logs" class="sq-nav__item">
+        <svg class="sq-icon sq-icon--16" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="14" y2="17"/></svg>
         Logs
-        <span class="v2-nav__badge" id="nav-log-badge" hidden>0</span>
+        <span class="sq-nav__badge" id="nav-log-badge" hidden>0</span>
       </a>
-      <a href="#system" class="v2-nav__item">
-        <svg class="v2-icon v2-icon--16" viewBox="0 0 24 24" aria-hidden="true"><rect x="2" y="2" width="20" height="8" rx="2"/><rect x="2" y="14" width="20" height="8" rx="2"/><line x1="6" y1="6" x2="6.01" y2="6"/><line x1="6" y1="18" x2="6.01" y2="18"/></svg>
+      <a href="#system" class="sq-nav__item">
+        <svg class="sq-icon sq-icon--16" viewBox="0 0 24 24" aria-hidden="true"><rect x="2" y="2" width="20" height="8" rx="2"/><rect x="2" y="14" width="20" height="8" rx="2"/><line x1="6" y1="6" x2="6.01" y2="6"/><line x1="6" y1="18" x2="6.01" y2="18"/></svg>
         System
       </a>
-      <a href="#wallets" class="v2-nav__item">
-        <svg class="v2-icon v2-icon--16" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"/><path d="M3 5v14a2 2 0 0 0 2 2h16v-5"/><path d="M18 12a2 2 0 0 0 0 4h4v-4z"/></svg>
+      <a href="#wallets" class="sq-nav__item">
+        <svg class="sq-icon sq-icon--16" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"/><path d="M3 5v14a2 2 0 0 0 2 2h16v-5"/><path d="M18 12a2 2 0 0 0 0 4h4v-4z"/></svg>
         Wallets
       </a>
     </nav>
 
-    <div class="v2-aside__footer">
+    <div class="sq-aside__footer">
       <!-- Bottom-right of the navigation: the validator status itself, not the
            chain id (the chain is in Overview). -->
-      <span class="v2-badge dash-status" id="dock-status" title="Validator status">
-        <span class="v2-dot" id="dock-dot" aria-hidden="true"></span>
+      <span class="sq-badge dash-status" id="dock-status" title="Validator status">
+        <span class="sq-dot" id="dock-dot" aria-hidden="true"></span>
         <span id="dock-status-text">-</span>
       </span>
     </div>
   </aside>
 
   <!-- --------------- TOPBAR --------------- -->
-  <header class="v2-topbar" role="banner">
-    <button class="v2-sidebar-toggle" data-v2-sidebar-toggle aria-label="Toggle navigation" aria-expanded="true" aria-controls="sidebar">
-      <svg class="v2-icon v2-icon--18 icon-menu" viewBox="0 0 24 24" aria-hidden="true"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
-      <svg class="v2-icon v2-icon--18 icon-close" viewBox="0 0 24 24" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+  <header class="sq-topbar" role="banner">
+    <button class="sq-sidebar-toggle" data-sq-sidebar-toggle aria-label="Toggle navigation" aria-expanded="true" aria-controls="sidebar">
+      <svg class="sq-icon sq-icon--18 icon-menu" viewBox="0 0 24 24" aria-hidden="true"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      <svg class="sq-icon sq-icon--18 icon-close" viewBox="0 0 24 24" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
     </button>
 
-    <div class="v2-topbar__left">
-      <span class="v2-topbar__crumb v2-mono">octra</span>
-      <span class="v2-topbar__sep" aria-hidden="true">/</span>
-      <span class="v2-topbar__title" id="topbar-title">Dashboard Monitoring</span>
-      <span class="v2-badge" id="topbar-status" title="Node status">
-        <span class="v2-dot" id="topbar-dot" aria-hidden="true"></span>
+    <div class="sq-topbar__left">
+      <span class="sq-topbar__crumb sq-mono">octra</span>
+      <span class="sq-topbar__sep" aria-hidden="true">/</span>
+      <span class="sq-topbar__title" id="topbar-title">Dashboard Monitoring</span>
+      <span class="sq-badge" id="topbar-status" title="Node status">
+        <span class="sq-dot" id="topbar-dot" aria-hidden="true"></span>
         <span id="topbar-status-text">connecting</span>
       </span>
     </div>
 
-    <div class="v2-topbar__right">
-      <span class="live-age v2-t-xs v2-mono" id="live-age" title="Time since the last successful poll">-</span>
-      <button class="v2-iconbtn" id="btn-refresh" aria-label="Refresh now" title="Refresh now">
-        <svg class="v2-icon v2-icon--16" viewBox="0 0 24 24" aria-hidden="true"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+    <div class="sq-topbar__right">
+      <span class="live-age sq-t-xs sq-mono" id="live-age" title="Time since the last successful poll">-</span>
+      <button class="sq-iconbtn" id="btn-refresh" aria-label="Refresh now" title="Refresh now">
+        <svg class="sq-icon sq-icon--16" viewBox="0 0 24 24" aria-hidden="true"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
       </button>
-      <button class="v2-iconbtn" id="btn-pause" aria-label="Pause auto-refresh" aria-pressed="false" title="Pause auto-refresh">
-        <svg class="v2-icon v2-icon--16 icon-pause" viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/></svg>
-        <svg class="v2-icon v2-icon--16 icon-play" viewBox="0 0 24 24" aria-hidden="true" style="display:none;"><polygon points="6 3 20 12 6 21 6 3"/></svg>
+      <button class="sq-iconbtn" id="btn-pause" aria-label="Pause auto-refresh" aria-pressed="false" title="Pause auto-refresh">
+        <svg class="sq-icon sq-icon--16 icon-pause" viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/></svg>
+        <svg class="sq-icon sq-icon--16 icon-play" viewBox="0 0 24 24" aria-hidden="true" style="display:none;"><polygon points="6 3 20 12 6 21 6 3"/></svg>
       </button>
-      <button class="v2-iconbtn v2-theme-toggle" data-v2-toggle-theme aria-label="Toggle theme">
-        <svg class="v2-icon v2-icon--16 v2-icon--moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
-        <svg class="v2-icon v2-icon--16 v2-icon--sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+      <button class="sq-iconbtn sq-theme-toggle" data-sq-toggle-theme aria-label="Toggle theme">
+        <svg class="sq-icon sq-icon--16 sq-icon--moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        <svg class="sq-icon sq-icon--16 sq-icon--sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
       </button>
     </div>
   </header>
 
-  <main class="v2-main" aria-label="Node live monitoring">
-    <div class="v2-content v2-scroll" id="main-content">
+  <main class="sq-main" aria-label="Node live monitoring">
+    <div class="sq-content sq-scroll" id="main-content">
 
       <!-- ---------- 1. OVERVIEW ---------- -->
-      <section class="v2-section v2-section--compact" id="overview" aria-label="Overview">
+      <section class="sq-section sq-section--compact" id="overview" aria-label="Overview">
 
         <div class="dash-hero">
           <div class="dash-hero__main">
             <div class="dash-hero__title-row">
               <h1 class="dash-hero__hostname" id="hero-hostname">-</h1>
-              <span class="v2-badge dash-status" id="hero-status">
-                <span class="v2-dot" id="hero-status-dot" aria-hidden="true"></span>
+              <span class="sq-badge dash-status" id="hero-status">
+                <span class="sq-dot" id="hero-status-dot" aria-hidden="true"></span>
                 <span id="hero-status-text">connecting</span>
               </span>
             </div>
             <div class="dash-hero__meta">
-              <button class="addr-chip" id="hero-address-btn" title="Copy validator address" data-v2-copy="" data-v2-copy-label="Address copied" aria-label="Copy validator address">
+              <button class="addr-chip" id="hero-address-btn" title="Copy validator address" data-sq-copy="" data-sq-copy-label="Address copied" aria-label="Copy validator address">
                 <span class="addr-chip__label">
-                  <svg class="v2-icon v2-icon--14 v2-icon--mute" viewBox="0 0 24 24" aria-hidden="true"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>
+                  <svg class="sq-icon sq-icon--14 sq-icon--mute" viewBox="0 0 24 24" aria-hidden="true"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>
                   Validator
                 </span>
-                <span class="addr-chip__value v2-mono" id="hero-address">-</span>
-                <svg class="v2-icon v2-icon--14 addr-chip__copy" viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                <span class="addr-chip__value sq-mono" id="hero-address">-</span>
+                <svg class="sq-icon sq-icon--14 addr-chip__copy" viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
               </button>
-              <span class="dash-hero__sep v2-mute" aria-hidden="true">|</span>
-              <span class="v2-t-xs v2-mute">Node up <span class="v2-mono" id="hero-node-uptime">-</span></span>
-              <span class="dash-hero__sep v2-mute" aria-hidden="true">|</span>
-              <span class="v2-t-xs v2-mute">Updated <span class="v2-mono" id="hero-updated">-</span></span>
+              <span class="dash-hero__sep sq-mute" aria-hidden="true">|</span>
+              <span class="sq-t-xs sq-mute">Node up <span class="sq-mono" id="hero-node-uptime">-</span></span>
+              <span class="dash-hero__sep sq-mute" aria-hidden="true">|</span>
+              <span class="sq-t-xs sq-mute">Updated <span class="sq-mono" id="hero-updated">-</span></span>
             </div>
           </div>
         </div>
@@ -142,124 +142,124 @@
         <div class="alerts" id="alerts" hidden></div>
 
         <!-- Vital signs -->
-        <div class="v2-stat-strip" data-v2-stagger>
-          <div class="v2-stat">
-            <span class="v2-stat__label">
-              <svg class="v2-icon v2-icon--14 v2-icon--mute" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2v20"/><path d="m17 5-5-3-5 3"/><path d="m17 19-5 3-5-3"/></svg>
+        <div class="sq-stat-strip" data-sq-stagger>
+          <div class="sq-stat">
+            <span class="sq-stat__label">
+              <svg class="sq-icon sq-icon--14 sq-icon--mute" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2v20"/><path d="m17 5-5-3-5 3"/><path d="m17 19-5 3-5-3"/></svg>
               Head epoch
             </span>
-            <div class="v2-stat__value" id="kpi-head">-</div>
-            <span class="v2-t-xs v2-mute" id="kpi-head-sub">current -</span>
+            <div class="sq-stat__value" id="kpi-head">-</div>
+            <span class="sq-t-xs sq-mute" id="kpi-head-sub">current -</span>
           </div>
-          <div class="v2-stat">
-            <span class="v2-stat__label">
-              <svg class="v2-icon v2-icon--14 v2-icon--mute" viewBox="0 0 24 24" aria-hidden="true"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
+          <div class="sq-stat">
+            <span class="sq-stat__label">
+              <svg class="sq-icon sq-icon--14 sq-icon--mute" viewBox="0 0 24 24" aria-hidden="true"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
               Sync lag
             </span>
-            <div class="v2-stat__value" id="kpi-lag">-</div>
-            <span class="v2-t-xs v2-mute" id="kpi-lag-sub">network head -</span>
+            <div class="sq-stat__value" id="kpi-lag">-</div>
+            <span class="sq-t-xs sq-mute" id="kpi-lag-sub">network head -</span>
           </div>
-          <div class="v2-stat">
-            <span class="v2-stat__label">
-              <svg class="v2-icon v2-icon--14 v2-icon--mute" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>
+          <div class="sq-stat">
+            <span class="sq-stat__label">
+              <svg class="sq-icon sq-icon--14 sq-icon--mute" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>
               Quorum
             </span>
-            <div class="v2-stat__value" id="kpi-quorum">-</div>
-            <span class="v2-t-xs v2-mute" id="kpi-quorum-sub">prevotes -</span>
+            <div class="sq-stat__value" id="kpi-quorum">-</div>
+            <span class="sq-t-xs sq-mute" id="kpi-quorum-sub">prevotes -</span>
           </div>
-          <div class="v2-stat">
-            <span class="v2-stat__label">
-              <svg class="v2-icon v2-icon--14 v2-icon--mute" viewBox="0 0 24 24" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+          <div class="sq-stat">
+            <span class="sq-stat__label">
+              <svg class="sq-icon sq-icon--14 sq-icon--mute" viewBox="0 0 24 24" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
               Consensus peers
             </span>
-            <div class="v2-stat__value" id="kpi-peers">-</div>
-            <span class="v2-t-xs v2-mute" id="kpi-peers-sub">- connected</span>
+            <div class="sq-stat__value" id="kpi-peers">-</div>
+            <span class="sq-t-xs sq-mute" id="kpi-peers-sub">- connected</span>
           </div>
-          <div class="v2-stat">
-            <span class="v2-stat__label">
-              <svg class="v2-icon v2-icon--14 v2-icon--mute" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 14"/></svg>
+          <div class="sq-stat">
+            <span class="sq-stat__label">
+              <svg class="sq-icon sq-icon--14 sq-icon--mute" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 14"/></svg>
               Epoch rate
             </span>
-            <div class="v2-stat__value" id="kpi-rate">-</div>
-            <span class="v2-t-xs v2-mute" id="kpi-rate-sub">- s / epoch</span>
+            <div class="sq-stat__value" id="kpi-rate">-</div>
+            <span class="sq-t-xs sq-mute" id="kpi-rate-sub">- s / epoch</span>
           </div>
-          <div class="v2-stat">
-            <span class="v2-stat__label">
-              <svg class="v2-icon v2-icon--14 v2-icon--mute" viewBox="0 0 24 24" aria-hidden="true"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+          <div class="sq-stat">
+            <span class="sq-stat__label">
+              <svg class="sq-icon sq-icon--14 sq-icon--mute" viewBox="0 0 24 24" aria-hidden="true"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
               Availability
             </span>
-            <div class="v2-stat__value" id="kpi-avail">-</div>
-            <span class="v2-t-xs v2-mute" id="kpi-avail-sub">since service start</span>
+            <div class="sq-stat__value" id="kpi-avail">-</div>
+            <span class="sq-t-xs sq-mute" id="kpi-avail-sub">since service start</span>
           </div>
         </div>
 
-        <div class="v2-grid v2-grid--auto">
+        <div class="sq-grid sq-grid--auto">
 
           <!-- Live consensus round -->
           <div class="panel">
-            <div class="v2-section__head">
-              <span class="v2-section__title">
-                <svg class="v2-icon v2-icon--14" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><circle cx="12" cy="12" r="9"/></svg>
+            <div class="sq-section__head">
+              <span class="sq-section__title">
+                <svg class="sq-icon sq-icon--14" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><circle cx="12" cy="12" r="9"/></svg>
                 Consensus round
               </span>
-              <span class="v2-section__meta"><span class="v2-badge" id="con-step-badge">-</span></span>
+              <span class="sq-section__meta"><span class="sq-badge" id="con-step-badge">-</span></span>
             </div>
 
-            <div class="v2-kv">
-              <div class="v2-kv__row">
-                <span class="v2-kv__label">Round epoch</span>
-                <span class="v2-kv__value v2-mono" id="con-epoch">-</span>
+            <div class="sq-kv">
+              <div class="sq-kv__row">
+                <span class="sq-kv__label">Round epoch</span>
+                <span class="sq-kv__value sq-mono" id="con-epoch">-</span>
               </div>
-              <div class="v2-kv__row">
-                <span class="v2-kv__label">Round / step</span>
-                <span class="v2-kv__value"><span class="v2-mono" id="con-round">-</span> | <span id="con-step">-</span></span>
+              <div class="sq-kv__row">
+                <span class="sq-kv__label">Round / step</span>
+                <span class="sq-kv__value"><span class="sq-mono" id="con-round">-</span> | <span id="con-step">-</span></span>
               </div>
-              <div class="v2-kv__row">
-                <span class="v2-kv__label">Agreed</span>
-                <span class="v2-kv__value" id="con-agreed">-</span>
+              <div class="sq-kv__row">
+                <span class="sq-kv__label">Agreed</span>
+                <span class="sq-kv__value" id="con-agreed">-</span>
               </div>
-              <div class="v2-kv__row">
-                <span class="v2-kv__label">Participants</span>
-                <span class="v2-kv__value v2-mono" id="con-participants">-</span>
+              <div class="sq-kv__row">
+                <span class="sq-kv__label">Participants</span>
+                <span class="sq-kv__value sq-mono" id="con-participants">-</span>
               </div>
-              <div class="v2-kv__row">
-                <span class="v2-kv__label">Voting</span>
-                <span class="v2-kv__value" id="con-voting">-</span>
+              <div class="sq-kv__row">
+                <span class="sq-kv__label">Voting</span>
+                <span class="sq-kv__value" id="con-voting">-</span>
               </div>
             </div>
 
             <div class="gauge-stack">
-              <div class="v2-gauge" role="progressbar" aria-label="Prevote quorum" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="gauge-prevote">
-                <div class="v2-gauge__head">
-                  <span class="v2-gauge__label">Prevotes</span>
-                  <span class="v2-gauge__value"><span id="prevote-count">-</span> <span class="v2-gauge__max" id="prevote-quorum">/ -</span></span>
+              <div class="sq-gauge" role="progressbar" aria-label="Prevote quorum" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="gauge-prevote">
+                <div class="sq-gauge__head">
+                  <span class="sq-gauge__label">Prevotes</span>
+                  <span class="sq-gauge__value"><span id="prevote-count">-</span> <span class="sq-gauge__max" id="prevote-quorum">/ -</span></span>
                 </div>
-                <div class="v2-gauge__track"><div class="v2-gauge__fill" id="prevote-fill"></div></div>
-                <span class="v2-t-xs v2-mute" id="prevote-sub">-</span>
+                <div class="sq-gauge__track"><div class="sq-gauge__fill" id="prevote-fill"></div></div>
+                <span class="sq-t-xs sq-mute" id="prevote-sub">-</span>
               </div>
 
-              <div class="v2-gauge" role="progressbar" aria-label="Precommit quorum" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="gauge-precommit">
-                <div class="v2-gauge__head">
-                  <span class="v2-gauge__label">Precommits</span>
-                  <span class="v2-gauge__value"><span id="precommit-count">-</span> <span class="v2-gauge__max" id="precommit-quorum">/ -</span></span>
+              <div class="sq-gauge" role="progressbar" aria-label="Precommit quorum" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="gauge-precommit">
+                <div class="sq-gauge__head">
+                  <span class="sq-gauge__label">Precommits</span>
+                  <span class="sq-gauge__value"><span id="precommit-count">-</span> <span class="sq-gauge__max" id="precommit-quorum">/ -</span></span>
                 </div>
-                <div class="v2-gauge__track"><div class="v2-gauge__fill" id="precommit-fill"></div></div>
-                <span class="v2-t-xs v2-mute" id="precommit-sub">-</span>
+                <div class="sq-gauge__track"><div class="sq-gauge__fill" id="precommit-fill"></div></div>
+                <span class="sq-t-xs sq-mute" id="precommit-sub">-</span>
               </div>
             </div>
           </div>
 
           <!-- Health checks -->
           <div class="panel">
-            <div class="v2-section__head">
-              <span class="v2-section__title">
-                <svg class="v2-icon v2-icon--14" viewBox="0 0 24 24" aria-hidden="true"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+            <div class="sq-section__head">
+              <span class="sq-section__title">
+                <svg class="sq-icon sq-icon--14" viewBox="0 0 24 24" aria-hidden="true"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
                 Health checks
               </span>
-              <span class="v2-section__meta" id="health-meta">-</span>
+              <span class="sq-section__meta" id="health-meta">-</span>
             </div>
             <div class="health" id="health-list" role="list">
-              <div class="health__row" role="listitem"><span class="v2-badge">...</span><span class="health__label">Waiting for telemetry</span></div>
+              <div class="health__row" role="listitem"><span class="sq-badge">...</span><span class="health__label">Waiting for telemetry</span></div>
             </div>
           </div>
 
@@ -267,109 +267,109 @@
       </section>
 
       <!-- ---------- 2. CONSENSUS ---------- -->
-      <section class="v2-section v2-section--compact" id="consensus" aria-label="Consensus">
-        <div class="v2-section__head">
-          <span class="v2-section__title">
-            <svg class="v2-icon v2-icon--14" viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="2" width="6" height="4" rx="1"/><rect x="2" y="16" width="6" height="4" rx="1"/><rect x="16" y="16" width="6" height="4" rx="1"/><line x1="12" y1="6" x2="12" y2="11"/><line x1="5" y1="16" x2="10" y2="12"/><line x1="19" y1="16" x2="14" y2="12"/></svg>
+      <section class="sq-section sq-section--compact" id="consensus" aria-label="Consensus">
+        <div class="sq-section__head">
+          <span class="sq-section__title">
+            <svg class="sq-icon sq-icon--14" viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="2" width="6" height="4" rx="1"/><rect x="2" y="16" width="6" height="4" rx="1"/><rect x="16" y="16" width="6" height="4" rx="1"/><line x1="12" y1="6" x2="12" y2="11"/><line x1="5" y1="16" x2="10" y2="12"/><line x1="19" y1="16" x2="14" y2="12"/></svg>
             Consensus &amp; epoch
           </span>
-          <span class="v2-section__meta">live | 5 s</span>
+          <span class="sq-section__meta">live | 5 s</span>
         </div>
 
-        <div class="v2-stat-strip">
-          <div class="v2-stat">
-            <span class="v2-stat__label">Step</span>
-            <div class="v2-stat__value v2-t-xl" id="c-step">-</div>
+        <div class="sq-stat-strip">
+          <div class="sq-stat">
+            <span class="sq-stat__label">Step</span>
+            <div class="sq-stat__value sq-t-xl" id="c-step">-</div>
           </div>
-          <div class="v2-stat">
-            <span class="v2-stat__label">Round</span>
-            <div class="v2-stat__value v2-t-xl v2-mono" id="c-round">-</div>
+          <div class="sq-stat">
+            <span class="sq-stat__label">Round</span>
+            <div class="sq-stat__value sq-t-xl sq-mono" id="c-round">-</div>
           </div>
-          <div class="v2-stat">
-            <span class="v2-stat__label">Round participants</span>
-            <div class="v2-stat__value v2-t-xl v2-mono" id="c-participants">-</div>
-            <span class="v2-t-xs v2-mute" id="c-participants-sub">- / - / -</span>
+          <div class="sq-stat">
+            <span class="sq-stat__label">Round participants</span>
+            <div class="sq-stat__value sq-t-xl sq-mono" id="c-participants">-</div>
+            <span class="sq-t-xs sq-mute" id="c-participants-sub">- / - / -</span>
           </div>
-          <div class="v2-stat">
-            <span class="v2-stat__label">Newest vote</span>
-            <div class="v2-stat__value v2-t-xl v2-mono" id="c-vote-age">-</div>
-            <span class="v2-t-xs v2-mute">age of the freshest round vote</span>
+          <div class="sq-stat">
+            <span class="sq-stat__label">Newest vote</span>
+            <div class="sq-stat__value sq-t-xl sq-mono" id="c-vote-age">-</div>
+            <span class="sq-t-xs sq-mute">age of the freshest round vote</span>
           </div>
-          <div class="v2-stat">
-            <span class="v2-stat__label">Epoch interval</span>
-            <div class="v2-stat__value v2-t-xl v2-mono" id="c-interval">-</div>
-            <span class="v2-t-xs v2-mute">avg, 5 min window</span>
+          <div class="sq-stat">
+            <span class="sq-stat__label">Epoch interval</span>
+            <div class="sq-stat__value sq-t-xl sq-mono" id="c-interval">-</div>
+            <span class="sq-t-xs sq-mute">avg, 5 min window</span>
           </div>
-          <div class="v2-stat">
-            <span class="v2-stat__label">Last advance</span>
-            <div class="v2-stat__value v2-t-xl v2-mono" id="c-last-advance">-</div>
-            <span class="v2-t-xs v2-mute" id="c-last-advance-sub">-</span>
+          <div class="sq-stat">
+            <span class="sq-stat__label">Last advance</span>
+            <div class="sq-stat__value sq-t-xl sq-mono" id="c-last-advance">-</div>
+            <span class="sq-t-xs sq-mute" id="c-last-advance-sub">-</span>
           </div>
         </div>
 
-        <div class="v2-grid v2-grid--2">
+        <div class="sq-grid sq-grid--2">
 
           <div class="panel">
-            <div class="v2-section__head">
-              <span class="v2-section__title">Vote weight vs quorum</span>
-              <span class="v2-section__meta v2-mono" id="c-quorum-weight">-</span>
+            <div class="sq-section__head">
+              <span class="sq-section__title">Vote weight vs quorum</span>
+              <span class="sq-section__meta sq-mono" id="c-quorum-weight">-</span>
             </div>
             <div class="gauge-stack">
-              <div class="v2-gauge" role="progressbar" aria-label="Prevote weight" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="gauge-prevote-w">
-                <div class="v2-gauge__head">
-                  <span class="v2-gauge__label">Prevote weight</span>
-                  <span class="v2-gauge__value" id="prevote-w-pct">-</span>
+              <div class="sq-gauge" role="progressbar" aria-label="Prevote weight" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="gauge-prevote-w">
+                <div class="sq-gauge__head">
+                  <span class="sq-gauge__label">Prevote weight</span>
+                  <span class="sq-gauge__value" id="prevote-w-pct">-</span>
                 </div>
-                <div class="v2-gauge__track"><div class="v2-gauge__fill" id="prevote-w-fill"></div></div>
-                <span class="v2-t-xs v2-mute" id="prevote-w-raw">-</span>
+                <div class="sq-gauge__track"><div class="sq-gauge__fill" id="prevote-w-fill"></div></div>
+                <span class="sq-t-xs sq-mute" id="prevote-w-raw">-</span>
               </div>
-              <div class="v2-gauge" role="progressbar" aria-label="Precommit weight" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="gauge-precommit-w">
-                <div class="v2-gauge__head">
-                  <span class="v2-gauge__label">Precommit weight</span>
-                  <span class="v2-gauge__value" id="precommit-w-pct">-</span>
+              <div class="sq-gauge" role="progressbar" aria-label="Precommit weight" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="gauge-precommit-w">
+                <div class="sq-gauge__head">
+                  <span class="sq-gauge__label">Precommit weight</span>
+                  <span class="sq-gauge__value" id="precommit-w-pct">-</span>
                 </div>
-                <div class="v2-gauge__track"><div class="v2-gauge__fill" id="precommit-w-fill"></div></div>
-                <span class="v2-t-xs v2-mute" id="precommit-w-raw">-</span>
+                <div class="sq-gauge__track"><div class="sq-gauge__fill" id="precommit-w-fill"></div></div>
+                <span class="sq-t-xs sq-mute" id="precommit-w-raw">-</span>
               </div>
             </div>
-            <div class="v2-kv">
-              <div class="v2-kv__row">
-                <span class="v2-kv__label">Quorum weight</span>
-                <span class="v2-kv__value v2-mono" id="c-quorum-weight-kv">-</span>
+            <div class="sq-kv">
+              <div class="sq-kv__row">
+                <span class="sq-kv__label">Quorum weight</span>
+                <span class="sq-kv__value sq-mono" id="c-quorum-weight-kv">-</span>
               </div>
-              <div class="v2-kv__row">
-                <span class="v2-kv__label">Proposals in round</span>
-                <span class="v2-kv__value v2-mono" id="c-proposals">-</span>
+              <div class="sq-kv__row">
+                <span class="sq-kv__label">Proposals in round</span>
+                <span class="sq-kv__value sq-mono" id="c-proposals">-</span>
               </div>
-              <div class="v2-kv__row">
-                <span class="v2-kv__label">Round agreed</span>
-                <span class="v2-kv__value" id="c-agreed">-</span>
+              <div class="sq-kv__row">
+                <span class="sq-kv__label">Round agreed</span>
+                <span class="sq-kv__value" id="c-agreed">-</span>
               </div>
             </div>
           </div>
 
           <div class="panel">
-            <div class="v2-section__head">
-              <span class="v2-section__title">Epoch progression</span>
-              <span class="v2-section__meta v2-mono" id="epoch-spark-meta">-</span>
+            <div class="sq-section__head">
+              <span class="sq-section__title">Epoch progression</span>
+              <span class="sq-section__meta sq-mono" id="epoch-spark-meta">-</span>
             </div>
-            <svg class="v2-spark" id="epoch-spark" viewBox="0 0 400 56" preserveAspectRatio="none" role="img" aria-label="Head epoch progression"></svg>
-            <div class="v2-kv">
-              <div class="v2-kv__row">
-                <span class="v2-kv__label">Head epoch</span>
-                <span class="v2-kv__value v2-mono" id="c-head">-</span>
+            <svg class="sq-spark" id="epoch-spark" viewBox="0 0 400 56" preserveAspectRatio="none" role="img" aria-label="Head epoch progression"></svg>
+            <div class="sq-kv">
+              <div class="sq-kv__row">
+                <span class="sq-kv__label">Head epoch</span>
+                <span class="sq-kv__value sq-mono" id="c-head">-</span>
               </div>
-              <div class="v2-kv__row">
-                <span class="v2-kv__label">Current epoch</span>
-                <span class="v2-kv__value v2-mono" id="c-current">-</span>
+              <div class="sq-kv__row">
+                <span class="sq-kv__label">Current epoch</span>
+                <span class="sq-kv__value sq-mono" id="c-current">-</span>
               </div>
-              <div class="v2-kv__row">
-                <span class="v2-kv__label">Pending epochs</span>
-                <span class="v2-kv__value v2-mono" id="c-pending">-</span>
+              <div class="sq-kv__row">
+                <span class="sq-kv__label">Pending epochs</span>
+                <span class="sq-kv__value sq-mono" id="c-pending">-</span>
               </div>
-              <div class="v2-kv__row">
-                <span class="v2-kv__label">Rate</span>
-                <span class="v2-kv__value v2-mono" id="c-rate">-</span>
+              <div class="sq-kv__row">
+                <span class="sq-kv__label">Rate</span>
+                <span class="sq-kv__value sq-mono" id="c-rate">-</span>
               </div>
             </div>
           </div>
@@ -377,17 +377,17 @@
         </div>
 
         <div class="panel">
-          <div class="v2-section__head">
-            <span class="v2-section__title">Prevote proposals</span>
-            <span class="v2-section__meta v2-mono" id="votes-meta">-</span>
+          <div class="sq-section__head">
+            <span class="sq-section__title">Prevote proposals</span>
+            <span class="sq-section__meta sq-mono" id="votes-meta">-</span>
           </div>
-          <div class="v2-table-wrap">
-            <table class="v2-table">
+          <div class="sq-table-wrap">
+            <table class="sq-table">
               <thead>
-                <tr><th scope="col">Proposal</th><th scope="col" class="v2-table__num">Voters</th><th scope="col" class="v2-table__num">Weight</th></tr>
+                <tr><th scope="col">Proposal</th><th scope="col" class="sq-table__num">Voters</th><th scope="col" class="sq-table__num">Weight</th></tr>
               </thead>
               <tbody id="votes-body">
-                <tr><td colspan="3" class="v2-mute">Waiting for round data...</td></tr>
+                <tr><td colspan="3" class="sq-mute">Waiting for round data...</td></tr>
               </tbody>
             </table>
           </div>
@@ -395,119 +395,119 @@
       </section>
 
       <!-- ---------- 3. RESOURCES ---------- -->
-      <section class="v2-section v2-section--compact" id="resources" aria-label="Resources">
-        <div class="v2-section__head">
-          <span class="v2-section__title">
-            <svg class="v2-icon v2-icon--14" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><line x1="9" y1="2" x2="9" y2="4"/><line x1="15" y1="2" x2="15" y2="4"/><line x1="9" y1="20" x2="9" y2="22"/><line x1="15" y1="20" x2="15" y2="22"/><line x1="20" y1="9" x2="22" y2="9"/><line x1="20" y1="14" x2="22" y2="14"/><line x1="2" y1="9" x2="4" y2="9"/><line x1="2" y1="14" x2="4" y2="14"/></svg>
+      <section class="sq-section sq-section--compact" id="resources" aria-label="Resources">
+        <div class="sq-section__head">
+          <span class="sq-section__title">
+            <svg class="sq-icon sq-icon--14" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><line x1="9" y1="2" x2="9" y2="4"/><line x1="15" y1="2" x2="15" y2="4"/><line x1="9" y1="20" x2="9" y2="22"/><line x1="15" y1="20" x2="15" y2="22"/><line x1="20" y1="9" x2="22" y2="9"/><line x1="20" y1="14" x2="22" y2="14"/><line x1="2" y1="9" x2="4" y2="9"/><line x1="2" y1="14" x2="4" y2="14"/></svg>
             Resource usage
           </span>
-          <span class="v2-section__meta" id="res-meta">-</span>
+          <span class="sq-section__meta" id="res-meta">-</span>
         </div>
 
-        <div class="v2-grid v2-grid--2">
+        <div class="sq-grid sq-grid--2">
 
           <div class="panel">
-            <div class="v2-section__head">
-              <span class="v2-section__title">Compute</span>
-              <span class="v2-section__meta v2-mono" id="res-cores-meta">-</span>
+            <div class="sq-section__head">
+              <span class="sq-section__title">Compute</span>
+              <span class="sq-section__meta sq-mono" id="res-cores-meta">-</span>
             </div>
             <div class="gauge-stack">
-              <div class="v2-gauge" role="progressbar" aria-label="CPU usage" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="gauge-cpu">
-                <div class="v2-gauge__head">
-                  <span class="v2-gauge__label">
-                    <svg class="v2-icon v2-icon--14 v2-icon--mute" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/></svg>
+              <div class="sq-gauge" role="progressbar" aria-label="CPU usage" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="gauge-cpu">
+                <div class="sq-gauge__head">
+                  <span class="sq-gauge__label">
+                    <svg class="sq-icon sq-icon--14 sq-icon--mute" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/></svg>
                     CPU
                   </span>
-                  <span class="v2-gauge__value" id="res-cpu-pct">-</span>
+                  <span class="sq-gauge__value" id="res-cpu-pct">-</span>
                 </div>
-                <div class="v2-gauge__track"><div class="v2-gauge__fill" id="res-cpu-fill"></div></div>
-                <span class="v2-t-xs v2-mute" id="res-cpu-sub">-</span>
+                <div class="sq-gauge__track"><div class="sq-gauge__fill" id="res-cpu-fill"></div></div>
+                <span class="sq-t-xs sq-mute" id="res-cpu-sub">-</span>
               </div>
 
-              <div class="v2-gauge" role="progressbar" aria-label="Memory usage" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="gauge-mem">
-                <div class="v2-gauge__head">
-                  <span class="v2-gauge__label">
-                    <svg class="v2-icon v2-icon--14 v2-icon--mute" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z"/><line x1="8" y1="12" x2="8.01" y2="12"/><line x1="12" y1="12" x2="12.01" y2="12"/><line x1="16" y1="12" x2="16.01" y2="12"/></svg>
+              <div class="sq-gauge" role="progressbar" aria-label="Memory usage" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="gauge-mem">
+                <div class="sq-gauge__head">
+                  <span class="sq-gauge__label">
+                    <svg class="sq-icon sq-icon--14 sq-icon--mute" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z"/><line x1="8" y1="12" x2="8.01" y2="12"/><line x1="12" y1="12" x2="12.01" y2="12"/><line x1="16" y1="12" x2="16.01" y2="12"/></svg>
                     Memory
                   </span>
-                  <span class="v2-gauge__value" id="res-mem-pct">-</span>
+                  <span class="sq-gauge__value" id="res-mem-pct">-</span>
                 </div>
-                <div class="v2-gauge__track"><div class="v2-gauge__fill" id="res-mem-fill"></div></div>
-                <span class="v2-t-xs v2-mute" id="res-mem-sub">-</span>
+                <div class="sq-gauge__track"><div class="sq-gauge__fill" id="res-mem-fill"></div></div>
+                <span class="sq-t-xs sq-mute" id="res-mem-sub">-</span>
               </div>
 
-              <div class="v2-gauge" role="progressbar" aria-label="Swap usage" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="gauge-swap">
-                <div class="v2-gauge__head">
-                  <span class="v2-gauge__label">
-                    <svg class="v2-icon v2-icon--14 v2-icon--mute" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+              <div class="sq-gauge" role="progressbar" aria-label="Swap usage" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="gauge-swap">
+                <div class="sq-gauge__head">
+                  <span class="sq-gauge__label">
+                    <svg class="sq-icon sq-icon--14 sq-icon--mute" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
                     Swap
                   </span>
-                  <span class="v2-gauge__value" id="res-swap-pct">-</span>
+                  <span class="sq-gauge__value" id="res-swap-pct">-</span>
                 </div>
-                <div class="v2-gauge__track"><div class="v2-gauge__fill" id="res-swap-fill"></div></div>
-                <span class="v2-t-xs v2-mute" id="res-swap-sub">-</span>
+                <div class="sq-gauge__track"><div class="sq-gauge__fill" id="res-swap-fill"></div></div>
+                <span class="sq-t-xs sq-mute" id="res-swap-sub">-</span>
               </div>
             </div>
 
-            <div class="v2-kv">
-              <div class="v2-kv__row">
-                <span class="v2-kv__label">Load average (1 / 5 / 15 m)</span>
-                <span class="v2-kv__value v2-mono" id="res-load">-</span>
+            <div class="sq-kv">
+              <div class="sq-kv__row">
+                <span class="sq-kv__label">Load average (1 / 5 / 15 m)</span>
+                <span class="sq-kv__value sq-mono" id="res-load">-</span>
               </div>
-              <div class="v2-kv__row">
-                <span class="v2-kv__label">Load per core</span>
-                <span class="v2-kv__value v2-mono" id="res-load-pct">-</span>
+              <div class="sq-kv__row">
+                <span class="sq-kv__label">Load per core</span>
+                <span class="sq-kv__value sq-mono" id="res-load-pct">-</span>
               </div>
-              <div class="v2-kv__row">
-                <span class="v2-kv__label">System uptime</span>
-                <span class="v2-kv__value v2-mono" id="res-uptime">-</span>
+              <div class="sq-kv__row">
+                <span class="sq-kv__label">System uptime</span>
+                <span class="sq-kv__value sq-mono" id="res-uptime">-</span>
               </div>
             </div>
           </div>
 
           <div class="panel">
-            <div class="v2-section__head">
-              <span class="v2-section__title">Storage</span>
-              <span class="v2-section__meta v2-mono" id="res-storage-meta">-</span>
+            <div class="sq-section__head">
+              <span class="sq-section__title">Storage</span>
+              <span class="sq-section__meta sq-mono" id="res-storage-meta">-</span>
             </div>
             <div class="gauge-stack">
-              <div class="v2-gauge" role="progressbar" aria-label="Data volume usage" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="gauge-disk">
-                <div class="v2-gauge__head">
-                  <span class="v2-gauge__label">
-                    <svg class="v2-icon v2-icon--14 v2-icon--mute" viewBox="0 0 24 24" aria-hidden="true"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5v4c0 1.66 4.03 3 9 3s9-1.34 9-3V5"/><path d="M3 9v4c0 1.66 4.03 3 9 3s9-1.34 9-3V9"/></svg>
+              <div class="sq-gauge" role="progressbar" aria-label="Data volume usage" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="gauge-disk">
+                <div class="sq-gauge__head">
+                  <span class="sq-gauge__label">
+                    <svg class="sq-icon sq-icon--14 sq-icon--mute" viewBox="0 0 24 24" aria-hidden="true"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5v4c0 1.66 4.03 3 9 3s9-1.34 9-3V5"/><path d="M3 9v4c0 1.66 4.03 3 9 3s9-1.34 9-3V9"/></svg>
                     Data volume
                   </span>
-                  <span class="v2-gauge__value" id="res-disk-pct">-</span>
+                  <span class="sq-gauge__value" id="res-disk-pct">-</span>
                 </div>
-                <div class="v2-gauge__track"><div class="v2-gauge__fill" id="res-disk-fill"></div></div>
-                <span class="v2-t-xs v2-mute" id="res-disk-sub">-</span>
+                <div class="sq-gauge__track"><div class="sq-gauge__fill" id="res-disk-fill"></div></div>
+                <span class="sq-t-xs sq-mute" id="res-disk-sub">-</span>
               </div>
 
-              <div class="v2-gauge" role="progressbar" aria-label="Root filesystem usage" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="gauge-root">
-                <div class="v2-gauge__head">
-                  <span class="v2-gauge__label">
-                    <svg class="v2-icon v2-icon--14 v2-icon--mute" viewBox="0 0 24 24" aria-hidden="true"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+              <div class="sq-gauge" role="progressbar" aria-label="Root filesystem usage" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="gauge-root">
+                <div class="sq-gauge__head">
+                  <span class="sq-gauge__label">
+                    <svg class="sq-icon sq-icon--14 sq-icon--mute" viewBox="0 0 24 24" aria-hidden="true"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
                     Root filesystem
                   </span>
-                  <span class="v2-gauge__value" id="res-root-pct">-</span>
+                  <span class="sq-gauge__value" id="res-root-pct">-</span>
                 </div>
-                <div class="v2-gauge__track"><div class="v2-gauge__fill" id="res-root-fill"></div></div>
-                <span class="v2-t-xs v2-mute" id="res-root-sub">-</span>
+                <div class="sq-gauge__track"><div class="sq-gauge__fill" id="res-root-fill"></div></div>
+                <span class="sq-t-xs sq-mute" id="res-root-sub">-</span>
               </div>
             </div>
 
-            <div class="v2-kv">
-              <div class="v2-kv__row">
-                <span class="v2-kv__label">Disk read</span>
-                <span class="v2-kv__value v2-mono" id="res-disk-read">-</span>
+            <div class="sq-kv">
+              <div class="sq-kv__row">
+                <span class="sq-kv__label">Disk read</span>
+                <span class="sq-kv__value sq-mono" id="res-disk-read">-</span>
               </div>
-              <div class="v2-kv__row">
-                <span class="v2-kv__label">Disk write</span>
-                <span class="v2-kv__value v2-mono" id="res-disk-write">-</span>
+              <div class="sq-kv__row">
+                <span class="sq-kv__label">Disk write</span>
+                <span class="sq-kv__value sq-mono" id="res-disk-write">-</span>
               </div>
-              <div class="v2-kv__row">
-                <span class="v2-kv__label">Data dir</span>
-                <span class="v2-kv__value v2-mono truncate" id="res-data-dir">-</span>
+              <div class="sq-kv__row">
+                <span class="sq-kv__label">Data dir</span>
+                <span class="sq-kv__value sq-mono truncate" id="res-data-dir">-</span>
               </div>
             </div>
           </div>
@@ -515,137 +515,137 @@
         </div>
 
         <div class="panel">
-          <div class="v2-section__head">
-            <span class="v2-section__title">CPU - last 5 minutes</span>
-            <span class="v2-section__meta v2-mono" id="cpu-spark-meta">-</span>
+          <div class="sq-section__head">
+            <span class="sq-section__title">CPU - last 5 minutes</span>
+            <span class="sq-section__meta sq-mono" id="cpu-spark-meta">-</span>
           </div>
-          <svg class="v2-spark v2-spark--tall" id="cpu-spark" viewBox="0 0 400 56" preserveAspectRatio="none" role="img" aria-label="CPU utilisation trend"></svg>
+          <svg class="sq-spark sq-spark--tall" id="cpu-spark" viewBox="0 0 400 56" preserveAspectRatio="none" role="img" aria-label="CPU utilisation trend"></svg>
         </div>
       </section>
 
       <!-- ---------- 4. PEERS ---------- -->
-      <section class="v2-section v2-section--compact" id="peers" aria-label="Peers">
-        <div class="v2-section__head">
-          <span class="v2-section__title">
-            <svg class="v2-icon v2-icon--14" viewBox="0 0 24 24" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+      <section class="sq-section sq-section--compact" id="peers" aria-label="Peers">
+        <div class="sq-section__head">
+          <span class="sq-section__title">
+            <svg class="sq-icon sq-icon--14" viewBox="0 0 24 24" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
             Peer mesh
           </span>
-          <span class="v2-section__meta" id="peers-meta">-</span>
+          <span class="sq-section__meta" id="peers-meta">-</span>
         </div>
 
-        <div class="v2-stat-strip">
-          <div class="v2-stat">
-            <span class="v2-stat__label">Connected</span>
-            <div class="v2-stat__value" id="p-connected">-</div>
-            <span class="v2-t-xs v2-mute" id="p-known-sub">of - known</span>
+        <div class="sq-stat-strip">
+          <div class="sq-stat">
+            <span class="sq-stat__label">Connected</span>
+            <div class="sq-stat__value" id="p-connected">-</div>
+            <span class="sq-t-xs sq-mute" id="p-known-sub">of - known</span>
           </div>
-          <div class="v2-stat">
-            <span class="v2-stat__label">Consensus peers</span>
-            <div class="v2-stat__value" id="p-consensus">-</div>
-            <span class="v2-t-xs v2-mute">peer state records</span>
+          <div class="sq-stat">
+            <span class="sq-stat__label">Consensus peers</span>
+            <div class="sq-stat__value" id="p-consensus">-</div>
+            <span class="sq-t-xs sq-mute">peer state records</span>
           </div>
-          <div class="v2-stat">
-            <span class="v2-stat__label">Network lag</span>
-            <div class="v2-stat__value" id="p-lag-max">-</div>
-            <span class="v2-t-xs v2-mute">epochs vs network head</span>
+          <div class="sq-stat">
+            <span class="sq-stat__label">Network lag</span>
+            <div class="sq-stat__value" id="p-lag-max">-</div>
+            <span class="sq-t-xs sq-mute">epochs vs network head</span>
           </div>
-          <div class="v2-stat">
-            <span class="v2-stat__label">Median drift</span>
-            <div class="v2-stat__value" id="p-drift-median">-</div>
-            <span class="v2-t-xs v2-mute" id="p-lag-median-sub">beyond record age, &lt; 2 min</span>
+          <div class="sq-stat">
+            <span class="sq-stat__label">Median drift</span>
+            <div class="sq-stat__value" id="p-drift-median">-</div>
+            <span class="sq-t-xs sq-mute" id="p-lag-median-sub">beyond record age, &lt; 2 min</span>
           </div>
-          <div class="v2-stat">
-            <span class="v2-stat__label">Behind</span>
-            <div class="v2-stat__value" id="p-behind">-</div>
-            <span class="v2-t-xs v2-mute">recent records &gt; 3 epochs</span>
+          <div class="sq-stat">
+            <span class="sq-stat__label">Behind</span>
+            <div class="sq-stat__value" id="p-behind">-</div>
+            <span class="sq-t-xs sq-mute">recent records &gt; 3 epochs</span>
           </div>
-          <div class="v2-stat">
-            <span class="v2-stat__label">Stale records</span>
-            <div class="v2-stat__value" id="p-stale">-</div>
-            <span class="v2-t-xs v2-mute">no update &gt; 10 min</span>
+          <div class="sq-stat">
+            <span class="sq-stat__label">Stale records</span>
+            <div class="sq-stat__value" id="p-stale">-</div>
+            <span class="sq-t-xs sq-mute">no update &gt; 10 min</span>
           </div>
         </div>
 
-        <div class="v2-grid v2-grid--2">
+        <div class="sq-grid sq-grid--2">
 
           <div class="panel">
-            <div class="v2-section__head">
-              <span class="v2-section__title">Peer scoring</span>
-              <span class="v2-section__meta">p2p guard</span>
+            <div class="sq-section__head">
+              <span class="sq-section__title">Peer scoring</span>
+              <span class="sq-section__meta">p2p guard</span>
             </div>
-            <div class="v2-kv">
-              <div class="v2-kv__row">
-                <span class="v2-kv__label">Synced peers</span>
-                <span class="v2-kv__value v2-mono" id="p-synced">-</span>
+            <div class="sq-kv">
+              <div class="sq-kv__row">
+                <span class="sq-kv__label">Synced peers</span>
+                <span class="sq-kv__value sq-mono" id="p-synced">-</span>
               </div>
-              <div class="v2-kv__row">
-                <span class="v2-kv__label">Max drift</span>
-                <span class="v2-kv__value v2-mono" id="p-drift-max">-</span>
+              <div class="sq-kv__row">
+                <span class="sq-kv__label">Max drift</span>
+                <span class="sq-kv__value sq-mono" id="p-drift-max">-</span>
               </div>
-              <div class="v2-kv__row">
-                <span class="v2-kv__label">Peers ahead of us</span>
-                <span class="v2-kv__value v2-mono" id="p-ahead">-</span>
+              <div class="sq-kv__row">
+                <span class="sq-kv__label">Peers ahead of us</span>
+                <span class="sq-kv__value sq-mono" id="p-ahead">-</span>
               </div>
-              <div class="v2-kv__row">
-                <span class="v2-kv__label">Banned peers</span>
-                <span class="v2-kv__value" id="p-banned">-</span>
+              <div class="sq-kv__row">
+                <span class="sq-kv__label">Banned peers</span>
+                <span class="sq-kv__value" id="p-banned">-</span>
               </div>
-              <div class="v2-kv__row">
-                <span class="v2-kv__label">Paused peers</span>
-                <span class="v2-kv__value" id="p-paused">-</span>
+              <div class="sq-kv__row">
+                <span class="sq-kv__label">Paused peers</span>
+                <span class="sq-kv__value" id="p-paused">-</span>
               </div>
-              <div class="v2-kv__row">
-                <span class="v2-kv__label">Public discovery sources</span>
-                <span class="v2-kv__value v2-mono" id="p-sources">-</span>
+              <div class="sq-kv__row">
+                <span class="sq-kv__label">Public discovery sources</span>
+                <span class="sq-kv__value sq-mono" id="p-sources">-</span>
               </div>
             </div>
           </div>
 
           <div class="panel">
-            <div class="v2-section__head">
-              <span class="v2-section__title">Network I/O</span>
-              <span class="v2-section__meta">
-                <span class="v2-legend">
-                  <span class="v2-legend__item"><span class="v2-legend__sw v2-legend__sw--in"></span>In</span>
-                  <span class="v2-legend__item"><span class="v2-legend__sw v2-legend__sw--out"></span>Out</span>
+            <div class="sq-section__head">
+              <span class="sq-section__title">Network I/O</span>
+              <span class="sq-section__meta">
+                <span class="sq-legend">
+                  <span class="sq-legend__item"><span class="sq-legend__sw sq-legend__sw--in"></span>In</span>
+                  <span class="sq-legend__item"><span class="sq-legend__sw sq-legend__sw--out"></span>Out</span>
                 </span>
               </span>
             </div>
-            <div class="v2-kv">
-              <div class="v2-kv__row">
-                <span class="v2-kv__label">Inbound</span>
-                <span class="v2-kv__value v2-mono" id="net-in">-</span>
+            <div class="sq-kv">
+              <div class="sq-kv__row">
+                <span class="sq-kv__label">Inbound</span>
+                <span class="sq-kv__value sq-mono" id="net-in">-</span>
               </div>
-              <div class="v2-kv__row">
-                <span class="v2-kv__label">Outbound</span>
-                <span class="v2-kv__value v2-mono" id="net-out">-</span>
+              <div class="sq-kv__row">
+                <span class="sq-kv__label">Outbound</span>
+                <span class="sq-kv__value sq-mono" id="net-out">-</span>
               </div>
             </div>
-            <div class="v2-bars" id="net-bars" role="img" aria-label="Network throughput history"></div>
-            <span class="v2-t-xs v2-mute" id="net-bars-meta">-</span>
+            <div class="sq-bars" id="net-bars" role="img" aria-label="Network throughput history"></div>
+            <span class="sq-t-xs sq-mute" id="net-bars-meta">-</span>
           </div>
 
         </div>
 
         <div class="panel">
-          <div class="v2-section__head">
-            <span class="v2-section__title">Peer lag - worst first</span>
-            <span class="v2-section__meta v2-mono" id="peers-table-meta">-</span>
+          <div class="sq-section__head">
+            <span class="sq-section__title">Peer lag - worst first</span>
+            <span class="sq-section__meta sq-mono" id="peers-table-meta">-</span>
           </div>
-          <div class="v2-table-wrap">
-            <table class="v2-table">
+          <div class="sq-table-wrap">
+            <table class="sq-table">
               <thead>
                 <tr>
                   <th scope="col">Peer</th>
-                  <th scope="col" class="v2-table__num">Head epoch</th>
-                  <th scope="col" class="v2-table__num">Lag</th>
-                  <th scope="col" class="v2-table__num">Drift</th>
-                  <th scope="col" class="v2-table__num">Age</th>
+                  <th scope="col" class="sq-table__num">Head epoch</th>
+                  <th scope="col" class="sq-table__num">Lag</th>
+                  <th scope="col" class="sq-table__num">Drift</th>
+                  <th scope="col" class="sq-table__num">Age</th>
                   <th scope="col">Source</th>
                 </tr>
               </thead>
               <tbody id="peers-body">
-                <tr><td colspan="6" class="v2-mute">Waiting for peer telemetry...</td></tr>
+                <tr><td colspan="6" class="sq-mute">Waiting for peer telemetry...</td></tr>
               </tbody>
             </table>
           </div>
@@ -653,97 +653,97 @@
       </section>
 
       <!-- ---------- 5. PROCESS ---------- -->
-      <section class="v2-section v2-section--compact" id="process" aria-label="Process">
-        <div class="v2-section__head">
-          <span class="v2-section__title">
-            <svg class="v2-icon v2-icon--14" viewBox="0 0 24 24" aria-hidden="true"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>
+      <section class="sq-section sq-section--compact" id="process" aria-label="Process">
+        <div class="sq-section__head">
+          <span class="sq-section__title">
+            <svg class="sq-icon sq-icon--14" viewBox="0 0 24 24" aria-hidden="true"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>
             Node process
           </span>
-          <span class="v2-section__meta" id="pr-meta">-</span>
+          <span class="sq-section__meta" id="pr-meta">-</span>
         </div>
 
-        <div class="v2-stat-strip">
-          <div class="v2-stat">
-            <span class="v2-stat__label">Status</span>
-            <div class="v2-stat__value v2-t-xl" id="pr-status">-</div>
-            <span class="v2-t-xs v2-mute" id="pr-name-sub">-</span>
+        <div class="sq-stat-strip">
+          <div class="sq-stat">
+            <span class="sq-stat__label">Status</span>
+            <div class="sq-stat__value sq-t-xl" id="pr-status">-</div>
+            <span class="sq-t-xs sq-mute" id="pr-name-sub">-</span>
           </div>
-          <div class="v2-stat">
-            <span class="v2-stat__label">PID</span>
-            <div class="v2-stat__value v2-t-xl v2-mono" id="pr-pid">-</div>
+          <div class="sq-stat">
+            <span class="sq-stat__label">PID</span>
+            <div class="sq-stat__value sq-t-xl sq-mono" id="pr-pid">-</div>
           </div>
-          <div class="v2-stat">
-            <span class="v2-stat__label">Uptime</span>
-            <div class="v2-stat__value v2-t-xl v2-mono" id="pr-uptime">-</div>
+          <div class="sq-stat">
+            <span class="sq-stat__label">Uptime</span>
+            <div class="sq-stat__value sq-t-xl sq-mono" id="pr-uptime">-</div>
           </div>
-          <div class="v2-stat">
-            <span class="v2-stat__label">Restarts</span>
-            <div class="v2-stat__value v2-t-xl v2-mono" id="pr-restarts">-</div>
-            <span class="v2-t-xs v2-mute">since pm2 start</span>
+          <div class="sq-stat">
+            <span class="sq-stat__label">Restarts</span>
+            <div class="sq-stat__value sq-t-xl sq-mono" id="pr-restarts">-</div>
+            <span class="sq-t-xs sq-mute">since pm2 start</span>
           </div>
-          <div class="v2-stat">
-            <span class="v2-stat__label">Process CPU</span>
-            <div class="v2-stat__value v2-t-xl v2-mono" id="pr-cpu">-</div>
-            <span class="v2-t-xs v2-mute">1 core = 100%</span>
+          <div class="sq-stat">
+            <span class="sq-stat__label">Process CPU</span>
+            <div class="sq-stat__value sq-t-xl sq-mono" id="pr-cpu">-</div>
+            <span class="sq-t-xs sq-mute">1 core = 100%</span>
           </div>
-          <div class="v2-stat">
-            <span class="v2-stat__label">Resident memory</span>
-            <div class="v2-stat__value v2-t-xl v2-mono" id="pr-mem">-</div>
+          <div class="sq-stat">
+            <span class="sq-stat__label">Resident memory</span>
+            <div class="sq-stat__value sq-t-xl sq-mono" id="pr-mem">-</div>
           </div>
         </div>
 
-        <div class="v2-grid v2-grid--2">
+        <div class="sq-grid sq-grid--2">
 
           <div class="panel">
-            <div class="v2-section__head">
-              <span class="v2-section__title">Runtime</span>
-              <span class="v2-section__meta v2-mono" id="pr-runtime-meta">-</span>
+            <div class="sq-section__head">
+              <span class="sq-section__title">Runtime</span>
+              <span class="sq-section__meta sq-mono" id="pr-runtime-meta">-</span>
             </div>
-            <div class="v2-kv">
-              <div class="v2-kv__row">
-                <span class="v2-kv__label">Process name</span>
-                <span class="v2-kv__value v2-mono truncate" id="pr-name">-</span>
+            <div class="sq-kv">
+              <div class="sq-kv__row">
+                <span class="sq-kv__label">Process name</span>
+                <span class="sq-kv__value sq-mono truncate" id="pr-name">-</span>
               </div>
-              <div class="v2-kv__row">
-                <span class="v2-kv__label">Exec mode</span>
-                <span class="v2-kv__value v2-mono" id="pr-exec">-</span>
+              <div class="sq-kv__row">
+                <span class="sq-kv__label">Exec mode</span>
+                <span class="sq-kv__value sq-mono" id="pr-exec">-</span>
               </div>
-              <div class="v2-kv__row">
-                <span class="v2-kv__label">Instances</span>
-                <span class="v2-kv__value v2-mono" id="pr-instances">-</span>
+              <div class="sq-kv__row">
+                <span class="sq-kv__label">Instances</span>
+                <span class="sq-kv__value sq-mono" id="pr-instances">-</span>
               </div>
-              <div class="v2-kv__row">
-                <span class="v2-kv__label">Source commit</span>
-                <span class="v2-kv__value v2-mono" id="pr-commit">-</span>
+              <div class="sq-kv__row">
+                <span class="sq-kv__label">Source commit</span>
+                <span class="sq-kv__value sq-mono" id="pr-commit">-</span>
               </div>
-              <div class="v2-kv__row">
-                <span class="v2-kv__label">RPC endpoint</span>
-                <span class="v2-kv__value v2-mono" id="pr-rpc">-</span>
+              <div class="sq-kv__row">
+                <span class="sq-kv__label">RPC endpoint</span>
+                <span class="sq-kv__value sq-mono" id="pr-rpc">-</span>
               </div>
             </div>
           </div>
 
           <div class="panel">
-            <div class="v2-section__head">
-              <span class="v2-section__title">Log signal - last 120 lines</span>
-              <span class="v2-section__meta v2-mono" id="pr-log-meta">-</span>
+            <div class="sq-section__head">
+              <span class="sq-section__title">Log signal - last 120 lines</span>
+              <span class="sq-section__meta sq-mono" id="pr-log-meta">-</span>
             </div>
-            <div class="v2-kv">
-              <div class="v2-kv__row">
-                <span class="v2-kv__label">Warnings</span>
-                <span class="v2-kv__value" id="pr-warn">-</span>
+            <div class="sq-kv">
+              <div class="sq-kv__row">
+                <span class="sq-kv__label">Warnings</span>
+                <span class="sq-kv__value" id="pr-warn">-</span>
               </div>
-              <div class="v2-kv__row">
-                <span class="v2-kv__label">Errors</span>
-                <span class="v2-kv__value" id="pr-error">-</span>
+              <div class="sq-kv__row">
+                <span class="sq-kv__label">Errors</span>
+                <span class="sq-kv__value" id="pr-error">-</span>
               </div>
-              <div class="v2-kv__row">
-                <span class="v2-kv__label">Last warning</span>
-                <span class="v2-kv__value v2-mono truncate" id="pr-last-warn">-</span>
+              <div class="sq-kv__row">
+                <span class="sq-kv__label">Last warning</span>
+                <span class="sq-kv__value sq-mono truncate" id="pr-last-warn">-</span>
               </div>
-              <div class="v2-kv__row">
-                <span class="v2-kv__label">Last error</span>
-                <span class="v2-kv__value v2-mono truncate" id="pr-last-error">-</span>
+              <div class="sq-kv__row">
+                <span class="sq-kv__label">Last error</span>
+                <span class="sq-kv__value sq-mono truncate" id="pr-last-error">-</span>
               </div>
             </div>
           </div>
@@ -753,104 +753,104 @@
 
 
       <!-- ---------- 6. LOGS ---------- -->
-      <section class="v2-section v2-section--compact" id="logs" aria-label="Logs">
-        <div class="v2-section__head">
-          <span class="v2-section__title">
-            <svg class="v2-icon v2-icon--14" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="14" y2="17"/></svg>
+      <section class="sq-section sq-section--compact" id="logs" aria-label="Logs">
+        <div class="sq-section__head">
+          <span class="sq-section__title">
+            <svg class="sq-icon sq-icon--14" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="14" y2="17"/></svg>
             Live logs
           </span>
-          <span class="v2-section__meta" id="log-section-meta">-</span>
+          <span class="sq-section__meta" id="log-section-meta">-</span>
         </div>
 
         <div class="log-toolbar">
-          <div class="v2-seg" role="group" aria-label="Log level filter" id="log-filter">
-            <button type="button" class="v2-seg__btn v2-seg__btn--active" data-log-level="all">All</button>
-            <button type="button" class="v2-seg__btn" data-log-level="warn">Warn</button>
-            <button type="button" class="v2-seg__btn" data-log-level="error">Errors</button>
+          <div class="sq-seg" role="group" aria-label="Log level filter" id="log-filter">
+            <button type="button" class="sq-seg__btn sq-seg__btn--active" data-log-level="all">All</button>
+            <button type="button" class="sq-seg__btn" data-log-level="warn">Warn</button>
+            <button type="button" class="sq-seg__btn" data-log-level="error">Errors</button>
           </div>
-          <input class="v2-input log-search" id="log-search" type="search" placeholder="Filter component, event or text..." aria-label="Filter logs" autocomplete="off" />
-          <button type="button" class="v2-btn v2-btn--ghost" id="log-pause" aria-pressed="false">
-            <svg class="v2-icon v2-icon--14 icon-pause" viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/></svg>
-            <svg class="v2-icon v2-icon--14 icon-play" viewBox="0 0 24 24" aria-hidden="true" style="display:none;"><polygon points="6 3 20 12 6 21 6 3"/></svg>
+          <input class="sq-input log-search" id="log-search" type="search" placeholder="Filter component, event or text..." aria-label="Filter logs" autocomplete="off" />
+          <button type="button" class="sq-btn sq-btn--ghost" id="log-pause" aria-pressed="false">
+            <svg class="sq-icon sq-icon--14 icon-pause" viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/></svg>
+            <svg class="sq-icon sq-icon--14 icon-play" viewBox="0 0 24 24" aria-hidden="true" style="display:none;"><polygon points="6 3 20 12 6 21 6 3"/></svg>
             <span id="log-pause-text">Pause</span>
           </button>
-          <span class="v2-t-xs v2-mute log-meta" id="log-meta">-</span>
+          <span class="sq-t-xs sq-mute log-meta" id="log-meta">-</span>
         </div>
 
-        <div class="v2-log v2-log--scroll v2-log--bordered" id="log-body" role="log" aria-label="Node log tail">
-          <div class="v2-log__empty">Waiting for log stream...</div>
+        <div class="sq-log sq-log--scroll sq-log--bordered" id="log-body" role="log" aria-label="Node log tail">
+          <div class="sq-log__empty">Waiting for log stream...</div>
         </div>
       </section>
 
 
       <!-- ---------- 7. SYSTEM ---------- -->
-      <section class="v2-section v2-section--compact" id="system" aria-label="System and identity">
-        <div class="v2-section__head">
-          <span class="v2-section__title">
-            <svg class="v2-icon v2-icon--14" viewBox="0 0 24 24" aria-hidden="true"><rect x="2" y="2" width="20" height="8" rx="2"/><rect x="2" y="14" width="20" height="8" rx="2"/><line x1="6" y1="6" x2="6.01" y2="6"/><line x1="6" y1="18" x2="6.01" y2="18"/></svg>
+      <section class="sq-section sq-section--compact" id="system" aria-label="System and identity">
+        <div class="sq-section__head">
+          <span class="sq-section__title">
+            <svg class="sq-icon sq-icon--14" viewBox="0 0 24 24" aria-hidden="true"><rect x="2" y="2" width="20" height="8" rx="2"/><rect x="2" y="14" width="20" height="8" rx="2"/><line x1="6" y1="6" x2="6.01" y2="6"/><line x1="6" y1="18" x2="6.01" y2="18"/></svg>
             System &amp; identity
           </span>
-          <span class="v2-section__meta" id="sys-meta">-</span>
+          <span class="sq-section__meta" id="sys-meta">-</span>
         </div>
 
-        <div class="v2-grid v2-grid--2">
+        <div class="sq-grid sq-grid--2">
 
           <div class="panel">
-            <div class="v2-section__head"><span class="v2-section__title">Node</span></div>
-            <div class="v2-kv">
-              <div class="v2-kv__row">
-                <span class="v2-kv__label">Chain</span>
-                <span class="v2-kv__value v2-mono truncate" id="sys-chain">-</span>
+            <div class="sq-section__head"><span class="sq-section__title">Node</span></div>
+            <div class="sq-kv">
+              <div class="sq-kv__row">
+                <span class="sq-kv__label">Chain</span>
+                <span class="sq-kv__value sq-mono truncate" id="sys-chain">-</span>
               </div>
-              <div class="v2-kv__row">
-                <span class="v2-kv__label">Role</span>
-                <span class="v2-kv__value" id="sys-role">-</span>
+              <div class="sq-kv__row">
+                <span class="sq-kv__label">Role</span>
+                <span class="sq-kv__value" id="sys-role">-</span>
               </div>
-              <div class="v2-kv__row">
-                <span class="v2-kv__label">API port</span>
-                <span class="v2-kv__value v2-mono" id="sys-api">-</span>
+              <div class="sq-kv__row">
+                <span class="sq-kv__label">API port</span>
+                <span class="sq-kv__value sq-mono" id="sys-api">-</span>
               </div>
-              <div class="v2-kv__row">
-                <span class="v2-kv__label">Network version</span>
-                <span class="v2-kv__value v2-mono" id="sys-network-version">-</span>
+              <div class="sq-kv__row">
+                <span class="sq-kv__label">Network version</span>
+                <span class="sq-kv__value sq-mono" id="sys-network-version">-</span>
               </div>
-              <div class="v2-kv__row">
-                <span class="v2-kv__label">Storage backend</span>
-                <span class="v2-kv__value v2-mono" id="sys-storage">-</span>
+              <div class="sq-kv__row">
+                <span class="sq-kv__label">Storage backend</span>
+                <span class="sq-kv__value sq-mono" id="sys-storage">-</span>
               </div>
-              <div class="v2-kv__row">
-                <span class="v2-kv__label">Data directory</span>
-                <span class="v2-kv__value v2-mono truncate" id="sys-data-dir">-</span>
+              <div class="sq-kv__row">
+                <span class="sq-kv__label">Data directory</span>
+                <span class="sq-kv__value sq-mono truncate" id="sys-data-dir">-</span>
               </div>
             </div>
           </div>
 
           <div class="panel">
-            <div class="v2-section__head"><span class="v2-section__title">Host</span></div>
-            <div class="v2-kv">
-              <div class="v2-kv__row">
-                <span class="v2-kv__label">Hostname</span>
-                <span class="v2-kv__value v2-mono" id="sys-hostname">-</span>
+            <div class="sq-section__head"><span class="sq-section__title">Host</span></div>
+            <div class="sq-kv">
+              <div class="sq-kv__row">
+                <span class="sq-kv__label">Hostname</span>
+                <span class="sq-kv__value sq-mono" id="sys-hostname">-</span>
               </div>
-              <div class="v2-kv__row">
-                <span class="v2-kv__label">Operating system</span>
-                <span class="v2-kv__value truncate" id="sys-os">-</span>
+              <div class="sq-kv__row">
+                <span class="sq-kv__label">Operating system</span>
+                <span class="sq-kv__value truncate" id="sys-os">-</span>
               </div>
-              <div class="v2-kv__row">
-                <span class="v2-kv__label">Kernel</span>
-                <span class="v2-kv__value v2-mono truncate" id="sys-kernel">-</span>
+              <div class="sq-kv__row">
+                <span class="sq-kv__label">Kernel</span>
+                <span class="sq-kv__value sq-mono truncate" id="sys-kernel">-</span>
               </div>
-              <div class="v2-kv__row">
-                <span class="v2-kv__label">Architecture</span>
-                <span class="v2-kv__value v2-mono" id="sys-arch">-</span>
+              <div class="sq-kv__row">
+                <span class="sq-kv__label">Architecture</span>
+                <span class="sq-kv__value sq-mono" id="sys-arch">-</span>
               </div>
-              <div class="v2-kv__row">
-                <span class="v2-kv__label">CPU cores</span>
-                <span class="v2-kv__value v2-mono" id="sys-cores">-</span>
+              <div class="sq-kv__row">
+                <span class="sq-kv__label">CPU cores</span>
+                <span class="sq-kv__value sq-mono" id="sys-cores">-</span>
               </div>
-              <div class="v2-kv__row">
-                <span class="v2-kv__label">System uptime</span>
-                <span class="v2-kv__value v2-mono" id="sys-uptime">-</span>
+              <div class="sq-kv__row">
+                <span class="sq-kv__label">System uptime</span>
+                <span class="sq-kv__value sq-mono" id="sys-uptime">-</span>
               </div>
             </div>
           </div>
@@ -858,300 +858,300 @@
         </div>
 
 
-        <div class="v2-grid v2-grid--2">
+        <div class="sq-grid sq-grid--2">
 
           <div class="panel">
-            <div class="v2-section__head"><span class="v2-section__title">Ledger</span></div>
-            <div class="v2-kv">
-              <div class="v2-kv__row">
-                <span class="v2-kv__label">Accounts</span>
-                <span class="v2-kv__value v2-mono" id="sys-accounts">-</span>
+            <div class="sq-section__head"><span class="sq-section__title">Ledger</span></div>
+            <div class="sq-kv">
+              <div class="sq-kv__row">
+                <span class="sq-kv__label">Accounts</span>
+                <span class="sq-kv__value sq-mono" id="sys-accounts">-</span>
               </div>
-              <div class="v2-kv__row">
-                <span class="v2-kv__label">Active accounts</span>
-                <span class="v2-kv__value v2-mono" id="sys-active-accounts">-</span>
+              <div class="sq-kv__row">
+                <span class="sq-kv__label">Active accounts</span>
+                <span class="sq-kv__value sq-mono" id="sys-active-accounts">-</span>
               </div>
-              <div class="v2-kv__row">
-                <span class="v2-kv__label">Total supply</span>
-                <span class="v2-kv__value v2-mono" id="sys-supply">-</span>
+              <div class="sq-kv__row">
+                <span class="sq-kv__label">Total supply</span>
+                <span class="sq-kv__value sq-mono" id="sys-supply">-</span>
               </div>
-              <div class="v2-kv__row">
-                <span class="v2-kv__label">Circulating supply</span>
-                <span class="v2-kv__value v2-mono" id="sys-circulating">-</span>
+              <div class="sq-kv__row">
+                <span class="sq-kv__label">Circulating supply</span>
+                <span class="sq-kv__value sq-mono" id="sys-circulating">-</span>
               </div>
-              <div class="v2-kv__row">
-                <span class="v2-kv__label">Encrypted supply</span>
-                <span class="v2-kv__value v2-mono" id="sys-encrypted">-</span>
+              <div class="sq-kv__row">
+                <span class="sq-kv__label">Encrypted supply</span>
+                <span class="sq-kv__value sq-mono" id="sys-encrypted">-</span>
               </div>
-              <div class="v2-kv__row">
-                <span class="v2-kv__label">Txid high-water mark</span>
-                <span class="v2-kv__value v2-mono" id="sys-txid">-</span>
+              <div class="sq-kv__row">
+                <span class="sq-kv__label">Txid high-water mark</span>
+                <span class="sq-kv__value sq-mono" id="sys-txid">-</span>
               </div>
             </div>
           </div>
 
           <div class="panel">
-            <div class="v2-section__head"><span class="v2-section__title">Commitments</span></div>
-            <div class="v2-kv">
-              <div class="v2-kv__row">
-                <span class="v2-kv__label">State root</span>
-                <span class="v2-kv__value hash-cell">
-                  <span class="v2-mono truncate" id="sys-state-root">-</span>
-                  <button type="button" class="v2-btn v2-btn--icon copy-btn" id="copy-state-root" aria-label="Copy state root" data-v2-copy="" data-v2-copy-label="State root copied">
-                    <svg class="v2-icon v2-icon--14" viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            <div class="sq-section__head"><span class="sq-section__title">Commitments</span></div>
+            <div class="sq-kv">
+              <div class="sq-kv__row">
+                <span class="sq-kv__label">State root</span>
+                <span class="sq-kv__value hash-cell">
+                  <span class="sq-mono truncate" id="sys-state-root">-</span>
+                  <button type="button" class="sq-btn sq-btn--icon copy-btn" id="copy-state-root" aria-label="Copy state root" data-sq-copy="" data-sq-copy-label="State root copied">
+                    <svg class="sq-icon sq-icon--14" viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
                   </button>
                 </span>
               </div>
-              <div class="v2-kv__row">
-                <span class="v2-kv__label">Irmin commit</span>
-                <span class="v2-kv__value hash-cell">
-                  <span class="v2-mono truncate" id="sys-irmin">-</span>
-                  <button type="button" class="v2-btn v2-btn--icon copy-btn" id="copy-irmin" aria-label="Copy irmin commit" data-v2-copy="" data-v2-copy-label="Irmin commit copied">
-                    <svg class="v2-icon v2-icon--14" viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+              <div class="sq-kv__row">
+                <span class="sq-kv__label">Irmin commit</span>
+                <span class="sq-kv__value hash-cell">
+                  <span class="sq-mono truncate" id="sys-irmin">-</span>
+                  <button type="button" class="sq-btn sq-btn--icon copy-btn" id="copy-irmin" aria-label="Copy irmin commit" data-sq-copy="" data-sq-copy-label="Irmin commit copied">
+                    <svg class="sq-icon sq-icon--14" viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
                   </button>
                 </span>
               </div>
-              <div class="v2-kv__row">
-                <span class="v2-kv__label">Source commit</span>
-                <span class="v2-kv__value v2-mono" id="sys-commit">-</span>
+              <div class="sq-kv__row">
+                <span class="sq-kv__label">Source commit</span>
+                <span class="sq-kv__value sq-mono" id="sys-commit">-</span>
               </div>
-              <div class="v2-kv__row">
-                <span class="v2-kv__label">Backend service</span>
-                <span class="v2-kv__value v2-mono" id="sys-backend">-</span>
+              <div class="sq-kv__row">
+                <span class="sq-kv__label">Backend service</span>
+                <span class="sq-kv__value sq-mono" id="sys-backend">-</span>
               </div>
-              <div class="v2-kv__row">
-                <span class="v2-kv__label">Backend availability</span>
-                <span class="v2-kv__value v2-mono" id="sys-backend-avail">-</span>
+              <div class="sq-kv__row">
+                <span class="sq-kv__label">Backend availability</span>
+                <span class="sq-kv__value sq-mono" id="sys-backend-avail">-</span>
               </div>
             </div>
           </div>
 
         </div>
 
-        <p class="v2-t-xs v2-mute sys-foot" id="sys-foot">Octra live monitor - read-only telemetry from the node RPC, /proc and pm2.</p>
+        <p class="sq-t-xs sq-mute sys-foot" id="sys-foot">Octra live monitor - read-only telemetry from the node RPC, /proc and pm2.</p>
       </section>
 
       <!-- ---------- 8. WALLETS ---------- -->
-      <section class="v2-section v2-section--compact" id="wallets" aria-label="Wallet and rewards">
-        <div class="v2-section__head">
-          <span class="v2-section__title">
-            <svg class="v2-icon v2-icon--14" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"/><path d="M3 5v14a2 2 0 0 0 2 2h16v-5"/><path d="M18 12a2 2 0 0 0 0 4h4v-4z"/></svg>
+      <section class="sq-section sq-section--compact" id="wallets" aria-label="Wallet and rewards">
+        <div class="sq-section__head">
+          <span class="sq-section__title">
+            <svg class="sq-icon sq-icon--14" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"/><path d="M3 5v14a2 2 0 0 0 2 2h16v-5"/><path d="M18 12a2 2 0 0 0 0 4h4v-4z"/></svg>
             Wallet &amp; rewards
           </span>
-          <span class="v2-section__meta" id="wal-meta">-</span>
+          <span class="sq-section__meta" id="wal-meta">-</span>
         </div>
 
-        <div class="v2-stat-strip">
-          <div class="v2-stat">
-            <span class="v2-stat__label">
-              <svg class="v2-icon v2-icon--14 v2-icon--mute" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"/><path d="M3 5v14a2 2 0 0 0 2 2h16v-5"/><path d="M18 12a2 2 0 0 0 0 4h4v-4z"/></svg>
+        <div class="sq-stat-strip">
+          <div class="sq-stat">
+            <span class="sq-stat__label">
+              <svg class="sq-icon sq-icon--14 sq-icon--mute" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"/><path d="M3 5v14a2 2 0 0 0 2 2h16v-5"/><path d="M18 12a2 2 0 0 0 0 4h4v-4z"/></svg>
               Balance
             </span>
-            <div class="v2-stat__value" id="wal-balance">-</div>
-            <span class="v2-t-xs v2-mute" id="wal-balance-sub">raw -</span>
+            <div class="sq-stat__value" id="wal-balance">-</div>
+            <span class="sq-t-xs sq-mute" id="wal-balance-sub">raw -</span>
           </div>
-          <div class="v2-stat">
-            <span class="v2-stat__label">
-              <svg class="v2-icon v2-icon--14 v2-icon--mute" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="11" width="18" height="10" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          <div class="sq-stat">
+            <span class="sq-stat__label">
+              <svg class="sq-icon sq-icon--14 sq-icon--mute" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="11" width="18" height="10" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
               Bonded
             </span>
-            <div class="v2-stat__value" id="wal-bond">-</div>
-            <span class="v2-t-xs v2-mute" id="wal-bond-sub">-</span>
+            <div class="sq-stat__value" id="wal-bond">-</div>
+            <span class="sq-t-xs sq-mute" id="wal-bond-sub">-</span>
           </div>
-          <div class="v2-stat">
-            <span class="v2-stat__label">
-              <svg class="v2-icon v2-icon--14 v2-icon--mute" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h16v4H4z"/><path d="M4 12h16"/><path d="M4 20h10"/></svg>
+          <div class="sq-stat">
+            <span class="sq-stat__label">
+              <svg class="sq-icon sq-icon--14 sq-icon--mute" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h16v4H4z"/><path d="M4 12h16"/><path d="M4 20h10"/></svg>
               Nonce / tx count
             </span>
-            <div class="v2-stat__value v2-mono" id="wal-nonce">-</div>
-            <span class="v2-t-xs v2-mute" id="wal-nonce-sub">-</span>
+            <div class="sq-stat__value sq-mono" id="wal-nonce">-</div>
+            <span class="sq-t-xs sq-mute" id="wal-nonce-sub">-</span>
           </div>
-          <div class="v2-stat">
-            <span class="v2-stat__label">
-              <svg class="v2-icon v2-icon--14 v2-icon--mute" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2 3 7l9 5 9-5z"/><path d="m3 12 9 5 9-5"/><path d="m3 17 9 5 9-5"/></svg>
+          <div class="sq-stat">
+            <span class="sq-stat__label">
+              <svg class="sq-icon sq-icon--14 sq-icon--mute" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2 3 7l9 5 9-5z"/><path d="m3 12 9 5 9-5"/><path d="m3 17 9 5 9-5"/></svg>
               Proposer count
             </span>
-            <div class="v2-stat__value v2-mono" id="wal-proposals">-</div>
-            <span class="v2-t-xs v2-mute" id="wal-proposals-sub">-</span>
+            <div class="sq-stat__value sq-mono" id="wal-proposals">-</div>
+            <span class="sq-t-xs sq-mute" id="wal-proposals-sub">-</span>
           </div>
-          <div class="v2-stat">
-            <span class="v2-stat__label">
-              <svg class="v2-icon v2-icon--14 v2-icon--mute" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2v20"/><path d="M17 6H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+          <div class="sq-stat">
+            <span class="sq-stat__label">
+              <svg class="sq-icon sq-icon--14 sq-icon--mute" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2v20"/><path d="M17 6H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
               Total reward
             </span>
-            <div class="v2-stat__value" id="wal-reward">-</div>
-            <span class="v2-t-xs v2-mute" id="wal-reward-sub">-</span>
-            <span class="v2-t-xs v2-mute" id="wal-reward-tag">-</span>
+            <div class="sq-stat__value" id="wal-reward">-</div>
+            <span class="sq-t-xs sq-mute" id="wal-reward-sub">-</span>
+            <span class="sq-t-xs sq-mute" id="wal-reward-tag">-</span>
           </div>
-          <div class="v2-stat">
-            <span class="v2-stat__label">
-              <svg class="v2-icon v2-icon--14 v2-icon--mute" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 14"/></svg>
+          <div class="sq-stat">
+            <span class="sq-stat__label">
+              <svg class="sq-icon sq-icon--14 sq-icon--mute" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 14"/></svg>
               Est. reward / day
             </span>
-            <div class="v2-stat__value" id="wal-reward-rate">-</div>
-            <span class="v2-t-xs v2-mute" id="wal-reward-rate-sub">-</span>
+            <div class="sq-stat__value" id="wal-reward-rate">-</div>
+            <span class="sq-t-xs sq-mute" id="wal-reward-rate-sub">-</span>
           </div>
         </div>
 
-        <div class="v2-grid v2-grid--2">
+        <div class="sq-grid sq-grid--2">
 
           <div class="panel">
-            <div class="v2-section__head">
-              <span class="v2-section__title">Account</span>
-              <span class="v2-section__meta"><span class="v2-badge" id="wal-state">-</span></span>
+            <div class="sq-section__head">
+              <span class="sq-section__title">Account</span>
+              <span class="sq-section__meta"><span class="sq-badge" id="wal-state">-</span></span>
             </div>
-            <div class="v2-kv">
-              <div class="v2-kv__row">
-                <span class="v2-kv__label">Address</span>
-                <span class="v2-kv__value hash-cell">
-                  <span class="v2-mono truncate" id="wal-address">-</span>
-                  <button type="button" class="v2-btn v2-btn--icon copy-btn" id="wal-copy-address" aria-label="Copy wallet address" data-v2-copy="" data-v2-copy-label="Address copied">
-                    <svg class="v2-icon v2-icon--14" viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            <div class="sq-kv">
+              <div class="sq-kv__row">
+                <span class="sq-kv__label">Address</span>
+                <span class="sq-kv__value hash-cell">
+                  <span class="sq-mono truncate" id="wal-address">-</span>
+                  <button type="button" class="sq-btn sq-btn--icon copy-btn" id="wal-copy-address" aria-label="Copy wallet address" data-sq-copy="" data-sq-copy-label="Address copied">
+                    <svg class="sq-icon sq-icon--14" viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
                   </button>
                 </span>
               </div>
-              <div class="v2-kv__row">
-                <span class="v2-kv__label">Balance raw</span>
-                <span class="v2-kv__value v2-mono" id="wal-balance-raw">-</span>
+              <div class="sq-kv__row">
+                <span class="sq-kv__label">Balance raw</span>
+                <span class="sq-kv__value sq-mono" id="wal-balance-raw">-</span>
               </div>
-              <div class="v2-kv__row">
-                <span class="v2-kv__label">Balance + bond</span>
-                <span class="v2-kv__value v2-mono" id="wal-holdings">-</span>
+              <div class="sq-kv__row">
+                <span class="sq-kv__label">Balance + bond</span>
+                <span class="sq-kv__value sq-mono" id="wal-holdings">-</span>
               </div>
-              <div class="v2-kv__row">
-                <span class="v2-kv__label">Pending nonce</span>
-                <span class="v2-kv__value v2-mono" id="wal-pending">-</span>
+              <div class="sq-kv__row">
+                <span class="sq-kv__label">Pending nonce</span>
+                <span class="sq-kv__value sq-mono" id="wal-pending">-</span>
               </div>
-              <div class="v2-kv__row">
-                <span class="v2-kv__label">Transactions</span>
-                <span class="v2-kv__value v2-mono" id="wal-tx-count">-</span>
+              <div class="sq-kv__row">
+                <span class="sq-kv__label">Transactions</span>
+                <span class="sq-kv__value sq-mono" id="wal-tx-count">-</span>
               </div>
-              <div class="v2-kv__row">
-                <span class="v2-kv__label">Public key</span>
-                <span class="v2-kv__value" id="wal-pubkey">-</span>
+              <div class="sq-kv__row">
+                <span class="sq-kv__label">Public key</span>
+                <span class="sq-kv__value" id="wal-pubkey">-</span>
               </div>
-              <div class="v2-kv__row">
-                <span class="v2-kv__label">Encrypted balance</span>
-                <span class="v2-kv__value" id="wal-encrypted">-</span>
+              <div class="sq-kv__row">
+                <span class="sq-kv__label">Encrypted balance</span>
+                <span class="sq-kv__value" id="wal-encrypted">-</span>
               </div>
             </div>
           </div>
 
           <div class="panel">
-            <div class="v2-section__head">
-              <span class="v2-section__title">Stake &amp; duty</span>
-              <span class="v2-section__meta v2-mono" id="wal-duty">-</span>
+            <div class="sq-section__head">
+              <span class="sq-section__title">Stake &amp; duty</span>
+              <span class="sq-section__meta sq-mono" id="wal-duty">-</span>
             </div>
-            <div class="v2-kv">
-              <div class="v2-kv__row">
-                <span class="v2-kv__label">Bond raw</span>
-                <span class="v2-kv__value v2-mono" id="wal-bond-raw">-</span>
+            <div class="sq-kv">
+              <div class="sq-kv__row">
+                <span class="sq-kv__label">Bond raw</span>
+                <span class="sq-kv__value sq-mono" id="wal-bond-raw">-</span>
               </div>
-              <div class="v2-kv__row">
-                <span class="v2-kv__label">Bonded epoch</span>
-                <span class="v2-kv__value v2-mono" id="wal-bonded-epoch">-</span>
+              <div class="sq-kv__row">
+                <span class="sq-kv__label">Bonded epoch</span>
+                <span class="sq-kv__value sq-mono" id="wal-bonded-epoch">-</span>
               </div>
-              <div class="v2-kv__row">
-                <span class="v2-kv__label">Ready epoch</span>
-                <span class="v2-kv__value v2-mono" id="wal-ready-epoch">-</span>
+              <div class="sq-kv__row">
+                <span class="sq-kv__label">Ready epoch</span>
+                <span class="sq-kv__value sq-mono" id="wal-ready-epoch">-</span>
               </div>
-              <div class="v2-kv__row">
-                <span class="v2-kv__label">Epochs in set</span>
-                <span class="v2-kv__value v2-mono" id="wal-epochs-in-set">-</span>
+              <div class="sq-kv__row">
+                <span class="sq-kv__label">Epochs in set</span>
+                <span class="sq-kv__value sq-mono" id="wal-epochs-in-set">-</span>
               </div>
-              <div class="v2-kv__row">
-                <span class="v2-kv__label">Membership</span>
-                <span class="v2-kv__value" id="wal-membership">-</span>
+              <div class="sq-kv__row">
+                <span class="sq-kv__label">Membership</span>
+                <span class="sq-kv__value" id="wal-membership">-</span>
               </div>
-              <div class="v2-kv__row">
-                <span class="v2-kv__label">Activate / next set</span>
-                <span class="v2-kv__value v2-mono" id="wal-next-set">-</span>
+              <div class="sq-kv__row">
+                <span class="sq-kv__label">Activate / next set</span>
+                <span class="sq-kv__value sq-mono" id="wal-next-set">-</span>
               </div>
-              <div class="v2-kv__row">
-                <span class="v2-kv__label">Exit epoch</span>
-                <span class="v2-kv__value v2-mono" id="wal-exit">-</span>
+              <div class="sq-kv__row">
+                <span class="sq-kv__label">Exit epoch</span>
+                <span class="sq-kv__value sq-mono" id="wal-exit">-</span>
               </div>
             </div>
           </div>
 
         </div>
 
-        <div class="v2-grid v2-grid--2">
+        <div class="sq-grid sq-grid--2">
 
           <div class="panel">
-            <div class="v2-section__head">
-              <span class="v2-section__title">Reward attribution</span>
-              <span class="v2-section__meta v2-mono" id="wal-reward-meta">-</span>
+            <div class="sq-section__head">
+              <span class="sq-section__title">Reward attribution</span>
+              <span class="sq-section__meta sq-mono" id="wal-reward-meta">-</span>
             </div>
-            <div class="v2-kv">
-              <div class="v2-kv__row">
-                <span class="v2-kv__label">As proposer</span>
-                <span class="v2-kv__value v2-mono" id="wal-reward-proposer">-</span>
+            <div class="sq-kv">
+              <div class="sq-kv__row">
+                <span class="sq-kv__label">As proposer</span>
+                <span class="sq-kv__value sq-mono" id="wal-reward-proposer">-</span>
               </div>
-              <div class="v2-kv__row">
-                <span class="v2-kv__label">As validator</span>
-                <span class="v2-kv__value v2-mono" id="wal-reward-validator">-</span>
+              <div class="sq-kv__row">
+                <span class="sq-kv__label">As validator</span>
+                <span class="sq-kv__value sq-mono" id="wal-reward-validator">-</span>
               </div>
-              <div class="v2-kv__row">
-                <span class="v2-kv__label">Average / epoch</span>
-                <span class="v2-kv__value v2-mono" id="wal-avg">-</span>
+              <div class="sq-kv__row">
+                <span class="sq-kv__label">Average / epoch</span>
+                <span class="sq-kv__value sq-mono" id="wal-avg">-</span>
               </div>
-              <div class="v2-kv__row">
-                <span class="v2-kv__label">Proposer share</span>
-                <span class="v2-kv__value v2-mono" id="wal-share">-</span>
+              <div class="sq-kv__row">
+                <span class="sq-kv__label">Proposer share</span>
+                <span class="sq-kv__value sq-mono" id="wal-share">-</span>
               </div>
-              <div class="v2-kv__row">
-                <span class="v2-kv__label">Last reward</span>
-                <span class="v2-kv__value v2-mono" id="wal-last-reward">-</span>
+              <div class="sq-kv__row">
+                <span class="sq-kv__label">Last reward</span>
+                <span class="sq-kv__value sq-mono" id="wal-last-reward">-</span>
               </div>
-              <div class="v2-kv__row">
-                <span class="v2-kv__label">Last reward role</span>
-                <span class="v2-kv__value" id="wal-last-role">-</span>
+              <div class="sq-kv__row">
+                <span class="sq-kv__label">Last reward role</span>
+                <span class="sq-kv__value" id="wal-last-role">-</span>
               </div>
             </div>
           </div>
 
           <div class="panel">
-            <div class="v2-section__head">
-              <span class="v2-section__title">Baseline &amp; log index</span>
-              <span class="v2-section__meta v2-mono" id="wal-baseline-age">-</span>
+            <div class="sq-section__head">
+              <span class="sq-section__title">Baseline &amp; log index</span>
+              <span class="sq-section__meta sq-mono" id="wal-baseline-age">-</span>
             </div>
-            <div class="v2-kv">
-              <div class="v2-kv__row">
-                <span class="v2-kv__label">Baseline balance</span>
-                <span class="v2-kv__value v2-mono" id="wal-baseline">-</span>
+            <div class="sq-kv">
+              <div class="sq-kv__row">
+                <span class="sq-kv__label">Baseline balance</span>
+                <span class="sq-kv__value sq-mono" id="wal-baseline">-</span>
               </div>
-              <div class="v2-kv__row">
-                <span class="v2-kv__label">Baseline epoch</span>
-                <span class="v2-kv__value v2-mono" id="wal-baseline-epoch">-</span>
+              <div class="sq-kv__row">
+                <span class="sq-kv__label">Baseline epoch</span>
+                <span class="sq-kv__value sq-mono" id="wal-baseline-epoch">-</span>
               </div>
-              <div class="v2-kv__row">
-                <span class="v2-kv__label">Balance delta since baseline</span>
-                <span class="v2-kv__value v2-mono" id="wal-delta">-</span>
+              <div class="sq-kv__row">
+                <span class="sq-kv__label">Balance delta since baseline</span>
+                <span class="sq-kv__value sq-mono" id="wal-delta">-</span>
               </div>
-              <div class="v2-kv__row">
-                <span class="v2-kv__label">Indexed log</span>
-                <span class="v2-kv__value v2-mono" id="wal-index">-</span>
+              <div class="sq-kv__row">
+                <span class="sq-kv__label">Indexed log</span>
+                <span class="sq-kv__value sq-mono" id="wal-index">-</span>
               </div>
-              <div class="v2-kv__row">
-                <span class="v2-kv__label">Reward epoch window</span>
-                <span class="v2-kv__value v2-mono" id="wal-epoch-span">-</span>
+              <div class="sq-kv__row">
+                <span class="sq-kv__label">Reward epoch window</span>
+                <span class="sq-kv__value sq-mono" id="wal-epoch-span">-</span>
               </div>
-              <div class="v2-kv__row">
-                <span class="v2-kv__label">Tracking since</span>
-                <span class="v2-kv__value v2-mono" id="wal-since">-</span>
+              <div class="sq-kv__row">
+                <span class="sq-kv__label">Tracking since</span>
+                <span class="sq-kv__value sq-mono" id="wal-since">-</span>
               </div>
-              <div class="v2-kv__row">
-                <span class="v2-kv__label">Log path</span>
-                <span class="v2-kv__value v2-mono truncate" id="wal-log">-</span>
+              <div class="sq-kv__row">
+                <span class="sq-kv__label">Log path</span>
+                <span class="sq-kv__value sq-mono truncate" id="wal-log">-</span>
               </div>
-              <div class="v2-kv__row">
-                <span class="v2-kv__label">Rewards in the log (gross fold)</span>
-                <span class="v2-kv__value v2-mono" id="wal-log-total">-</span>
+              <div class="sq-kv__row">
+                <span class="sq-kv__label">Rewards in the log (gross fold)</span>
+                <span class="sq-kv__value sq-mono" id="wal-log-total">-</span>
               </div>
-              <div class="v2-kv__row">
-                <span class="v2-kv__label">Observed share of that fold</span>
-                <span class="v2-kv__value v2-mono" id="wal-log-ratio">-</span>
+              <div class="sq-kv__row">
+                <span class="sq-kv__label">Observed share of that fold</span>
+                <span class="sq-kv__value sq-mono" id="wal-log-ratio">-</span>
               </div>
             </div>
           </div>
@@ -1159,39 +1159,39 @@
         </div>
 
         <div class="panel">
-          <div class="v2-section__head">
-            <span class="v2-section__title">Epoch rewards - newest first</span>
-            <span class="v2-section__meta v2-mono" id="wal-rewards-meta">-</span>
+          <div class="sq-section__head">
+            <span class="sq-section__title">Epoch rewards - newest first</span>
+            <span class="sq-section__meta sq-mono" id="wal-rewards-meta">-</span>
           </div>
-          <div class="v2-table-wrap">
-            <table class="v2-table">
+          <div class="sq-table-wrap">
+            <table class="sq-table">
               <thead>
                 <tr>
-                  <th scope="col" class="v2-table__num">Epoch</th>
+                  <th scope="col" class="sq-table__num">Epoch</th>
                   <th scope="col">Role</th>
-                  <th scope="col" class="v2-table__num">Reward</th>
-                  <th scope="col" class="v2-table__num">Finalized</th>
+                  <th scope="col" class="sq-table__num">Reward</th>
+                  <th scope="col" class="sq-table__num">Finalized</th>
                 </tr>
               </thead>
               <tbody id="wal-rewards-body">
-                <tr><td colspan="4" class="v2-mute">Waiting for wallet telemetry...</td></tr>
+                <tr><td colspan="4" class="sq-mute">Waiting for wallet telemetry...</td></tr>
               </tbody>
             </table>
           </div>
         </div>
 
-        <p class="v2-t-xs v2-mute sys-foot" id="wal-foot">-</p>
+        <p class="sq-t-xs sq-mute sys-foot" id="wal-foot">-</p>
 
       </section>
 
       <div class="content-pad" aria-hidden="true"></div>
-    </div><!-- /.v2-content -->
+    </div><!-- /.sq-content -->
   </main>
 
-</div><!-- /.v2-app -->
+</div><!-- /.sq-app -->
 
-<script src="assets/v2.2/js/synteq-ui-v2.js"></script>
-<script src="app.js?v=2.7.0"></script>
+<script src="assets/js/synteq-ui.js?v=1.0.6"></script>
+  <script src="app.js?v=2.7.1"></script>
 </body>
 </html>
 

@@ -238,6 +238,16 @@ async function handleApi(req: http.IncomingMessage, res: http.ServerResponse, ur
     return streamLogs(req, res, url);
   }
 
+  if (method === 'POST' && pathname === '/api/disk-plan') {
+    const body = await readBody(req) as JobRequest;
+    try {
+      const plan = await jobs.scanDisk(body);
+      return sendJson(res, { ok: true, plan });
+    } catch (err) {
+      return fail(res, 400, (err as Error).message);
+    }
+  }
+
   if (method === 'POST' && pathname === '/api/run') {
     const body = await readBody(req) as JobRequest & { domain?: string };
     try {

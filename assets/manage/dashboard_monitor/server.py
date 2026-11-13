@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Octra Lite Node - Live Monitoring Backend (v2)
+Octra Lite Node - Live Monitoring Backend
 ==============================================
 Single-file, dependency-free HTTP backend that serves the dashboard and
 aggregates live node telemetry from:

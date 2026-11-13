@@ -62,7 +62,9 @@
     // run stays dismissed while the background follow-up keeps running
     seenWaiting: null,
     waitingClosed: null,
-    tasksSig: null
+    tasksSig: null,
+    diskResolve: null,
+    diskSystemDisk: false
   };
 
   /* - DOM helpers - */
@@ -137,7 +139,7 @@
   function badge(id, variant, text) {
     var node = $(id);
     if (!node) return;
-    node.classList.remove('v2-badge--ok', 'v2-badge--warn', 'v2-badge--err', 'v2-badge--brand');
+    node.classList.remove('sq-badge--ok', 'sq-badge--warn', 'sq-badge--err', 'sq-badge--brand');
     if (variant) node.classList.add(variant);
     var label = node.querySelector('span:last-child');
     if (label && text !== undefined) label.textContent = text;
@@ -197,7 +199,7 @@
   }
 
   function tip(anchor, text, kind) {
-    if (window.SynteqV2 && SynteqV2.tip) SynteqV2.tip(anchor, text, { kind: kind || 'ok' });
+    if (window.SynteqUI && SynteqUI.tip) SynteqUI.tip(anchor, text, { kind: kind || 'ok' });
   }
 
   /* - config & phase catalogue - */
@@ -545,7 +547,7 @@
       ? (state.program === 'deploy' ? 'ready to deploy'
         : (state.program === 'manage' ? 'ready to manage' : 'ready to migrate'))
       : 'not ready');
-    badge('check-badge', r.ready ? 'v2-badge--ok' : 'v2-badge--err');
+    badge('check-badge', r.ready ? 'sq-badge--ok' : 'sq-badge--err');
     setText('check-summary', r.counts.ok + ' ok - ' + r.counts.warn + ' warn - ' + r.counts.fail +
       ' fail - ' + r.durationMs + ' ms');
     // one program, one set of hosts: the deploy/manage programs check a single
@@ -573,7 +575,7 @@
       label.textContent = item.label;
 
       var detail = document.createElement('span');
-      detail.className = 'mc-check__detail v2-mono';
+      detail.className = 'mc-check__detail sq-mono';
       detail.textContent = item.detail || '';
       if (item.detail) detail.title = item.detail;
 
@@ -596,7 +598,7 @@
           'could not auto-trust it, so confirm it here.';
 
         var btn = document.createElement('button');
-        btn.className = 'v2-btn v2-btn--primary';
+        btn.className = 'sq-btn sq-btn--primary';
         btn.type = 'button';
         btn.textContent = 'Trust host key for ' + ip;
         btn.addEventListener('click', function () {
@@ -629,7 +631,7 @@
     var res = $('check-result');
     if (res) res.hidden = false;
     setText('check-badge-text', 'checking...');
-    badge('check-badge', 'v2-badge--warn');
+    badge('check-badge', 'sq-badge--warn');
     setText('check-summary', (state.program === 'deploy'
       ? 'probing the target over SSH and the node API'
       : 'probing both hosts over SSH and the node API'));
@@ -648,7 +650,7 @@
       state.check = null;
       applyGating();
       setText('check-badge-text', 'check failed');
-      badge('check-badge', 'v2-badge--err');
+      badge('check-badge', 'sq-badge--err');
       setText('check-summary', err.message);
       tip(btn, err.message, 'err');
     }).then(function () {
@@ -667,10 +669,10 @@
     if (host) host.title = 'Console state: ' + word;
     var dot = $('dock-dot');
     if (dot) {
-      dot.classList.remove('v2-dot--ok', 'v2-dot--warn', 'v2-dot--err', 'v2-dot--idle');
-      dot.classList.add(variant === 'v2-badge--ok' ? 'v2-dot--ok'
-        : variant === 'v2-badge--warn' ? 'v2-dot--warn'
-          : variant === 'v2-badge--err' ? 'v2-dot--err' : 'v2-dot--idle');
+      dot.classList.remove('sq-dot--ok', 'sq-dot--warn', 'sq-dot--err', 'sq-dot--idle');
+      dot.classList.add(variant === 'sq-badge--ok' ? 'sq-dot--ok'
+        : variant === 'sq-badge--warn' ? 'sq-dot--warn'
+          : variant === 'sq-badge--err' ? 'sq-dot--err' : 'sq-dot--idle');
     }
   }
 
@@ -736,20 +738,20 @@
       : (leaving ? 'Waiting'
         : (watching ? 'Watching'
           : (finished ? (s.exitCode === 0 ? 'Done' : 'Failed') : 'Idle')));
-    var dockTone = running || leaving || watching ? 'v2-badge--warn'
-      : (finished ? (s.exitCode === 0 ? 'v2-badge--ok' : 'v2-badge--err') : '');
+    var dockTone = running || leaving || watching ? 'sq-badge--warn'
+      : (finished ? (s.exitCode === 0 ? 'sq-badge--ok' : 'sq-badge--err') : '');
     setDockStatus(dockWord, dockTone);
     setText('topbar-status-text', running ? s.phase + ' running'
       : (finished ? (s.exitCode === 0 ? 'completed' : 'failed') : 'idle'));
-    badge('topbar-status', running ? 'v2-badge--warn'
-      : (finished ? (s.exitCode === 0 ? 'v2-badge--ok' : 'v2-badge--err') : ''));
+    badge('topbar-status', running ? 'sq-badge--warn'
+      : (finished ? (s.exitCode === 0 ? 'sq-badge--ok' : 'sq-badge--err') : ''));
 
     setText('hero-state-text', running ? 'running ' + (s.step || s.phase)
       : (leaving ? 'waiting for the stake to unlock (' + s.exitWatching.ip + ')'
         : (watching ? 'watching for the set fold (' + s.watching.ip + ')'
           : (finished ? (s.exitCode === 0 ? 'last phase ok' : 'last phase failed') : 'idle'))));
-    badge('hero-state-badge', running || watching || leaving ? 'v2-badge--warn'
-      : (finished ? (s.exitCode === 0 ? 'v2-badge--ok' : 'v2-badge--err') : ''));
+    badge('hero-state-badge', running || watching || leaving ? 'sq-badge--warn'
+      : (finished ? (s.exitCode === 0 ? 'sq-badge--ok' : 'sq-badge--err') : ''));
     renderRoute();
     setText('hero-elapsed', mine && s.startedAt ? fmtElapsed(s.elapsedSec) : '-');
 
@@ -785,8 +787,8 @@
     setText('phase-exit', s.exitCode === null || s.exitCode === undefined ? '' : 'exit ' + s.exitCode);
     var gauge = $('phase-gauge');
     if (gauge) gauge.setAttribute('aria-valuenow', String(pct));
-    var fill = document.querySelector('#phase-gauge .v2-gauge__fill');
-    if (fill && window.SynteqV2 && SynteqV2.renderGauge) SynteqV2.renderGauge(fill, pct, { kind: 'brand' });
+    var fill = document.querySelector('#phase-gauge .sq-gauge__fill');
+    if (fill && window.SynteqUI && SynteqUI.renderGauge) SynteqUI.renderGauge(fill, pct, { kind: 'brand' });
   }
 
   /* - dashboard result (deployed in its own run, after the pause) - */
@@ -814,9 +816,9 @@
 
   /* -- sticky step banner (every program runs a plan with a goal) ---------- */
   function stepStatusVariant(status) {
-    if (status === 'done') return 'v2-badge--ok';
-    if (status === 'failed') return 'v2-badge--err';
-    return 'v2-badge--warn';
+    if (status === 'done') return 'sq-badge--ok';
+    if (status === 'failed') return 'sq-badge--err';
+    return 'sq-badge--warn';
   }
 
   function renderStepBar(run) {
@@ -886,7 +888,7 @@
     head.appendChild(title);
     if (options.badge) {
       var badgeNode = document.createElement('span');
-      badgeNode.className = 'v2-badge ' + (options.badgeVariant || 'v2-badge--warn');
+      badgeNode.className = 'sq-badge ' + (options.badgeVariant || 'sq-badge--warn');
       var badgeText = document.createElement('span');
       badgeText.textContent = options.badge;
       badgeNode.appendChild(badgeText);
@@ -917,7 +919,7 @@
       options.actions.forEach(function (action) {
         var btn = document.createElement('button');
         btn.type = 'button';
-        btn.className = 'v2-btn v2-btn--ghost';
+        btn.className = 'sq-btn sq-btn--ghost';
         btn.textContent = action.label;
         btn.addEventListener('click', action.run);
         actions.appendChild(btn);
@@ -972,7 +974,7 @@
         tone: 'running',
         title: 'Running: ' + ((programMetaById(s.program) || {}).label || s.program || 'task'),
         badge: s.phase || 'running',
-        badgeVariant: 'v2-badge--warn',
+        badgeVariant: 'sq-badge--warn',
         meta: 'started ' + (s.startedAt ? new Date(s.startedAt * 1000).toLocaleTimeString() : '-') +
           (s.elapsedSec !== undefined ? ' - ' + fmtElapsed(s.elapsedSec) : ''),
         detail: detail,
@@ -992,7 +994,7 @@
         tone: watching.problem ? 'failed' : 'waiting',
         title: 'Background follow-up: ' + (watching.phase || 'finalization'),
         badge: watching.problem ? 'blocker' : (watching.activation ? 'waiting for activation' : 'waiting for confirmation'),
-        badgeVariant: watching.problem ? 'v2-badge--err' : 'v2-badge--warn',
+        badgeVariant: watching.problem ? 'sq-badge--err' : 'sq-badge--warn',
         meta: watching.ip + ' - since ' + waited +
           (watching.checkedAt ? ' - last check ' + new Date(watching.checkedAt).toLocaleTimeString() : ''),
         detail: (watching.detail || watching.state || '') + (bits.length ? ' (' + bits.join(', ') + ')' : '') +
@@ -1011,7 +1013,7 @@
         tone: 'waiting',
         title: 'Background follow-up: exit / unbonding',
         badge: 'waiting',
-        badgeVariant: 'v2-badge--warn',
+        badgeVariant: 'sq-badge--warn',
         meta: exitWatching.ip + (info2.withdraw_epoch ? ' - unlocks at epoch ' + info2.withdraw_epoch : ''),
         detail: info2.remaining !== null && info2.remaining !== undefined
           ? info2.remaining + ' epoch(s) until the stake is back'
@@ -1025,7 +1027,7 @@
         tone: 'waiting',
         title: 'Paused: enrollment needs funding',
         badge: 'action required',
-        badgeVariant: 'v2-badge--warn',
+        badgeVariant: 'sq-badge--warn',
         meta: awaiting.ip || '-',
         detail: 'Fund ' + (awaiting.address || 'the wallet') + ' then submit the bond (' +
           ((Number(awaiting.bond) || 0) / 1000000) + ' OCT).',
@@ -1061,8 +1063,8 @@
     }).catch(function (err) {
       setText('live-age', 'offline');
       setText('topbar-status-text', 'console offline');
-      badge('topbar-status', 'v2-badge--err');
-      setDockStatus('Offline', 'v2-badge--err');
+      badge('topbar-status', 'sq-badge--err');
+      setDockStatus('Offline', 'sq-badge--err');
       console.warn('state poll failed', err);
     });
   }
@@ -1097,7 +1099,7 @@
       : fmtToken(n.bondOct) + ' OCT bonded');
     setText(prefix + '-foot', n.address ? n.address : (n.error || '-'));
 
-    var variant = n.active ? 'v2-badge--ok' : (n.reachable ? 'v2-badge--warn' : 'v2-badge--err');
+    var variant = n.active ? 'sq-badge--ok' : (n.reachable ? 'sq-badge--warn' : 'sq-badge--err');
     var text = n.state === 'validator' ? 'validator'
       : n.state === 'scheduled' ? 'scheduled'
       : n.state === 'ready-idle' ? 'ready (idle)'
@@ -2130,7 +2132,7 @@
     var note = panelId('monitor-certdir-note');
     if (!note) return;
     note.textContent = text;
-    note.className = 'v2-t-xs ' + (isError ? 'mc-err' : 'v2-mute');
+    note.className = 'sq-t-xs ' + (isError ? 'mc-err' : 'sq-mute');
     if (!isError) clearFieldError('monitor-certdir', '');
   }
 
@@ -2287,7 +2289,122 @@
     postRun(payload, meta, anchor);
   }
 
+  function needsDiskConfirmation(payload) {
+    if (!payload || (payload.program !== 'deploy' && payload.program !== 'migrate')) return false;
+    return ['deploy', 'all', 'auto', 'prep'].indexOf(String(payload.phase || '')) >= 0;
+  }
+
+  function openDiskConfirm(plan, mode) {
+    var modal = panelId('disk-modal');
+    if (!modal) return Promise.resolve(false);
+    var mustFormat = mode === 'format';
+    setText('disk-title', mustFormat ? 'Disk format confirmation' : 'Data disk confirmation');
+    setText('disk-host', plan.ip || '-');
+    setText('disk-device', plan.device || '-');
+    setText('disk-model', (plan.disk || '-') + (plan.model ? ' / ' + plan.model : ''));
+    setText('disk-size', (plan.sizeGB !== null && plan.sizeGB !== undefined ? plan.sizeGB + ' GB' : '-') +
+      ' / ' + (plan.fstype || 'no filesystem'));
+    setText('disk-mount', (plan.mountpoint || '-') + ' / ' +
+      (plan.hasDataset ? ('Octra data set' + (plan.hasChain ? ' (chain state)' : '')) : 'no Octra data set'));
+    setText('disk-intro', mustFormat
+      ? (plan.hasChain
+        ? 'This device holds an Octra chain data set. Formatting destroys that state and any migration copy on it. '
+        : 'This device will be erased. Every partition and filesystem on it is lost. ') + (plan.reason || '')
+      : 'This device already holds data. The pipeline keeps it by default; formatting is only allowed if you explicitly approve it. ' + (plan.reason || ''));
+    var ackLabel = panelId('disk-ack-label');
+    if (ackLabel) {
+      ackLabel.textContent = mustFormat
+        ? 'I understand this device will be wiped and its current data cannot be recovered.'
+        : 'Allow formatting this device if the pipeline decides a reformat is required.';
+    }
+    var rows = panelId('disk-lsblk');
+    if (rows) rows.textContent = plan.lsblk || '-';
+    var ack = panelId('disk-ack');
+    var allow = panelId('disk-allow');
+    var keep = panelId('disk-keep');
+    if (ack) ack.checked = false;
+    if (allow) {
+      allow.disabled = true;
+      allow.textContent = mustFormat ? 'Format disk and continue' : 'Allow format and continue';
+    }
+    if (keep) keep.hidden = mustFormat;
+    state.diskSystemDisk = Boolean(plan.systemDisk);
+    if (plan.systemDisk && allow) {
+      allow.disabled = true;
+      allow.title = 'The running system lives on this device; formatting is refused.';
+    }
+    modal.hidden = false;
+    return new Promise(function (resolve) {
+      state.diskResolve = resolve;
+    });
+  }
+
+  function closeDiskConfirm(result) {
+    var modal = panelId('disk-modal');
+    if (modal) modal.hidden = true;
+    var resolve = state.diskResolve;
+    state.diskResolve = null;
+    if (resolve) resolve(result === true ? 'allow' : result);
+  }
+
+  function guardDiskBeforeRun(payload, meta, anchor) {
+    if (!needsDiskConfirmation(payload)) return Promise.resolve(true);
+    var note = $('action-note');
+    if (note) note.textContent = 'Scanning the target disks read-only before any format...';
+    return postJSON('/api/disk-plan', payload).then(function (body) {
+      var plan = body && body.plan;
+      if (!plan) return true;
+      if (plan.action === 'format') {
+        return openDiskConfirm(plan, 'format').then(function (choice) {
+          if (choice !== 'allow') {
+            if (note) note.textContent = 'Run cancelled: disk formatting was not approved.';
+            return false;
+          }
+          payload.allowFormat = true;
+          if (note) note.textContent = 'Format approved for ' + (plan.device || 'the data device') + '. Starting the run...';
+          return true;
+        });
+      }
+      if (plan.action === 'none') {
+        if (note) note.textContent = 'No usable data disk found: ' + (plan.reason || 'the target has no data store') + ' - run cancelled.';
+        return false;
+      }
+      if (plan.hasDataset) {
+        return openDiskConfirm(plan, 'keep').then(function (choice) {
+          if (choice === false) {
+            if (note) note.textContent = 'Run cancelled: the existing data disk was not approved.';
+            return false;
+          }
+          payload.allowFormat = choice === 'allow';
+          if (note) {
+            note.textContent = payload.allowFormat
+              ? 'Format allowed for ' + (plan.device || 'the data device') + '. Starting the run...'
+              : 'Keeping the existing data on ' + (plan.device || 'the data device') + '; formatting is blocked.';
+          }
+          return true;
+        });
+      }
+      payload.allowFormat = false;
+      if (note) {
+        note.textContent = plan.action === 'keep'
+          ? 'Data disk kept: ' + (plan.device || 'existing data store') + ' - no format needed.'
+          : 'No dedicated data disk: data stays on ' + (plan.mountpoint || 'the main filesystem') + ' - no format needed.';
+      }
+      return true;
+    }).catch(function (err) {
+      if (note) note.textContent = 'Disk scan failed: ' + err.message + ' - run cancelled for safety.';
+      tip(anchor, err.message, 'err');
+      return false;
+    });
+  }
+
   function postRun(payload, meta, anchor) {
+    guardDiskBeforeRun(payload, meta, anchor).then(function (ok) {
+      if (ok) submitRun(payload, meta, anchor);
+    });
+  }
+
+  function submitRun(payload, meta, anchor) {
     postJSON('/api/run', payload).then(function (body) {
       if (anchor) tip(anchor, 'Started ' + meta.label);
       var result = $('dash-result');
@@ -2325,7 +2442,7 @@
 
   /* - live log (SSE + polling fallback) - */
   var LEVEL_LABEL = { info: 'INFO', ok: 'OK', warn: 'WARN', error: 'ERR' };
-  var LEVEL_CLASS = { warn: 'v2-log__row--warn', error: 'v2-log__row--error' };
+  var LEVEL_CLASS = { warn: 'sq-log__row--warn', error: 'sq-log__row--error' };
 
   /* After a submit - a button, the confirm modal, the enrollment/domain popup -
      the operator wants to watch the run: bring the Live log into view. */
@@ -2353,11 +2470,11 @@
   // Host tint. The source and the target must NEVER share a colour, so they are
   // not hashed: whichever side the address sits on decides the tint, and it is
   // labelled SRC/DST so the reading does not depend on colour at all.
-  // Both hues are deliberately NOT red (--v2-tel-out was rose, and a working step
+  // Both hues are deliberately NOT red (--sq-tel-out was rose, and a working step
   // in red reads like an error - 2026-11-04): emerald for SRC, sky for DST.
   var ROLE_COLOR = { src: '--mc-role-src', dst: '--mc-role-dst' };
   var ROLE_TAG = { src: 'SRC', dst: 'DST' };
-  var OTHER_COLORS = ['--v2-brand', '--v2-status-warning'];
+  var OTHER_COLORS = ['--sq-brand', '--sq-status-warning'];
 
   function hostRole(ip) {
     if (!ip) return null;
@@ -2395,13 +2512,13 @@
   var KEY_RE = /(manage token|wallet address|\b(URL|API|UI)\s*:|https?:\/\/[a-z0-9][a-z0-9.-]*\.[a-z]{2,}|=== DONE:|---> DONE:|=== .*\b(COMPLETE|DONE)\b|voting = enabled|\bbond [0-9.]+ OCT)/i;
 
   function rowClass(entry) {
-    var cls = 'v2-log__row';
+    var cls = 'sq-log__row';
     if (entry.level === 'warn' || entry.level === 'error') cls += ' ' + LEVEL_CLASS[entry.level];
-    else if (entry.level === 'ok') cls += ' v2-log__row--ok';
+    else if (entry.level === 'ok') cls += ' sq-log__row--ok';
     var line = entry.line || '';
     if (/^--> /.test(line)) cls += ' mc-row--step';
-    else if (MUTED_RE.test(line) && entry.level === 'info') cls += ' v2-log__row--muted';
-    if (KEY_RE.test(line)) cls += ' v2-log__row--key';
+    else if (MUTED_RE.test(line) && entry.level === 'info') cls += ' sq-log__row--muted';
+    if (KEY_RE.test(line)) cls += ' sq-log__row--key';
     return cls;
   }
 
@@ -2415,17 +2532,17 @@
     if (!logVisible(entry)) row.hidden = true;
 
     var ts = document.createElement('span');
-    ts.className = 'v2-log__ts';
+    ts.className = 'sq-log__ts';
     var d = new Date((entry.ts || 0) * 1000);
     ts.textContent = isNaN(d.getTime()) ? '--:--:--' : d.toLocaleTimeString('en-GB');
 
     var level = document.createElement('span');
-    level.className = 'v2-log__level' + (entry.level === 'warn' ? ' v2-log__level--warn'
-      : entry.level === 'error' ? ' v2-log__level--error' : '');
+    level.className = 'sq-log__level' + (entry.level === 'warn' ? ' sq-log__level--warn'
+      : entry.level === 'error' ? ' sq-log__level--error' : '');
     level.textContent = LEVEL_LABEL[entry.level] || 'INFO';
 
     var host = document.createElement('span');
-    host.className = 'v2-log__comp mc-hostchip';
+    host.className = 'sq-log__comp mc-hostchip';
     if (entry.host) {
       var role = hostRole(entry.host);
       var color = hostColor(entry.host);
@@ -2446,7 +2563,7 @@
     }
 
     var msg = document.createElement('span');
-    msg.className = 'v2-log__msg';
+    msg.className = 'sq-log__msg';
     msg.textContent = entry.line || '';
     row.__msg = msg;                 // the duplicate counter rewrites this node
 
@@ -2480,7 +2597,7 @@
   function bumpRow(row, entry) {
     var n = Number((row && row.dataset.repeat) || 1) + 1;
     row.dataset.repeat = String(n);
-    var msg = row.__msg || row.querySelector('.v2-log__msg');
+    var msg = row.__msg || row.querySelector('.sq-log__msg');
     if (msg) msg.textContent = (entry.line || lastBase) + '  (x' + n + ')';
     return true;
   }
@@ -2577,12 +2694,12 @@
     view.appendChild(frag);
 
     // trim in one pass so the DOM never grows unbounded
-    var rows = view.querySelectorAll('.v2-log__row');
+    var rows = view.querySelectorAll('.sq-log__row');
     if (rows.length > MAX_ROWS) {
       var drop = rows.length - MAX_ROWS;
       for (var i = 0; i < drop; i++) view.removeChild(rows[i]);
     }
-    state.rows = view.querySelectorAll('.v2-log__row').length;
+    state.rows = view.querySelectorAll('.sq-log__row').length;
 
     if (stick) view.scrollTop = view.scrollHeight;
     setText('log-meta', 'streaming - ' + state.rows + ' lines' +
@@ -2634,7 +2751,7 @@
     lastKey = '';
     lastBase = '';
     var empty = document.createElement('div');
-    empty.className = 'v2-log__empty';
+    empty.className = 'sq-log__empty';
     empty.id = 'log-empty';
     empty.textContent = 'waiting for output...';
     view.appendChild(empty);
@@ -2674,7 +2791,7 @@
   function applyLogFilter() {
     var view = $('log-view');
     if (!view) return;
-    var rows = view.querySelectorAll('.v2-log__row');
+    var rows = view.querySelectorAll('.sq-log__row');
     for (var i = 0; i < rows.length; i++) {
       var row = rows[i];
       var show = (state.logLevel === 'all' || row.dataset.level === state.logLevel) &&
@@ -2706,7 +2823,7 @@
     var add = function (value, label) {
       var btn = document.createElement('button');
       btn.type = 'button';
-      btn.className = 'v2-seg__btn' + (state.hostFilter === value ? ' v2-seg__btn--active' : '');
+      btn.className = 'sq-seg__btn' + (state.hostFilter === value ? ' sq-seg__btn--active' : '');
       btn.setAttribute('data-host-filter', value);
       btn.textContent = label;
       seg.appendChild(btn);
@@ -2733,7 +2850,7 @@
       dot.className = 'mc-legend__dot';
       dot.style.background = 'var(' + hostColor(ip) + ')';
       var label = document.createElement('span');
-      label.className = 'v2-mono';
+      label.className = 'sq-mono';
       label.textContent = (role ? ROLE_TAG[role] + ' ' : '') + ip;
       item.appendChild(dot);
       item.appendChild(label);
@@ -2745,7 +2862,7 @@
   function downloadLog() {
     var view = $('log-view');
     if (!view) return;
-    var text = Array.prototype.map.call(view.querySelectorAll('.v2-log__row'), function (row) {
+    var text = Array.prototype.map.call(view.querySelectorAll('.sq-log__row'), function (row) {
       return row.textContent;
     }).join('\n');
     var blob = new Blob([text], { type: 'text/plain' });
@@ -2961,6 +3078,25 @@
         if (ev.key === 'Escape') closeActivation();
       });
     }
+    // the destructive disk confirmation
+    var diskAck = panelId('disk-ack');
+    var diskAllow = panelId('disk-allow');
+    if (diskAck && diskAllow) {
+      diskAck.addEventListener('change', function () {
+        diskAllow.disabled = !diskAck.checked || state.diskSystemDisk;
+      });
+    }
+    if (diskAllow) diskAllow.addEventListener('click', function () { closeDiskConfirm('allow'); });
+    var diskKeep = panelId('disk-keep');
+    if (diskKeep) diskKeep.addEventListener('click', function () { closeDiskConfirm('keep'); });
+    var diskCancel = panelId('disk-cancel');
+    if (diskCancel) diskCancel.addEventListener('click', function () { closeDiskConfirm(false); });
+    var diskModal = panelId('disk-modal');
+    if (diskModal) {
+      diskModal.addEventListener('keydown', function (ev) {
+        if (ev.key === 'Escape') closeDiskConfirm(false);
+      });
+    }
     // the waiting popup (background follow-up of a long finalization)
     var waitingClose = panelId('waiting-close');
     if (waitingClose) waitingClose.addEventListener('click', closeWaiting);
@@ -2987,13 +3123,13 @@
       if (ev.key === 'Escape') closeConfirm();
     });
 
-    var seg = document.querySelector('.mc-logbar .v2-seg');
+    var seg = document.querySelector('.mc-logbar .sq-seg');
     if (seg) {
       seg.addEventListener('click', function (ev) {
         var btn = ev.target.closest ? ev.target.closest('[data-level]') : null;
         if (!btn) return;
-        Array.prototype.forEach.call(seg.querySelectorAll('.v2-seg__btn'), function (b) {
-          b.classList.toggle('v2-seg__btn--active', b === btn);
+        Array.prototype.forEach.call(seg.querySelectorAll('.sq-seg__btn'), function (b) {
+          b.classList.toggle('sq-seg__btn--active', b === btn);
         });
         state.logLevel = btn.getAttribute('data-level');
         applyLogFilter();
@@ -3064,7 +3200,7 @@
       var note = $('action-note');
       if (note) note.textContent = 'CONFIG ERROR: ' + err.message;
       setText('topbar-status-text', 'config error');
-      badge('topbar-status', 'v2-badge--err');
+      badge('topbar-status', 'sq-badge--err');
     });
   }
 

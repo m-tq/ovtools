@@ -52,7 +52,7 @@ else
   rm -rf "$DASH_DIR/dev" "$DASH_DIR/__pycache__"
 fi
 
-for f in index.html app.js styles.css server.py assets/v2.2/css/synteq-ui-v2.css assets/v2.2/js/synteq-ui-v2.js \
+for f in index.html app.js styles.css server.py assets/css/synteq-ui.css assets/js/synteq-ui.js \
          prune-node-junk.sh octra-node-prune.cron octra-node-prune.service octra-node-prune.timer; do
   [[ -f "$DASH_DIR/$f" ]] || die "missing file: $DASH_DIR/$f"
 done

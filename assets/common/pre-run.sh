@@ -22,6 +22,7 @@
 # Optional: WIPE_VOLUME=1 ...   force a reformat even of an Octra data set
 #           DATA_MIN_GB=800 ... lower the size requirement
 #           BLOCK_DEVICE=/dev/nvme1n1 ... prefer another device
+#           FORMAT_APPROVED=0 ... refuse to format unless the console approved it
 #           PRERUN_STATE=<file> ... where the decision is recorded
 # Safe to re-run - each step checks current state before acting.
 # ===================================================================
@@ -41,8 +42,10 @@ fi
 # of half-done state this toolkit must not produce. Check before touching a disk.
 ensure_tool lsblk util-linux || { err "lsblk (util-linux) is required"; exit 1; }
 ensure_tool findmnt util-linux || { err "findmnt (util-linux) is required"; exit 1; }
-ensure_tool mkfs.ext4 e2fsprogs || { err "mkfs.ext4 (e2fsprogs) is required to format the data volume"; exit 1; }
-ensure_tool wipefs util-linux || { err "wipefs (util-linux) is required"; exit 1; }
+if [[ "${SCAN_ONLY:-0}" != "1" ]]; then
+  ensure_tool mkfs.ext4 e2fsprogs || { err "mkfs.ext4 (e2fsprogs) is required to format the data volume"; exit 1; }
+  ensure_tool wipefs util-linux || { err "wipefs (util-linux) is required"; exit 1; }
+fi
 
 # -------------------------------------------------------------------
 # Data-store decision (recorded for the migration orchestrator)
@@ -260,6 +263,14 @@ mount_data_volume() {  # mount_data_volume <device>
       log "No filesystem on ${dev} - formatting it now"
       PRERUN_ACTION="formatted"
     fi
+    # Hard safety gate: the console always sends FORMAT_APPROVED=0/1. An explicit
+    # 0 means the operator did not approve erasing this device; an unset value
+    # keeps the legacy CLI behaviour.
+    if [[ "${FORMAT_APPROVED:-}" == "0" ]]; then
+      err "refusing to format ${dev}: formatting was not approved in the console"
+      err "rerun the task and tick 'Allow format' in the disk confirmation modal"
+      return 1
+    fi
     wipe_device "${dev}"
     log "Formatting ${dev} as ext4 (label ${DATA_LABEL})..."
     # -q: mkfs prints a megabytes-sized "Discarding device blocks" progress line
@@ -401,6 +412,135 @@ prepare_data_store() {
   fi
 }
 
+
+# -------------------------------------------------------------------
+# READ-ONLY SCAN (SCAN_ONLY=1)
+# Reports exactly which device prepare_data_store() would use and whether it
+# would erase it. It never mounts rw, wipes or reformats. The console calls this
+# before a deploy/migrate run and shows the result in the destructive-action
+# confirmation modal.
+# -------------------------------------------------------------------
+scan_data_store() {
+  local action="none" dev="" disk="" size=0 fstype="" label="" mount="" reason=""
+  local system="no" has_dataset="no" chain="no" model="" current=""
+  local disk_name disk_gb src size_gb avail target tmp
+  local best_src="" best_target="" best_size=0 best_avail=0
+
+  if mountpoint -q "${MOUNT_POINT}" 2>/dev/null; then
+    dev=$(findmnt -n -o SOURCE "${MOUNT_POINT}" 2>/dev/null || echo "${MOUNT_POINT}")
+    current=$(lsblk -no PKNAME "${dev}" 2>/dev/null | head -1 || true)
+    disk=$([[ -n "${current}" ]] && echo "/dev/${current}" || echo "${dev}")
+    size=$(size_gb_of "${dev}")
+    fstype=$(blkid -o value -s TYPE "${dev}" 2>/dev/null || true)
+    label=$(blkid -o value -s LABEL "${dev}" 2>/dev/null || true)
+    mount="${MOUNT_POINT}"
+    is_system_disk "${dev}" && system="yes" || system="no"
+    detect_dataset "${MOUNT_POINT}"
+    has_dataset="${PRERUN_DATASET}"
+    chain="${PRERUN_CHAIN}"
+    if [[ "${PRERUN_FORCE}" == "1" && "${system}" != "yes" ]]; then
+      action="format"
+      reason="WIPE_VOLUME=1 on the mounted data volume"
+    else
+      action="keep"
+      if [[ "${PRERUN_FORCE}" == "1" ]]; then
+        reason="WIPE_VOLUME=1 refused: the mount lives on the system disk"
+      else
+        reason="already mounted - no format"
+      fi
+    fi
+  else
+    if lsblk "${BLOCK_DEVICE}" >/dev/null 2>&1 && ! is_system_disk "${BLOCK_DEVICE}"; then
+      dev=$(device_for "${BLOCK_DEVICE}")
+    fi
+    if [[ -z "${dev}" ]]; then
+      while read -r disk_name disk_gb; do
+        (( disk_gb < DATA_MIN_GB )) && continue
+        dev=$(device_for "/dev/${disk_name}")
+        break
+      done < <(list_data_disks)
+    fi
+
+    if [[ -n "${dev}" ]]; then
+      current=$(lsblk -no PKNAME "${dev}" 2>/dev/null | head -1 || true)
+      disk=$([[ -n "${current}" ]] && echo "/dev/${current}" || echo "${dev}")
+      size=$(size_gb_of "${dev}")
+      fstype=$(blkid -o value -s TYPE "${dev}" 2>/dev/null || true)
+      label=$(blkid -o value -s LABEL "${dev}" 2>/dev/null || true)
+      model=$(lsblk -no MODEL "${disk}" 2>/dev/null | head -1 | xargs 2>/dev/null || true)
+      is_system_disk "${dev}" && system="yes" || system="no"
+      if [[ -n "${fstype}" ]] && volume_is_octra "${dev}"; then
+        has_dataset="yes"
+        tmp=$(mktemp -d)
+        if mount -o ro "${dev}" "${tmp}" 2>/dev/null; then
+          [[ -f "${tmp}/devnet/HEAD.json" ]] && chain="yes"
+          umount "${tmp}" 2>/dev/null || true
+        fi
+        rmdir "${tmp}" 2>/dev/null || true
+      fi
+      if [[ "${system}" == "yes" ]]; then
+        action="keep"
+        reason="the selected device carries the running system - pre-run refuses to format it"
+      elif [[ -n "${fstype}" && "${PRERUN_FORCE}" != "1" && "${has_dataset}" == "yes" ]]; then
+        action="keep"
+        reason="an Octra data set is present - pre-run keeps it"
+      elif [[ -n "${fstype}" && "${PRERUN_FORCE}" == "1" ]]; then
+        action="format"
+        if [[ "${has_dataset}" == "yes" ]]; then
+          reason="WIPE_VOLUME=1 forces a reformat even though an Octra data set is present"
+        else
+          reason="WIPE_VOLUME=1 forces a reformat of the ${fstype} filesystem"
+        fi
+      elif [[ -n "${fstype}" ]]; then
+        action="format"
+        reason="filesystem ${fstype} but no Octra data set - pre-run formats it"
+      else
+        action="format"
+        reason="no filesystem - pre-run formats it"
+      fi
+    else
+      while read -r src size_gb avail target; do
+        [[ -z "${src}" ]] && continue
+        case "${src}" in
+          tmpfs|devtmpfs|overlay|none|udev|shm) continue ;;
+        esac
+        (( size_gb >= DATA_MIN_GB )) || continue
+        if (( avail > best_avail )); then
+          best_src="${src}"; best_size="${size_gb}"; best_avail="${avail}"; best_target="${target}"
+        fi
+      done < <(df -B1G --output=source,size,avail,target 2>/dev/null | tail -n +2 || true)
+      if [[ -n "${best_src}" ]]; then
+        dev="${best_src}"
+        disk="${best_src}"
+        size="${best_size}"
+        mount="${best_target}"
+        action="fallback"
+        reason="no dedicated volume; the node data stays on ${best_src} (${best_target}) - nothing is formatted"
+      else
+        reason="no disk large enough for the data store"
+      fi
+    fi
+  fi
+
+  echo "SCAN_ACTION=${action}"
+  echo "SCAN_DEVICE=${dev}"
+  echo "SCAN_DISK=${disk}"
+  echo "SCAN_SIZE_GB=${size}"
+  echo "SCAN_FSTYPE=${fstype}"
+  echo "SCAN_LABEL=${label}"
+  echo "SCAN_MOUNT=${mount}"
+  echo "SCAN_SYSTEM=${system}"
+  echo "SCAN_DATASET=${has_dataset}"
+  echo "SCAN_CHAIN=${chain}"
+  echo "SCAN_MODEL=${model}"
+  echo "SCAN_REASON=${reason}"
+  echo "SCAN_LSBLK_B64=$(lsblk -o NAME,SIZE,TYPE,FSTYPE,MOUNTPOINT,MODEL 2>/dev/null | base64 -w0 2>/dev/null || lsblk -o NAME,SIZE,TYPE,FSTYPE,MOUNTPOINT,MODEL 2>/dev/null | base64 | tr -d '\n')"
+}
+
+if [[ "${SCAN_ONLY:-0}" == "1" ]]; then
+  scan_data_store
+  exit 0
+fi
 
 # -------------------------------------------------------------------
 # 0. HOST HARDENING - MPTCP off (mandatory, both programs)

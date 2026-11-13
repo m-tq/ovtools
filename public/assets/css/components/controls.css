@@ -1,0 +1,245 @@
+/* ==========================================================================
+   SYNTEQ UI — 11. CONTROLS (components/controls.css)
+   Buttons, segmented bar, inputs, chips, badges, keyboard pills.
+   Flat surfaces (no card chrome), consistent control radius.
+   ========================================================================== */
+
+/* ---- Press feedback ----
+   Every clickable control shares the same active treatment: a 1px press, a
+   subtle inward scale and a currentColor wash. Keeps clicks feeling physical
+   without introducing elevation or card chrome. */
+.sq-btn,
+.sq-iconbtn,
+.sq-seg__btn,
+.sq-search,
+.sq-sidebar-toggle,
+.sq-theme-toggle,
+.sq-nav__more,
+[data-sq-copy] { position: relative; overflow: hidden; }
+
+.sq-btn::after,
+.sq-iconbtn::after,
+.sq-seg__btn::after,
+.sq-search::after,
+.sq-sidebar-toggle::after,
+.sq-nav__more::after,
+[data-sq-copy]::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  opacity: 0;
+  background: currentColor;
+  transition: opacity var(--sq-dur-instant) var(--sq-ease);
+}
+
+.sq-btn:active:not(:disabled),
+.sq-iconbtn:active:not(:disabled),
+.sq-seg__btn:active:not(:disabled),
+.sq-search:active:not(:disabled),
+.sq-sidebar-toggle:active,
+[data-sq-copy]:active {
+  transform: translateY(1px) scale(0.985);
+}
+
+.sq-btn:active:not(:disabled)::after,
+.sq-iconbtn:active:not(:disabled)::after,
+.sq-seg__btn:active:not(:disabled)::after,
+.sq-search:active:not(:disabled)::after,
+.sq-sidebar-toggle:active::after,
+.sq-nav__more:active::after,
+[data-sq-copy]:active::after { opacity: .08; }
+
+/* ---- Transient tip (copy confirmation, control feedback) ----
+   Anchored above the trigger, auto-dismissed by the runtime. Flat inverted
+   pill: same primitive as the toast, sized for one or two words. */
+.sq-tip {
+  position: fixed;
+  z-index: 60;
+  max-width: min(280px, calc(100vw - var(--sq-space-4)));
+  padding: var(--sq-space-1) var(--sq-space-2);
+  border-radius: var(--sq-radius-micro);
+  background: var(--sq-text-strong);
+  color: var(--sq-text-on-accent);
+  font-family: var(--sq-font-sans);
+  font-size: var(--sq-text-xs);
+  font-weight: var(--sq-fw-medium);
+  line-height: 1.35;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  border: var(--sq-line-h) solid var(--sq-line-strong);
+  pointer-events: none;
+  animation: sq-fade-up var(--sq-dur-fast) var(--sq-ease) both;
+}
+.sq-tip--info { background: var(--sq-status-info); }
+.sq-tip--ok { background: var(--sq-status-running); }
+.sq-tip--warn { background: var(--sq-status-warning); }
+.sq-tip--err { background: var(--sq-status-error); }
+/* Solid status fills stay light-to-mid tone in both themes, so the ink must
+   stay dark in both themes too (white-on-amber failed contrast in light mode). */
+.sq-tip--info,
+.sq-tip--ok,
+.sq-tip--warn,
+.sq-tip--err { color: var(--sq-text-on-solid); }
+/* The error fill is the one status colour that is dark enough on the light
+   theme to need the theme's inverted ink instead. */
+.sq-tip--err { color: var(--sq-text-on-accent); }
+.sq-tip.is-out { opacity: 0; transition: opacity var(--sq-dur-fast) var(--sq-ease); }
+
+/* ---- Button base ---- */
+.sq-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sq-space-2);
+  height: 32px;
+  padding: 0 var(--sq-space-3);
+  border-radius: var(--sq-radius-control);
+  background: var(--sq-inset);
+  color: var(--sq-text);
+  font-size: var(--sq-text-sm);
+  font-weight: var(--sq-fw-medium);
+  line-height: 1;
+  white-space: nowrap;
+}
+.sq-btn:hover:not(:disabled) { background: var(--sq-hover); color: var(--sq-text-strong); }
+
+/* Ghost (text-only) button */
+.sq-btn--ghost { background: transparent; color: var(--sq-text-subtle); }
+.sq-btn--ghost:hover:not(:disabled) { background: var(--sq-hover); color: var(--sq-text-strong); }
+
+/* Primary (high-emphasis inverted surface) */
+.sq-btn--primary {
+  background: var(--sq-text-strong);
+  color: var(--sq-text-on-accent);
+}
+.sq-btn--primary:hover:not(:disabled) { opacity: 0.9; background: var(--sq-text-strong); color: var(--sq-text-on-accent); }
+
+/* Brand accent button — dark ink in both themes so the green fill clears AA */
+.sq-btn--brand {
+  background: var(--sq-brand);
+  color: var(--sq-text-on-solid);
+}
+.sq-btn--brand:hover:not(:disabled) { opacity: 0.92; }
+
+/* Danger (tonal) */
+.sq-btn--danger {
+  background: color-mix(in srgb, var(--sq-status-error) 16%, transparent);
+  color: color-mix(in srgb, var(--sq-status-error) var(--sq-status-ink-mix), var(--sq-text-strong));
+}
+.sq-btn--danger:hover:not(:disabled) { background: color-mix(in srgb, var(--sq-status-error) 26%, transparent); }
+
+/* Info (tonal) — neutral, non-destructive notice action */
+.sq-btn--info {
+  background: color-mix(in srgb, var(--sq-status-info) 16%, transparent);
+  color: color-mix(in srgb, var(--sq-status-info) var(--sq-status-ink-mix), var(--sq-text-strong));
+}
+.sq-btn--info:hover:not(:disabled) { background: color-mix(in srgb, var(--sq-status-info) 26%, transparent); }
+
+/* Warning (tonal) — "proceed with care" action. `--warning` is an alias. */
+.sq-btn--warn,
+.sq-btn--warning {
+  background: color-mix(in srgb, var(--sq-status-warning) 16%, transparent);
+  color: color-mix(in srgb, var(--sq-status-warning) var(--sq-status-ink-mix), var(--sq-text-strong));
+}
+.sq-btn--warn:hover:not(:disabled),
+.sq-btn--warning:hover:not(:disabled) { background: color-mix(in srgb, var(--sq-status-warning) 26%, transparent); }
+
+/* Icon-only */
+.sq-btn--icon { width: 32px; padding: 0; }
+
+/* Clipboard feedback — the runtime adds .sq-copy--ok for 1.8 s after a copy */
+.sq-copy--ok,
+.sq-copy--ok[aria-label] {
+  color: var(--sq-status-running) !important;
+  background: color-mix(in srgb, var(--sq-status-running) 14%, transparent) !important;
+}
+.sq-copy--ok .sq-icon { color: var(--sq-status-running); }
+
+/* Full-width (action stack) */
+.sq-btn--block { width: 100%; }
+.sq-btn__stack { display: flex; flex-direction: column; gap: var(--sq-space-2); }
+
+/* ---- Segmented bar (Console | Power | Reboot) ---- */
+.sq-seg {
+  display: inline-flex;
+  align-items: stretch;
+  background: var(--sq-inset);
+  border-radius: var(--sq-radius-control);
+  overflow: hidden;
+}
+.sq-seg__btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sq-space-2);
+  padding: 0 var(--sq-space-3);
+  height: 32px;
+  color: var(--sq-text);
+  font-size: var(--sq-text-sm);
+  border-right: var(--sq-line-h) solid var(--sq-line);
+}
+.sq-seg__btn:last-child { border-right: none; }
+.sq-seg__btn:hover:not(:disabled) { background: var(--sq-hover); color: var(--sq-text-strong); }
+.sq-seg__btn--active { background: var(--sq-hover); color: var(--sq-text-strong); font-weight: var(--sq-fw-medium); }
+.sq-seg__btn--icon { padding: 0 9px; }
+
+/* ---- Text input ----
+   The full definition lives in components/forms.css (borders + focus ring).
+   It used to be duplicated here without a border, which made the focus state
+   depend on load order. Keep this file free of field styling. */
+
+/* Feedback and overlay primitives (toast / dialog / command palette)
+   live in components/overlays.css — they used to be duplicated here, which
+   meant every overlay property depended on @import order. */
+
+/* ---- Badges & chips (micro radius) ---- */
+.sq-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sq-space-1);
+  padding: 1px var(--sq-space-2);
+  background: var(--sq-inset);
+  color: var(--sq-text);
+  border-radius: var(--sq-radius-micro);
+  font-size: var(--sq-text-xs);
+  line-height: 1.5;
+}
+.sq-badge--brand { color: color-mix(in srgb, var(--sq-brand) var(--sq-status-ink-mix), var(--sq-text-strong)); background: color-mix(in srgb, var(--sq-brand) 14%, transparent); }
+.sq-badge--info { color: color-mix(in srgb, var(--sq-status-info) var(--sq-status-ink-mix), var(--sq-text-strong)); background: color-mix(in srgb, var(--sq-status-info) 14%, transparent); }
+.sq-badge--ok { color: color-mix(in srgb, var(--sq-status-running) var(--sq-status-ink-mix), var(--sq-text-strong)); background: color-mix(in srgb, var(--sq-status-running) 14%, transparent); }
+.sq-badge--warn { color: color-mix(in srgb, var(--sq-status-warning) var(--sq-status-ink-mix), var(--sq-text-strong)); background: color-mix(in srgb, var(--sq-status-warning) 16%, transparent); }
+.sq-badge--err { color: color-mix(in srgb, var(--sq-status-error) var(--sq-status-ink-mix), var(--sq-text-strong)); background: color-mix(in srgb, var(--sq-status-error) 14%, transparent); }
+
+/* Keyboard shortcut pill */
+.sq-kbd {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 var(--sq-space-1);
+  background: var(--sq-inset);
+  color: var(--sq-text-subtle);
+  border-radius: var(--sq-radius-micro);
+  font-family: var(--sq-font-mono);
+  font-size: var(--sq-text-xs);
+  line-height: 1;
+}
+
+/* Avatar monogram (micro radius, brand tint) */
+.sq-avatar {
+  width: 26px; height: 26px;
+  border-radius: var(--sq-radius-micro);
+  background: color-mix(in srgb, var(--sq-brand) 18%, transparent);
+  color: var(--sq-brand);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--sq-font-mono);
+  font-size: var(--sq-text-xs);
+  font-weight: var(--sq-fw-bold);
+  flex-shrink: 0;
+}

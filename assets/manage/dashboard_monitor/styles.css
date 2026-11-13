@@ -1,52 +1,52 @@
 /* ==========================================================================
    OCTRA LIVE MONITOR - dashboard layer
-   Built on Synteq UI V2. Everything visual that the framework already ships
+   Built on Synteq UI. Everything visual that the framework already ships
    (stat strips, gauges, sparklines, bars, data table, log viewer, status dots,
    copy feedback, mobile breakpoints) comes from the framework; this file only
    holds what is specific to this dashboard.
 
    Framework rules kept:
    | single flat canvas, hairline separators, no card backgrounds
-   | only .v2-content scrolls, body stays viewport-locked
+   | only .sq-content scrolls, body stays viewport-locked
    | every value uses tokens (no hard-coded colors / spacing)
    ========================================================================== */
 
 /* Content rhythm - denser than the framework default for a monitoring view */
-.v2-content {
-  gap: var(--v2-space-6);
-  padding-top: var(--v2-space-4);
-  padding-bottom: var(--v2-space-4);
+.sq-content {
+  gap: var(--sq-space-6);
+  padding-top: var(--sq-space-4);
+  padding-bottom: var(--sq-space-4);
 }
 
-.v2-section--compact {
-  gap: var(--v2-space-4);
-  padding-block: var(--v2-space-5);
+.sq-section--compact {
+  gap: var(--sq-space-4);
+  padding-block: var(--sq-space-5);
 }
 
 /* Panels are grouping primitives only - never surfaces */
 .panel {
   display: flex;
   flex-direction: column;
-  gap: var(--v2-space-3);
+  gap: var(--sq-space-3);
   min-width: 0;
 }
 
-.content-pad { height: var(--v2-space-6); }
+.content-pad { height: var(--sq-space-6); }
 
 /* -- Hero ----------------------------------------------------------- */
-.dash-hero { display: flex; flex-direction: column; gap: var(--v2-space-2); min-width: 0; }
-.dash-hero__main { display: flex; flex-direction: column; gap: var(--v2-space-2); min-width: 0; }
+.dash-hero { display: flex; flex-direction: column; gap: var(--sq-space-2); min-width: 0; }
+.dash-hero__main { display: flex; flex-direction: column; gap: var(--sq-space-2); min-width: 0; }
 .dash-hero__title-row {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  gap: var(--v2-space-2) var(--v2-space-3);
+  gap: var(--sq-space-2) var(--sq-space-3);
   min-width: 0;
 }
 .dash-hero__hostname {
-  font-size: var(--v2-text-2xl);
-  font-weight: var(--v2-fw-semibold);
-  color: var(--v2-text-strong);
+  font-size: var(--sq-text-2xl);
+  font-weight: var(--sq-fw-semibold);
+  color: var(--sq-text-strong);
   letter-spacing: -0.025em;
   line-height: 1.15;
   overflow-wrap: anywhere;
@@ -55,9 +55,9 @@
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  gap: var(--v2-space-2);
-  font-size: var(--v2-text-xs);
-  color: var(--v2-text-subtle);
+  gap: var(--sq-space-2);
+  font-size: var(--sq-text-xs);
+  color: var(--sq-text-subtle);
   min-width: 0;
 }
 .dash-hero__sep { opacity: 0.6; }
@@ -66,32 +66,32 @@
 .addr-chip {
   display: inline-flex;
   align-items: center;
-  gap: var(--v2-space-2);
+  gap: var(--sq-space-2);
   max-width: 100%;
   min-width: 0;
   height: 26px;
-  padding: 0 var(--v2-space-2) 0 var(--v2-space-3);
-  background: var(--v2-inset);
-  border-radius: var(--v2-radius-control);
-  color: var(--v2-text);
-  font-size: var(--v2-text-xs);
+  padding: 0 var(--sq-space-2) 0 var(--sq-space-3);
+  background: var(--sq-inset);
+  border-radius: var(--sq-radius-control);
+  color: var(--sq-text);
+  font-size: var(--sq-text-xs);
 }
-.addr-chip:hover { background: var(--v2-hover); }
+.addr-chip:hover { background: var(--sq-hover); }
 .addr-chip__label {
   display: inline-flex;
   align-items: center;
-  gap: var(--v2-space-1);
-  color: var(--v2-text-subtle);
+  gap: var(--sq-space-1);
+  color: var(--sq-text-subtle);
   flex-shrink: 0;
 }
 .addr-chip__value {
-  color: var(--v2-text-strong);
+  color: var(--sq-text-strong);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
   min-width: 0;
 }
-.addr-chip__copy { color: var(--v2-brand); flex-shrink: 0; }
+.addr-chip__copy { color: var(--sq-brand); flex-shrink: 0; }
 
 /* -- Alerts --------------------------------------------------------- */
 .alerts { display: flex; flex-direction: column; gap: 3px; }
@@ -99,23 +99,23 @@
 .alert {
   display: flex;
   align-items: flex-start;
-  gap: var(--v2-space-2);
-  padding: var(--v2-space-2) var(--v2-space-3);
-  font-size: var(--v2-text-sm);
-  color: var(--v2-text);
-  border-left: 2px solid var(--v2-status-warning);
-  background: color-mix(in srgb, var(--v2-status-warning) 8%, transparent);
+  gap: var(--sq-space-2);
+  padding: var(--sq-space-2) var(--sq-space-3);
+  font-size: var(--sq-text-sm);
+  color: var(--sq-text);
+  border-left: 2px solid var(--sq-status-warning);
+  background: color-mix(in srgb, var(--sq-status-warning) 8%, transparent);
 }
 .alert--error {
-  border-left-color: var(--v2-status-error);
-  background: color-mix(in srgb, var(--v2-status-error) 10%, transparent);
+  border-left-color: var(--sq-status-error);
+  background: color-mix(in srgb, var(--sq-status-error) 10%, transparent);
 }
 .alert--info {
-  border-left-color: var(--v2-brand);
-  background: color-mix(in srgb, var(--v2-brand) 8%, transparent);
+  border-left-color: var(--sq-brand);
+  background: color-mix(in srgb, var(--sq-brand) 8%, transparent);
 }
 .alert__text { min-width: 0; }
-.alert__text strong { color: var(--v2-text-strong); font-weight: var(--v2-fw-medium); }
+.alert__text strong { color: var(--sq-text-strong); font-weight: var(--sq-fw-medium); }
 /* The row can be dismissed: the x sits at the right end and stays quiet until
    the operator hovers it or tabs to it. */
 .alert__close {
@@ -128,29 +128,29 @@
   height: 20px;
   padding: 0;
   border: 0;
-  border-radius: var(--v2-radius-sm, 4px);
+  border-radius: var(--sq-radius-sm, 4px);
   background: transparent;
-  color: var(--v2-text-mute);
+  color: var(--sq-text-mute);
   cursor: pointer;
   opacity: 0.65;
 }
 .alert__close:hover,
 .alert__close:focus-visible {
   opacity: 1;
-  color: var(--v2-text-strong);
+  color: var(--sq-text-strong);
   background: color-mix(in srgb, currentColor 12%, transparent);
 }
-.alert__close:focus-visible { outline: 2px solid var(--v2-brand); outline-offset: 1px; }
+.alert__close:focus-visible { outline: 2px solid var(--sq-brand); outline-offset: 1px; }
 /* "N message(s) hidden - show them": the rows never disappear silently. */
 .alerts__restore {
   align-self: flex-start;
-  padding: 2px var(--v2-space-3);
-  font-size: var(--v2-text-xs);
-  color: var(--v2-text-mute);
+  padding: 2px var(--sq-space-3);
+  font-size: var(--sq-text-xs);
+  color: var(--sq-text-mute);
   text-decoration: underline;
   cursor: pointer;
 }
-.alerts__restore:hover { color: var(--v2-brand); }
+.alerts__restore:hover { color: var(--sq-brand); }
 
 /* -- Hero status: dot + coloured text ------------------------------- */
 .dash-status {
@@ -158,30 +158,30 @@
   background: transparent;
   border: 0;
   padding: 0;
-  color: var(--v2-text-mute);
+  color: var(--sq-text-mute);
 }
-.dash-status--ok { color: var(--v2-status-ok, var(--v2-brand)); }
-.dash-status--warn { color: var(--v2-status-warning); }
-.dash-status--err { color: var(--v2-status-error); }
-.dash-status--info { color: var(--v2-text-mute); }
+.dash-status--ok { color: var(--sq-status-ok, var(--sq-brand)); }
+.dash-status--warn { color: var(--sq-status-warning); }
+.dash-status--err { color: var(--sq-status-error); }
+.dash-status--info { color: var(--sq-text-mute); }
 
 /* -- Health checklist ----------------------------------------------- */
 .health { display: flex; flex-direction: column; }
 .health__row {
   display: flex;
   align-items: baseline;
-  gap: var(--v2-space-3);
-  padding: var(--v2-space-2) 0;
-  border-top: var(--v2-line-h) solid var(--v2-line);
+  gap: var(--sq-space-3);
+  padding: var(--sq-space-2) 0;
+  border-top: var(--sq-line-h) solid var(--sq-line);
   min-width: 0;
 }
 .health__row:first-child { border-top: none; }
-.health__row .v2-badge { flex-shrink: 0; min-width: 52px; justify-content: center; }
-.health__label { color: var(--v2-text-strong); font-size: var(--v2-text-sm); flex-shrink: 0; }
+.health__row .sq-badge { flex-shrink: 0; min-width: 52px; justify-content: center; }
+.health__label { color: var(--sq-text-strong); font-size: var(--sq-text-sm); flex-shrink: 0; }
 .health__detail {
   margin-left: auto;
-  font-size: var(--v2-text-xs);
-  color: var(--v2-text-subtle);
+  font-size: var(--sq-text-xs);
+  color: var(--sq-text-subtle);
   text-align: right;
   min-width: 0;
   overflow: hidden;
@@ -190,76 +190,76 @@
 }
 
 /* -- Gauges --------------------------------------------------------- */
-.gauge-stack { display: flex; flex-direction: column; gap: var(--v2-space-4); }
+.gauge-stack { display: flex; flex-direction: column; gap: var(--sq-space-4); }
 
-/* Lag / drift cell emphasis inside .v2-table */
-.v2-table .lag-warn { color: var(--v2-status-warning); }
-.v2-table .lag-err { color: var(--v2-status-error); }
+/* Lag / drift cell emphasis inside .sq-table */
+.sq-table .lag-warn { color: var(--sq-status-warning); }
+.sq-table .lag-err { color: var(--sq-status-error); }
 
 /* -- Tables --------------------------------------------------------- */
-/* `.v2-table th` (0,1,1) outranks `.v2-table__num` (0,1,0) in the framework,
+/* `.sq-table th` (0,1,1) outranks `.sq-table__num` (0,1,0) in the framework,
    so numeric headers kept `text-align: left` while their cells were right
    aligned - every such header looked shifted into the left neighbour column.
    Mirror the cell alignment on the header and compensate the 0.05em tracking
    that the framework adds after the final glyph. */
-.v2-table th.v2-table__num {
+.sq-table th.sq-table__num {
   text-align: right;
-  padding-right: calc(var(--v2-space-3) - 0.05em);
+  padding-right: calc(var(--sq-space-3) - 0.05em);
 }
-.v2-table th.v2-table__mono { font-family: var(--v2-font-mono); }
+.sq-table th.sq-table__mono { font-family: var(--sq-font-mono); }
 
-/* Narrow screens: a wide table scrolls inside .v2-table-wrap (the document
+/* Narrow screens: a wide table scrolls inside .sq-table-wrap (the document
    itself never overflows - verified down to 320 px). Pin the identifying first
    column so a horizontally scrolled row keeps its peer / epoch visible. */
 @media (max-width: 720px) {
-  .v2-table-wrap { position: relative; }
-  .v2-table th:first-child,
-  .v2-table td:first-child {
+  .sq-table-wrap { position: relative; }
+  .sq-table th:first-child,
+  .sq-table td:first-child {
     position: sticky;
     left: 0;
     z-index: 1;
-    background: var(--v2-canvas);
-    box-shadow: 1px 0 0 var(--v2-line);
+    background: var(--sq-canvas);
+    box-shadow: 1px 0 0 var(--sq-line);
   }
-  .v2-table tbody tr:hover td:first-child { background: var(--v2-hover); }
+  .sq-table tbody tr:hover td:first-child { background: var(--sq-hover); }
 }
 
 /* Wallet KPIs print full-precision token amounts - one notch smaller keeps the
    amount + unit on a single line without overflowing the stat box (the unit is
    glued with a non-breaking space in app.js). */
-#wallets .v2-stat__value { font-size: var(--v2-text-lg); }
+#wallets .sq-stat__value { font-size: var(--sq-text-lg); }
 
 /* -- Brand mark ----------------------------------------------------- */
 /* Octra "circle filled" glyph drawn in the brand green (no tile behind it) */
-.v2-aside__brand-mark {
+.sq-aside__brand-mark {
   background: transparent;
-  color: var(--v2-brand);
+  color: var(--sq-brand);
   border-radius: 0;
 }
 
 /* -- Bottom navigation: active item colours icon + text only -------- */
-.v2-nav__item--active,
-.v2-nav__item.is-active,
-.v2-nav__item--active:hover,
-.v2-nav__item.is-active:hover {
+.sq-nav__item--active,
+.sq-nav__item.is-active,
+.sq-nav__item--active:hover,
+.sq-nav__item.is-active:hover {
   background: transparent;
   box-shadow: none;
-  color: var(--v2-brand);
+  color: var(--sq-brand);
 }
-.v2-nav__item--active .v2-icon,
-.v2-nav__item.is-active .v2-icon,
-.v2-nav__item--active:hover .v2-icon,
-.v2-nav__item.is-active:hover .v2-icon { color: var(--v2-brand); }
+.sq-nav__item--active .sq-icon,
+.sq-nav__item.is-active .sq-icon,
+.sq-nav__item--active:hover .sq-icon,
+.sq-nav__item.is-active:hover .sq-icon { color: var(--sq-brand); }
 
 /* -- Log toolbar (the viewer itself is a framework component) ------- */
 .log-toolbar {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  gap: var(--v2-space-2);
+  gap: var(--sq-space-2);
   min-width: 0;
 }
-.log-toolbar .v2-seg { flex-shrink: 0; }
+.log-toolbar .sq-seg { flex-shrink: 0; }
 .log-search {
   flex: 1 1 220px;
   min-width: 140px;
@@ -267,7 +267,7 @@
 }
 .log-meta { margin-left: auto; white-space: nowrap; }
 
-#log-body { --v2-log-h: 420px; }
+#log-body { --sq-log-h: 420px; }
 
 /* -- Utility bits --------------------------------------------------- */
 .truncate {
@@ -281,46 +281,46 @@
 .hash-cell {
   display: inline-flex;
   align-items: center;
-  gap: var(--v2-space-1);
+  gap: var(--sq-space-1);
   min-width: 0;
   max-width: 62%;
 }
 .copy-btn { width: 24px; height: 24px; flex-shrink: 0; }
-.sys-foot { margin-top: var(--v2-space-1); }
+.sys-foot { margin-top: var(--sq-space-1); }
 
 /* Topbar live readout */
-.live-age { color: var(--v2-text-subtle); white-space: nowrap; }
-.live-age.is-stale { color: var(--v2-status-warning); }
+.live-age { color: var(--sq-text-subtle); white-space: nowrap; }
+.live-age.is-stale { color: var(--sq-status-warning); }
 
 /* Bottom navigation badge: the validator status (was the chain id).
    It keeps the badge chrome - a tinted pill in coloured tone - unlike the hero
    status, which is dot + text without a background. */
-.v2-aside__footer .dash-status {
+.sq-aside__footer .dash-status {
   max-width: 100%;
   white-space: nowrap;
   overflow: hidden;
-  font-size: var(--v2-text-xs);
+  font-size: var(--sq-text-xs);
 }
-.v2-aside__footer .v2-badge.dash-status {
+.sq-aside__footer .sq-badge.dash-status {
   padding: 2px 8px;
   border-radius: 999px;
   border: 1px solid color-mix(in srgb, currentColor 32%, transparent);
   background: color-mix(in srgb, currentColor 14%, transparent);
 }
-.v2-aside__footer .dash-status .v2-dot { flex: 0 0 auto; }
+.sq-aside__footer .dash-status .sq-dot { flex: 0 0 auto; }
 
 /* Refresh button feedback */
 @keyframes dash-spin { to { transform: rotate(360deg); } }
-.is-spinning .v2-icon { animation: dash-spin 0.8s linear; }
+.is-spinning .sq-icon { animation: dash-spin 0.8s linear; }
 
 /* -- Responsive (framework handles grid/table/log breakpoints) ------ */
 @media (max-width: 720px) {
-  .v2-content { gap: var(--v2-space-5); padding-inline: var(--v2-space-4); }
-  .v2-section--compact { padding-block: var(--v2-space-4); }
-  .dash-hero__hostname { font-size: var(--v2-text-xl); }
+  .sq-content { gap: var(--sq-space-5); padding-inline: var(--sq-space-4); }
+  .sq-section--compact { padding-block: var(--sq-space-4); }
+  .dash-hero__hostname { font-size: var(--sq-text-xl); }
   .health__detail { display: none; }
   .hash-cell { max-width: 100%; }
-  #log-body { --v2-log-h: 360px; }
+  #log-body { --sq-log-h: 360px; }
 }
 
 @media (max-width: 600px) {
@@ -334,8 +334,8 @@
 }
 
 @media (max-width: 420px) {
-  .v2-content { padding-inline: var(--v2-space-3); }
+  .sq-content { padding-inline: var(--sq-space-3); }
   .addr-chip__label { display: none; }
-  .dash-hero__hostname { font-size: var(--v2-text-lg); }
+  .dash-hero__hostname { font-size: var(--sq-text-lg); }
 }
 

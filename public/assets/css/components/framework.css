@@ -1,0 +1,91 @@
+/**
+ * Synteq UI — Version 2.0.0
+ * Production-ready framework quality features:
+ * - Idempotent init() for dynamic content
+ * - Custom events for reactive integration
+ * - Density control
+ * - Forced-colors support
+ */
+
+/* ---- Density Control ---- */
+[data-sq-density="compact"] {
+  --sq-space-1: 3px;
+  --sq-space-2: 6px;
+  --sq-space-3: 9px;
+  --sq-space-4: 12px;
+  --sq-space-5: 16px;
+  --sq-space-6: 20px;
+}
+
+[data-sq-density="comfortable"] {
+  --sq-space-1: 6px;
+  --sq-space-2: 10px;
+  --sq-space-3: 14px;
+  --sq-space-4: 18px;
+  --sq-space-5: 24px;
+  --sq-space-6: 28px;
+}
+
+/* ---- Forced Colors (Windows High Contrast) ---- */
+@media (forced-colors: active) {
+  .sq-btn,
+  .sq-input,
+  .sq-select,
+  .sq-checkbox,
+  .sq-radio,
+  .sq-switch,
+  .sq-tabs__tab,
+  .sq-menu__item,
+  .sq-dialog,
+  .sq-alert,
+  .sq-tag {
+    border: 1px solid CanvasText;
+  }
+
+  .sq-btn--primary,
+  .sq-btn--brand,
+  .sq-btn--info,
+  .sq-btn--warn,
+  .sq-btn--warning,
+  .sq-btn--danger {
+    background: ButtonFace;
+    color: ButtonText;
+    border: 2px solid ButtonBorder;
+  }
+
+  .sq-nav__item--active,
+  .sq-tabs__tab[aria-selected="true"] {
+    border: 2px solid Highlight;
+    color: Highlight;
+  }
+
+  .sq-brand,
+  .sq-status-info,
+  .sq-status-running,
+  .sq-status-warning,
+  .sq-status-error {
+    color: CanvasText;
+  }
+
+  .sq-alert__icon,
+  .sq-toast__icon {
+    color: CanvasText;
+  }
+}
+
+/* ---- Touch Targets (pointer: coarse) ---- */
+@media (pointer: coarse) {
+  .sq-btn,
+  .sq-iconbtn,
+  .sq-seg__btn,
+  .sq-tabs__tab,
+  .sq-menu__item {
+    min-height: 44px;
+  }
+
+  .sq-sidebar-toggle,
+  .sq-theme-toggle {
+    width: 44px;
+    height: 44px;
+  }
+}

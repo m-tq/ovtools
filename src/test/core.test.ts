@@ -96,12 +96,22 @@ test('web API: ping, config, static UI, approval gate, settings', async () => {
     assert.equal(index.status, 200);
     const html = await index.text();
     assert.match(html, /Octra Validator Tools/);
-    assert.match(html, /assets\/v2\.2\/css\/synteq-ui-v2\.css/);
+    assert.match(html, /assets\/css\/synteq-ui\.css/);
     assert.match(html, /Deploy Dashboard Monitor/);
     assert.match(html, /mc-nodeactions__wide/);
+    assert.match(html, /id="disk-modal"/);
+    assert.match(html, /id="tasks"/);
 
     const pick = await fetch(`${base}/api/pickdir`, { method: 'POST' });
     assert.equal(pick.status, 400);
+
+    const disk = await fetch(`${base}/api/disk-plan`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ program: 'deploy', phase: 'deploy', newIp: '1.2.3.4' }),
+    });
+    assert.equal(disk.status, 400);
+    assert.match(((await disk.json()) as any).error, /password/);
 
     const run = await fetch(`${base}/api/run`, {
       method: 'POST',

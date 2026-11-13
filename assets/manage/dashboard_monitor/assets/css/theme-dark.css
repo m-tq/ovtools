@@ -1,0 +1,43 @@
+/* ==========================================================================
+   SYNTEQ UI — 02. DARK THEME (theme-dark.css) [default]
+   Flat surfaces, hairline separators. No card elevation.
+   ========================================================================== */
+:root,
+[data-theme="dark"],
+.theme-dark {
+  color-scheme: dark;
+
+  /* Text — 3-step hierarchy (WCAG AA on canvas) */
+  --sq-text: #d6dada;        /* body / labels */
+  --sq-text-strong: #f4f6f6; /* high-emphasis values, hostnames, active */
+  --sq-text-subtle: #7a8080; /* metadata, units, timestamps */
+  --sq-text-on-accent: #06120f;
+  /* Ink for SOLID accent/status fills (tips, brand button, brand mark, checked
+     controls). Dark in BOTH themes: accent and status colours stay light-to-mid
+     tone, so dark ink is the readable choice (white-on-amber failed contrast). */
+  --sq-text-on-solid: #08110e;
+
+  /* Flat surfaces — Synteq UI uses a flat surface model, removing the raised/strong/muted ladder */
+  --sq-canvas: #0a0b0b;  /* main app background */
+  --sq-sidebar: #070808;  /* navigation background (slightly off canvas) */
+  --sq-hover: #161919;   /* interactive hover/active surface */
+  --sq-inset: #101212;   /* inset rows / inputs / gauge track */
+
+  /* Line separators (the primary structural device in Synteq UI — replaces cards) */
+  --sq-line: #1c2020;        /* default hairline */
+  --sq-line-strong: #2b3030; /* emphasized separator */
+  --sq-line-accent: #1f3a30; /* accent-tinted separator (brand edge) */
+
+  /* Semantic accents */
+  --sq-brand: #00e599;
+  --sq-status-info: #38bdf8;
+  --sq-status-running: #34d399;
+  --sq-status-warning: #fbbf24;
+  --sq-status-error: #f87171;
+  --sq-tel-in: #34d399;
+  --sq-tel-out: #fb7185;
+  --sq-track: #1a1d1d;       /* gauge empty track */
+
+  /* Theme-toggle icon glyph color */
+  --sq-glyph: #9aa0a0;
+}

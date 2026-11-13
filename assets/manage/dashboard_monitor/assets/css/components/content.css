@@ -1,0 +1,133 @@
+/* ==========================================================================
+   SYNTEQ UI — 09. CONTENT & LINE SEPARATORS (components/content.css)
+
+   RULE: Only ONE separator between sections — the top border of .sq-section.
+   No secondary hairlines inside section heads or stat strips.
+   ========================================================================== */
+
+/* Section — one top hairline between blocks, centred on both axes.
+   The section fills the space between topbar and dock, and its content is
+   vertically centred inside that row; the column itself is horizontally
+   centred through max-width + auto margins. */
+.sq-section {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  flex: 0 0 auto;                 /* never shrink inside the scroll column */
+  justify-content: center;
+  gap: var(--sq-space-4);
+  width: 100%;
+  max-width: var(--sq-content-max, 1200px);
+  min-width: 0;
+  margin-inline: auto;
+  padding-block: var(--sq-space-6);
+  border-top: var(--sq-line-h) solid var(--sq-line);
+  scroll-margin-top: var(--sq-space-4);   /* cleared below the topbar by the shell grid */
+  min-height: calc(100dvh - var(--sq-topbar-h) - var(--sq-nav-current, var(--sq-bottomnav-h)));
+}
+.sq-section:first-child { border-top: none; }
+
+/* Nested sections (live previews, embedded demos) must never inherit the
+   viewport height — this was the source of the giant stacked demo blocks. */
+.sq-section .sq-section {
+  min-height: 0;
+  max-width: none;
+  justify-content: flex-start;
+  gap: var(--sq-space-3);
+  padding-block: var(--sq-space-4);
+}
+.sq-section--top { justify-content: flex-start; }
+.sq-section--compact { min-height: 0; }
+
+/* Section head: label + trailing action — NO secondary rule below it */
+.sq-section__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--sq-space-2) var(--sq-space-3);
+  min-width: 0;
+  /* Intentionally no border-bottom — avoid double-rule appearance */
+}
+.sq-section__meta {
+  margin-left: auto;
+  font-size: var(--sq-text-xs);
+  color: var(--sq-text-subtle);
+  font-variant-numeric: tabular-nums;
+}
+.sq-section__title {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sq-space-2);
+  font-size: var(--sq-text-xs);
+  font-weight: var(--sq-fw-semibold);
+  color: var(--sq-text-subtle);
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+}
+
+/* Explicit rule helpers (opt-in, not auto-applied) */
+.sq-rule {
+  border: 0;
+  border-top: var(--sq-line-h) solid var(--sq-line);
+  width: 100%;
+  margin: 0;
+}
+.sq-rule--strong { border-top-color: var(--sq-line-strong); }
+.sq-rule--dashed { border-top-style: dashed; }
+
+/* Layout grids — equal-height tracks, safe minmax(0) to avoid overflow */
+.sq-grid { display: grid; gap: var(--sq-space-5); align-items: start; min-width: 0; }
+.sq-grid > * { min-width: 0; }
+.sq-grid--2    { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.sq-grid--3    { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.sq-grid--auto { grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); }
+/* Content-driven grid: fills as many columns as the width allows */
+.sq-grid--auto-fit { grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
+
+/* Stat strip — flex wrap, gap only. No vertical hairlines between items. */
+.sq-stat-strip {
+  display: flex;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: var(--sq-space-5) var(--sq-space-6);
+  min-width: 0;
+}
+.sq-stat-strip .sq-stat { min-width: 80px; flex: 1 1 80px; }
+
+/* ── Breakpoints ─────────────────────────────────────────────────── */
+@media (max-width: 1024px) {
+  .sq-grid--3 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 900px) {
+  .sq-grid--auto { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 720px) {
+  .sq-grid--2, .sq-grid--3 { grid-template-columns: minmax(0, 1fr); }
+  .sq-grid { gap: var(--sq-space-4); }
+
+  /* Stat strips: a flex wrap squeezes six items into ~80px columns, so long
+     values (epochs, byte counts, percentages) used to overflow their box.
+     Two equal columns keep every value readable down to 320px. */
+  .sq-stat-strip {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--sq-space-4) var(--sq-space-5);
+    align-items: start;
+  }
+  .sq-stat-strip .sq-stat { min-width: 0; flex: none; }
+  .sq-stat__value { overflow-wrap: anywhere; }
+  .sq-stat__label { overflow-wrap: anywhere; }
+}
+@media (max-width: 520px) {
+  .sq-stat-strip { gap: var(--sq-space-3) var(--sq-space-4); }
+  .sq-section { gap: var(--sq-space-3); padding-block: var(--sq-space-5); }
+}
+@media (max-height: 480px) and (orientation: landscape) {
+  /* Short landscape phones: never force a full-screen row per section */
+  .sq-section {
+    min-height: 0;
+    justify-content: flex-start;
+    padding-block: var(--sq-space-4);
+  }
+}

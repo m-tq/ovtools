@@ -1,0 +1,39 @@
+/* ==========================================================================
+   SYNTEQ UI — 03. LIGHT THEME (theme-light.css)
+   Daylight operator palette, same flat hairline architecture.
+   ========================================================================== */
+[data-theme="light"],
+.theme-light {
+  color-scheme: light;
+
+  /* Text — high-contrast daylight hierarchy (WCAG AA verified) */
+  --sq-text: #2f3434;        /* body / labels */
+  --sq-text-strong: #0d1010; /* high-emphasis values, hostnames, active */
+  --sq-text-subtle: #666e6e; /* metadata, units, timestamps (AA on inset/canvas) */
+  --sq-text-on-accent: #ffffff;
+  /* Same dark ink as the dark theme — see theme-dark.css for the rationale. */
+  --sq-text-on-solid: #08110e;
+
+  /* Flat surfaces */
+  --sq-canvas: #f4f6f6;   /* main app background */
+  --sq-sidebar: #ffffff;   /* navigation background */
+  --sq-hover: #e8ecec;    /* interactive hover/active surface */
+  --sq-inset: #eef1f1;    /* inset rows / inputs / gauge track */
+
+  /* Line separators */
+  --sq-line: #e1e5e5;        /* default hairline */
+  --sq-line-strong: #cfd4d4; /* emphasized separator */
+  --sq-line-accent: #b9d9cf; /* accent-tinted separator */
+
+  /* Semantic accents (tuned for light contrast) */
+  --sq-brand: #059669;
+  --sq-status-info: #0284c7;
+  --sq-status-running: #16a34a;
+  --sq-status-warning: #d97706;
+  --sq-status-error: #dc2626;
+  --sq-tel-in: #16a34a;
+  --sq-tel-out: #e11d48;
+  --sq-track: #e2e6e6;
+
+  --sq-glyph: #5a6363;
+}

@@ -61,6 +61,7 @@ export interface DeployConfig {
   reset?: boolean;
   wipeVolume?: boolean;
   keepData?: boolean;
+  allowFormat?: boolean;
   phase?: string;
 }
 
@@ -71,6 +72,7 @@ export interface MigrateConfig {
   newAuth: HostAuth;
   wipeTargetVolume: boolean;
   keepTargetData: boolean;
+  allowFormat?: boolean;
   phase?: string;
   samples?: number;
   interval?: number;
@@ -151,6 +153,7 @@ export interface JobRequest {
   keepData?: boolean;
   wipeTargetVolume?: boolean;
   keepTargetData?: boolean;
+  allowFormat?: boolean;
 }
 
 export interface JobProgress {
@@ -194,6 +197,24 @@ export interface JobWatching {
   active?: boolean;
   scheduled?: boolean;
   problem?: string | null;
+}
+
+export interface DiskPlan {
+  action: 'format' | 'keep' | 'fallback' | 'none';
+  program: string;
+  ip: string;
+  device: string | null;
+  disk: string | null;
+  sizeGB: number | null;
+  fstype: string | null;
+  label: string | null;
+  mountpoint: string | null;
+  systemDisk: boolean;
+  hasDataset: boolean;
+  hasChain: boolean;
+  model: string | null;
+  reason: string;
+  lsblk: string;
 }
 
 export interface JobStep {

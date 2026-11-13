@@ -1,0 +1,73 @@
+/* ==========================================================================
+   SYNTEQ UI — 01. CORE DESIGN TOKENS (tokens.css)
+   Lean, fluid, responsive-first. No color values here (see theme-*.css).
+   ========================================================================== */
+:root {
+  /* Typography — Google Sans Code as primary, mono fallback */
+  --sq-font-sans: 'Google Sans Code', 'DM Sans', system-ui, -apple-system, sans-serif;
+  --sq-font-mono: 'Google Sans Code', 'JetBrains Mono', ui-monospace, monospace;
+
+  /* Fluid type scale (clamp keeps it responsive without media queries) */
+  --sq-text-xs: 11px;
+  --sq-text-sm: 12px;
+  --sq-text-md: 13px;
+  --sq-text-lg: 15px;
+  --sq-text-xl: 18px;
+  --sq-text-2xl: clamp(22px, 2.4vw, 28px);
+  --sq-text-3xl: clamp(26px, 3.2vw, 34px);
+
+  --sq-fw-regular: 400;
+  --sq-fw-medium: 500;
+  --sq-fw-semibold: 600;
+  --sq-fw-bold: 700;
+  --sq-leading-tight: 1.2;
+  --sq-leading-base: 1.5;
+
+  /* Spacing — 4px base scale (lightweight, fewer steps) */
+  --sq-space-1: 4px;
+  --sq-space-2: 8px;
+  --sq-space-3: 12px;
+  --sq-space-4: 16px;
+  --sq-space-5: 20px;
+  --sq-space-6: 24px;
+  --sq-space-7: 32px;
+  --sq-space-8: 40px;
+  --sq-space-9: 56px;
+
+  /* Radius — minimal two-tier (Synteq UI favors near-flat surfaces) */
+  --sq-radius-micro: 2px;   /* micro badges, status dots, chart caps */
+  --sq-radius-control: 5px; /* buttons, inputs, segmented, nav items */
+  --sq-radius-pill: 999px;  /* switches, range thumbs, circular caps */
+
+  /* Layout shell tokens (drive the viewport-locked grid) */
+  --sq-aside-w: clamp(204px, 17vw, 240px);
+  --sq-topbar-h: 52px;
+  --sq-bottomnav-h: 60px;
+
+  /* Content column — every .sq-section is centred inside this measure */
+  --sq-content-max: 1200px;
+  /* Bottom dock item width — drives the overflow (More / drag) threshold */
+  --sq-nav-item-w: 80px;
+
+  /* Motion — lightweight, single easing curve */
+  --sq-ease: cubic-bezier(0.16, 1, 0.3, 1);
+  --sq-dur-instant: 120ms;
+  --sq-dur-fast: 180ms;
+  --sq-dur-normal: 280ms;
+  --sq-dur-slow: 420ms;
+
+  /* Hairline separator weights */
+  --sq-line-h: 1px;
+  --sq-line-h-strong: 1px;
+
+  /* Form controls */
+  --sq-input-h: 32px;       /* standard input/select/button height */
+  --sq-field-gap: var(--sq-space-1); /* gap between label and input */
+
+  /* Status ink mix — how much of a semantic status hue is blended into the
+     surrounding text colour when that status colour is used as TEXT on a tinted
+     surface (tonal buttons, badges, tags, log levels). 60% keeps the hue
+     recognisable while clearing WCAG AA in both themes; 100% (pure status
+     colour) only passes on the dark theme. */
+  --sq-status-ink-mix: 60%;
+}

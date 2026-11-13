@@ -32,6 +32,7 @@ if [[ -f /root/pre-run.sh ]]; then
     SWAP_GB="${SWAP_GB:-8}" \
     BLOCK_DEVICE="${BLOCK_DEVICE:-/dev/sdb}" \
     DATA_MIN_GB="${DATA_MIN_GB:-1000}" \
+    FORMAT_APPROVED="${FORMAT_APPROVED:-}" \
     bash /root/pre-run.sh
 else
   warn "/root/pre-run.sh is missing - run the deploy step again after the script push"

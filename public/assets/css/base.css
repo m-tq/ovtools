@@ -1,0 +1,119 @@
+/* ==========================================================================
+   SYNTEQ UI — 04. BASE RESET, VIEWPORT LOCK & A11Y (base.css)
+   Key rule: body NEVER scrolls. Only in-content regions scroll.
+   ========================================================================== */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  height: 100%;
+  width: 100%;
+  /* Viewport lock — the app matches the screen, no page scrollbar */
+  overflow: hidden;
+}
+
+body {
+  background-color: var(--sq-canvas);
+  color: var(--sq-text);
+  font-family: var(--sq-font-sans);
+  font-size: var(--sq-text-md);
+  line-height: var(--sq-leading-base);
+  font-variant-numeric: tabular-nums;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  transition:
+    background-color var(--sq-dur-fast) var(--sq-ease),
+    color var(--sq-dur-fast) var(--sq-ease);
+}
+
+/* Prevent browser scroll restoration or overscroll chaining from moving the shell. */
+html { overscroll-behavior: none; }
+body { position: fixed; inset: 0; }
+
+/* In-content scroll region — the ONLY place scrollbars appear */
+.sq-scroll {
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: thin;
+  scrollbar-color: var(--sq-line-strong) transparent;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+}
+.sq-scroll::-webkit-scrollbar { width: 8px; height: 8px; }
+.sq-scroll::-webkit-scrollbar-thumb {
+  background: var(--sq-line-strong);
+  border-radius: 4px;
+}
+.sq-scroll::-webkit-scrollbar-thumb:hover { background: var(--sq-glyph); }
+.sq-scroll::-webkit-scrollbar-track { background: transparent; }
+.sq-scroll::-webkit-scrollbar-corner { background: transparent; }
+
+/* Keyboard-first focus ring (never on mouse click) */
+:focus { outline: none; }
+:focus-visible {
+  outline: 2px solid var(--sq-text-strong);
+  outline-offset: 2px;
+  border-radius: var(--sq-radius-micro);
+}
+
+/* [hidden] must always win over a component's own display rule.
+   The UA `[hidden] { display: none }` rule loses to any author rule such as
+   `.sq-btn { display: inline-flex }`, so runtime filters (command palette,
+   table rows, popovers) kept rendering the elements they meant to hide. */
+[hidden] { display: none !important; }
+
+button, a, input, select, textarea, [tabindex] {
+  font-family: inherit;
+  color: inherit;
+  border: none;
+  outline: none;
+  background: none;
+  text-decoration: none;
+  transition:
+    background-color var(--sq-dur-instant) var(--sq-ease),
+    color var(--sq-dur-instant) var(--sq-ease),
+    transform var(--sq-dur-instant) var(--sq-ease),
+    opacity var(--sq-dur-instant) var(--sq-ease);
+}
+
+button { cursor: pointer; }
+button:disabled, [aria-disabled="true"] {
+  opacity: 0.4;
+  cursor: not-allowed !important;
+  pointer-events: none;
+}
+a { color: inherit; }
+
+/* Typography utility classes */
+.sq-mono { font-family: var(--sq-font-mono); font-variant-numeric: tabular-nums; }
+.sq-t-xs { font-size: var(--sq-text-xs); }
+.sq-t-sm { font-size: var(--sq-text-sm); }
+.sq-t-md { font-size: var(--sq-text-md); }
+.sq-t-lg { font-size: var(--sq-text-lg); }
+.sq-t-xl { font-size: var(--sq-text-xl); }
+.sq-t-2xl { font-size: var(--sq-text-2xl); line-height: var(--sq-leading-tight); }
+.sq-t-3xl { font-size: var(--sq-text-3xl); line-height: var(--sq-leading-tight); }
+.sq-mute { color: var(--sq-text-subtle); }
+.sq-strong { color: var(--sq-text-strong); font-weight: var(--sq-fw-medium); }
+.sq-semibold { font-weight: var(--sq-fw-semibold); }
+
+/* Visually hidden (sr-only) */
+.sq-sr-only {
+  position: absolute;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0,0,0,0);
+  white-space: nowrap; border: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}

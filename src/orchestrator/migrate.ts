@@ -264,6 +264,9 @@ export class MigrateOrchestrator extends BaseOrchestrator {
 
       const prev = await this.getPrerunState(this.newClient!, '/root/migration/prerun.env');
       let prevMode = this.prepMode(prev, alreadyPulled, !this.config.keepTargetData);
+      const formatEnv: Record<string, string> = typeof this.config.allowFormat === 'boolean'
+        ? { FORMAT_APPROVED: this.config.allowFormat ? '1' : '0' }
+        : {};
       let preRun = 'bash /root/pre-run.sh';
       if (this.config.wipeTargetVolume) {
         preRun = 'WIPE_VOLUME=1 bash /root/pre-run.sh';
@@ -277,7 +280,7 @@ export class MigrateOrchestrator extends BaseOrchestrator {
         this.log(`keeping the data set on ${this.config.newIp}: this migration already pulled into it`, 'info');
       }
 
-      await this.runDirect(this.newClient!, preRun, 'pre-run.sh (swap + data store: auto format/mount)', 1800);
+      await this.runDirect(this.newClient!, preRun, 'pre-run.sh (swap + data store: auto format/mount)', 1800, { env: formatEnv });
 
       let pre = await this.getPrerunState(this.newClient!, '/root/migration/prerun.env');
       this.log(`target data store: ${pre.dev || 'no dedicated volume'} -> ${pre.mount} (action=${pre.action}, data-set=${pre.dataSet ? 'yes' : 'no'}, chain-state=${pre.chain ? 'yes' : 'no'})`, 'info');
@@ -289,7 +292,7 @@ export class MigrateOrchestrator extends BaseOrchestrator {
         }
         this.log('the target volume still holds a stale Octra data set and nothing was pulled yet - reformatting it now', 'warn');
         try {
-          await this.runDirect(this.newClient!, 'WIPE_VOLUME=1 bash /root/pre-run.sh', 'pre-run.sh (WIPE_VOLUME=1: reformat the stale data set)', 1800);
+          await this.runDirect(this.newClient!, 'WIPE_VOLUME=1 bash /root/pre-run.sh', 'pre-run.sh (WIPE_VOLUME=1: reformat the stale data set)', 1800, { env: formatEnv });
           pre = await this.getPrerunState(this.newClient!, '/root/migration/prerun.env');
           mode = 'plain';
         } catch (err) {

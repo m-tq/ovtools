@@ -1,0 +1,34 @@
+/* ==========================================================================
+   SYNTEQ UI — MASTER STYLESHEET (css/synteq-ui.css)
+   Lean, viewport-locked, line-separator architecture. No cards.
+
+   Design rules (six hard rules):
+   1. Body never scrolls — only in-content regions scroll.
+   2. Responsive on any screen type (fluid type + breakpoint grid).
+   3. Simple & lightweight — minimal token set, flat surfaces.
+   4. No cards/wrappers — hairline line separators only.
+   5. Lightweight motion — subtle, respects reduced-motion.
+   6. Inline icons for fast context.
+   ========================================================================== */
+@import "./fonts.css?v=1.0.6";
+@import "./tokens.css?v=1.0.6";
+@import "./theme-dark.css?v=1.0.6";
+@import "./theme-light.css?v=1.0.6";
+@import "./base.css?v=1.0.6";
+@import "./components/icons.css?v=1.0.6";
+@import "./components/shell.css?v=1.0.6";
+@import "./components/sidebar.css?v=1.0.6";
+@import "./components/topbar.css?v=1.0.6";
+@import "./components/content.css?v=1.0.6";
+@import "./components/data.css?v=1.0.6";
+@import "./components/controls.css?v=1.0.6";
+@import "./components/forms.css?v=1.0.6";
+@import "./components/overlays.css?v=1.0.6";
+@import "./components/feedback.css?v=1.0.6";
+@import "./components/tables.css?v=1.0.6";
+@import "./components/charts.css?v=1.0.6";
+@import "./components/tree.css?v=1.0.6";
+@import "./components/stepper.css?v=1.0.6";
+@import "./components/code.css?v=1.0.6";
+@import "./components/framework.css?v=1.0.6";
+@import "./components/motion.css?v=1.0.6";

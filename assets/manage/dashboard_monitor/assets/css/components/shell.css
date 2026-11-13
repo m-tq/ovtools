@@ -1,0 +1,52 @@
+/* Synteq UI viewport-locked shell with a sticky bottom navigation dock. */
+.sq-app {
+  --sq-nav-current: var(--sq-bottomnav-h);
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-template-rows: var(--sq-topbar-h) minmax(0, 1fr) var(--sq-nav-current);
+  grid-template-areas: "topbar" "main" "aside";
+  height: 100dvh;
+  width: 100%;
+  overflow: hidden;
+  background: var(--sq-canvas);
+  transition: grid-template-rows var(--sq-dur-normal) var(--sq-ease);
+}
+.sq-app.nav-collapsed { --sq-nav-current: 0px; }
+.sq-app.nav-collapsed .sq-aside { transform: translateY(100%); opacity: 0; visibility: hidden; pointer-events: none; }
+.sq-aside { grid-area: aside; min-height: 0; }
+.sq-topbar { grid-area: topbar; min-height: 0; }
+.sq-main { grid-area: main; min-height: 0; min-width: 0; overflow: hidden; display: flex; }
+.sq-content {
+  flex: 1;
+  min-width: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  /* Vertical spacing lives on .sq-section so one section fills exactly one screen. */
+  padding: 0 clamp(var(--sq-space-4), 4vw, var(--sq-space-7));
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: var(--sq-space-7);
+  scroll-padding-top: var(--sq-space-4);
+}
+.sq-content--fullscreen > .sq-section {
+  min-height: calc(100dvh - var(--sq-topbar-h) - var(--sq-nav-current, var(--sq-bottomnav-h)));
+  justify-content: center;
+  padding-block: var(--sq-space-8);
+  scroll-margin-top: var(--sq-space-4);
+}
+@media (max-width: 860px) {
+  .sq-content { padding: 0 var(--sq-space-4); gap: var(--sq-space-6); }
+}
+@media (max-width: 420px) {
+  :root { --sq-topbar-h: 48px; }
+  .sq-content { padding: 0 var(--sq-space-3); gap: var(--sq-space-5); }
+}
+@media (max-height: 480px) and (orientation: landscape) {
+  :root {
+    --sq-topbar-h: 48px;
+    --sq-bottomnav-h: 52px;
+  }
+  .sq-content { gap: var(--sq-space-5); }
+}

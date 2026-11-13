@@ -1,0 +1,146 @@
+/* ==========================================================================
+   SYNTEQ UI - TREE (components/tree.css)
+   Expand / collapse hierarchy, three levels maximum. Indentation is done by
+   nesting the groups (each level owns a hairline rail), so no depth math is
+   needed and the markup stays readable.
+   ========================================================================== */
+
+.sq-tree {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sq-line-h);
+  font-size: var(--sq-text-md);
+  min-width: 0;
+}
+
+.sq-tree__item {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.sq-tree__row {
+  display: flex;
+  align-items: center;
+  gap: var(--sq-space-1);
+  padding: var(--sq-space-1) var(--sq-space-2);
+  border-radius: var(--sq-radius-control);
+  color: var(--sq-text);
+  min-width: 0;
+  transition: background-color var(--sq-dur-instant) var(--sq-ease);
+}
+
+.sq-tree__row:hover {
+  background: var(--sq-hover);
+}
+
+.sq-tree__row--active {
+  background: color-mix(in srgb, var(--sq-brand) 9%, transparent);
+}
+
+.sq-tree__row--active .sq-tree__label {
+  color: var(--sq-text-strong);
+}
+
+/* Toggle button - the caret rotates when the group is open */
+.sq-tree__toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--sq-space-4);
+  height: var(--sq-space-4);
+  flex-shrink: 0;
+  background: none;
+  border: 0;
+  padding: 0;
+  border-radius: var(--sq-radius-micro);
+  color: var(--sq-text-subtle);
+  cursor: pointer;
+  transition: color var(--sq-dur-instant) var(--sq-ease);
+}
+
+.sq-tree__toggle:hover {
+  color: var(--sq-text-strong);
+}
+
+.sq-tree__toggle svg {
+  transition: transform var(--sq-dur-fast) var(--sq-ease);
+}
+
+.sq-tree__toggle[aria-expanded="true"] svg {
+  transform: rotate(90deg);
+}
+
+/* Leaf rows keep their label aligned with sibling toggles */
+.sq-tree__spacer {
+  width: var(--sq-space-4);
+  height: var(--sq-space-4);
+  flex-shrink: 0;
+}
+
+.sq-tree__label {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sq-space-2);
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--sq-text);
+}
+
+.sq-tree__label--mono {
+  font-family: var(--sq-font-mono);
+  font-size: var(--sq-text-sm);
+}
+
+.sq-tree__meta {
+  margin-left: auto;
+  padding-left: var(--sq-space-3);
+  font-size: var(--sq-text-xs);
+  color: var(--sq-text-subtle);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* Nested group - one hairline rail per level */
+.sq-tree__group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sq-line-h);
+  margin-left: var(--sq-space-5);
+  padding-left: var(--sq-space-2);
+  border-left: var(--sq-line-h) solid var(--sq-line);
+  min-width: 0;
+}
+
+.sq-tree__group[hidden] {
+  display: none;
+}
+
+/* Level tint for the deepest (third) level */
+.sq-tree__group .sq-tree__group {
+  border-left-color: var(--sq-line-strong);
+}
+
+.sq-tree__group .sq-tree__group .sq-tree__row {
+  font-size: var(--sq-text-sm);
+  color: var(--sq-text-subtle);
+}
+
+.sq-tree__empty {
+  padding: var(--sq-space-2) var(--sq-space-3);
+  font-size: var(--sq-text-xs);
+  color: var(--sq-text-subtle);
+}
+
+@media (max-width: 520px) {
+  .sq-tree__group {
+    margin-left: var(--sq-space-4);
+  }
+
+  .sq-tree__meta {
+    display: none;
+  }
+}

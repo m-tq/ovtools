@@ -1,0 +1,57 @@
+/* ==========================================================================
+   SYNTEQ UI — 12. LIGHTWEIGHT MOTION (components/motion.css)
+   Subtle mount + interaction motion. Auto-disabled via reduced-motion
+   (handled globally in base.css).
+   ========================================================================== */
+
+/* Mount: fade + small upward drift */
+@keyframes sq-fade-up {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.sq-fade-up { animation: sq-fade-up var(--sq-dur-normal) var(--sq-ease) both; }
+
+/* Drop-up menu entrance (bottom dock overflow) */
+@keyframes sq-drop-up {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Staggered children (apply to parent) */
+.sq-stagger > * {
+  animation: sq-fade-up var(--sq-dur-normal) var(--sq-ease) both;
+}
+.sq-stagger > *:nth-child(1) { animation-delay: 0ms; }
+.sq-stagger > *:nth-child(2) { animation-delay: 60ms; }
+.sq-stagger > *:nth-child(3) { animation-delay: 120ms; }
+.sq-stagger > *:nth-child(4) { animation-delay: 180ms; }
+.sq-stagger > *:nth-child(5) { animation-delay: 240ms; }
+.sq-stagger > *:nth-child(6) { animation-delay: 300ms; }
+.sq-stagger > *:nth-child(n+7) { animation-delay: 360ms; }
+
+/* Soft pulse for live indicators */
+@keyframes sq-soft-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+.sq-live { animation: sq-soft-pulse 2s var(--sq-ease) infinite; }
+
+/* Animated gauge fill (driven by JS setting width) already transitions in data.css */
+
+/* Hover lift utility (for interactive rows) */
+.sq-row-hover { transition: background-color var(--sq-dur-fast) var(--sq-ease); }
+.sq-row-hover:hover { background: var(--sq-hover); }
+
+/* Skeleton shimmer (for async text-first data) */
+@keyframes sq-shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+.sq-skeleton {
+  background: linear-gradient(90deg, var(--sq-inset) 0%, var(--sq-hover) 50%, var(--sq-inset) 100%);
+  background-size: 200% 100%;
+  animation: sq-shimmer 1.4s infinite linear;
+  border-radius: var(--sq-radius-micro);
+  color: transparent;
+  user-select: none;
+}

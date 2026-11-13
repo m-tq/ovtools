@@ -1,0 +1,583 @@
+/* ==========================================================================
+   SYNTEQ UI — FORMS (components/forms.css)
+   Native HTML form controls restyled to match the flat-surface model.
+   All interactive states, full keyboard support, ARIA-ready.
+   ========================================================================== */
+
+/* ---- Field wrapper (label + input + hint + error) ---- */
+.sq-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sq-field-gap);
+  width: 100%;
+}
+
+.sq-field__label {
+  display: flex;
+  align-items: center;
+  gap: var(--sq-space-2);
+  font-size: var(--sq-text-sm);
+  font-weight: var(--sq-fw-medium);
+  color: var(--sq-text-strong);
+}
+
+.sq-field__label--required::after {
+  content: '*';
+  color: var(--sq-status-error);
+  margin-left: var(--sq-space-1);
+}
+
+.sq-field__hint {
+  font-size: var(--sq-text-xs);
+  color: var(--sq-text-subtle);
+  line-height: var(--sq-leading-base);
+}
+
+.sq-field__error {
+  display: none;
+  font-size: var(--sq-text-xs);
+  color: var(--sq-status-error);
+  line-height: var(--sq-leading-base);
+}
+
+.sq-field--invalid .sq-field__error {
+  display: block;
+}
+
+/* ---- Text input (existing .sq-input enhanced with states) ---- */
+.sq-input {
+  width: 100%;
+  height: var(--sq-input-h);
+  padding: 0 var(--sq-space-3);
+  background: var(--sq-inset);
+  border: var(--sq-line-h) solid transparent;
+  border-radius: var(--sq-radius-control);
+  color: var(--sq-text-strong);
+  font-size: var(--sq-text-sm);
+  font-family: var(--sq-font-sans);
+  transition: border-color var(--sq-dur-instant) var(--sq-ease),
+              background-color var(--sq-dur-instant) var(--sq-ease);
+}
+
+.sq-input::placeholder {
+  color: var(--sq-text-subtle);
+}
+
+.sq-input:focus-visible {
+  background: var(--sq-hover);
+  /* ONE indicator per field: a brand ring drawn with outline. Previously the
+     global `:focus-visible` outline from base.css was painted around the input
+     while this rule also turned the 1px border brand — a double coloured edge. */
+  outline: 2px solid var(--sq-brand);
+  outline-offset: 1px;
+  border-color: transparent;
+}
+
+.sq-input:disabled,
+.sq-input[readonly] {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background: var(--sq-inset);
+}
+
+.sq-input:disabled::placeholder {
+  color: var(--sq-text-subtle);
+}
+
+.sq-input[aria-invalid="true"],
+.sq-field--invalid .sq-input {
+  border-color: var(--sq-status-error);
+}
+
+.sq-input[aria-invalid="true"]:focus-visible,
+.sq-field--invalid .sq-input:focus-visible {
+  /* Invalid fields keep the error signal, but only once: the ring turns red
+     instead of adding a red border underneath a brand ring. */
+  outline-color: var(--sq-status-error);
+  border-color: transparent;
+}
+
+/* ---- Textarea ---- */
+.sq-textarea {
+  width: 100%;
+  min-height: calc(var(--sq-input-h) * 2.5);
+  padding: var(--sq-space-2) var(--sq-space-3);
+  background: var(--sq-inset);
+  border: var(--sq-line-h) solid transparent;
+  border-radius: var(--sq-radius-control);
+  color: var(--sq-text-strong);
+  font-size: var(--sq-text-sm);
+  font-family: var(--sq-font-sans);
+  line-height: var(--sq-leading-base);
+  resize: vertical;
+  transition: border-color var(--sq-dur-instant) var(--sq-ease),
+              background-color var(--sq-dur-instant) var(--sq-ease);
+}
+
+.sq-textarea::placeholder {
+  color: var(--sq-text-subtle);
+}
+
+.sq-textarea:focus-visible {
+  background: var(--sq-hover);
+  outline: 2px solid var(--sq-brand);
+  outline-offset: 1px;
+  border-color: transparent;
+}
+
+.sq-textarea:disabled,
+.sq-textarea[readonly] {
+  opacity: 0.5;
+  cursor: not-allowed;
+  resize: none;
+}
+
+.sq-textarea[aria-invalid="true"],
+.sq-field--invalid .sq-textarea {
+  border-color: var(--sq-status-error);
+}
+
+.sq-textarea[aria-invalid="true"]:focus-visible,
+.sq-field--invalid .sq-textarea:focus-visible {
+  outline-color: var(--sq-status-error);
+  border-color: transparent;
+}
+
+/* ---- Select (native, custom arrow) ---- */
+.sq-select {
+  width: 100%;
+  height: var(--sq-input-h);
+  padding: 0 var(--sq-space-6) 0 var(--sq-space-3);
+  background: var(--sq-inset);
+  border: var(--sq-line-h) solid transparent;
+  border-radius: var(--sq-radius-control);
+  color: var(--sq-text-strong);
+  font-size: var(--sq-text-sm);
+  font-family: var(--sq-font-sans);
+  appearance: none;
+  cursor: pointer;
+  background-image: url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1.5L6 6.5L11 1.5' stroke='%237a8080' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right var(--sq-space-3) center;
+  transition: border-color var(--sq-dur-instant) var(--sq-ease),
+              background-color var(--sq-dur-instant) var(--sq-ease);
+}
+
+.sq-select:focus-visible {
+  background-color: var(--sq-hover);
+  outline: 2px solid var(--sq-brand);
+  outline-offset: 1px;
+  border-color: transparent;
+}
+
+.sq-select:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.sq-select[aria-invalid="true"],
+.sq-field--invalid .sq-select {
+  border-color: var(--sq-status-error);
+}
+
+/* Light theme arrow color adjustment */
+[data-theme="light"] .sq-select {
+  background-image: url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1.5L6 6.5L11 1.5' stroke='%23666e6e' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+}
+
+/* ---- Checkbox ---- */
+.sq-checkbox {
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  background: var(--sq-inset);
+  border: var(--sq-line-h) solid var(--sq-line-strong);
+  border-radius: var(--sq-radius-micro);
+  cursor: pointer;
+  position: relative;
+  transition: background-color var(--sq-dur-instant) var(--sq-ease),
+              border-color var(--sq-dur-instant) var(--sq-ease);
+}
+
+.sq-checkbox:hover {
+  background: var(--sq-hover);
+  border-color: var(--sq-text);
+}
+
+.sq-checkbox:focus-visible {
+  /* Ring only — the border already carries the checked / invalid state. */
+  outline: 2px solid var(--sq-brand);
+  outline-offset: 2px;
+}
+
+.sq-checkbox:checked {
+  background: var(--sq-brand);
+  border-color: var(--sq-brand);
+}
+
+.sq-checkbox:checked::after {
+  content: '';
+  position: absolute;
+  left: 4px;
+  top: 1px;
+  width: 4px;
+  height: 8px;
+  border: solid var(--sq-text-on-solid);
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+.sq-checkbox:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.sq-checkbox[aria-invalid="true"] {
+  border-color: var(--sq-status-error);
+}
+
+/* Checkbox label wrapper */
+.sq-checkbox-label {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sq-space-2);
+  font-size: var(--sq-text-sm);
+  color: var(--sq-text);
+  cursor: pointer;
+  user-select: none;
+}
+
+.sq-checkbox-label:has(.sq-checkbox:disabled) {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* ---- Radio ---- */
+.sq-radio {
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  background: var(--sq-inset);
+  border: var(--sq-line-h) solid var(--sq-line-strong);
+  border-radius: 50%;
+  cursor: pointer;
+  position: relative;
+  transition: background-color var(--sq-dur-instant) var(--sq-ease),
+              border-color var(--sq-dur-instant) var(--sq-ease);
+}
+
+.sq-radio:hover {
+  background: var(--sq-hover);
+  border-color: var(--sq-text);
+}
+
+.sq-radio:focus-visible {
+  outline: 2px solid var(--sq-brand);
+  outline-offset: 2px;
+}
+
+.sq-radio:checked {
+  background: var(--sq-brand);
+  border-color: var(--sq-brand);
+}
+
+.sq-radio:checked::after {
+  content: '';
+  position: absolute;
+  left: 4px;
+  top: 4px;
+  width: 6px;
+  height: 6px;
+  background: var(--sq-text-on-solid);
+  border-radius: 50%;
+}
+
+.sq-radio:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.sq-radio[aria-invalid="true"] {
+  border-color: var(--sq-status-error);
+}
+
+/* Radio label wrapper */
+.sq-radio-label {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sq-space-2);
+  font-size: var(--sq-text-sm);
+  color: var(--sq-text);
+  cursor: pointer;
+  user-select: none;
+}
+
+.sq-radio-label:has(.sq-radio:disabled) {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* Radio group */
+.sq-radio-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sq-space-2);
+}
+
+/* ---- Switch (checkbox styled as track + dot) ---- */
+.sq-switch {
+  appearance: none;
+  width: 36px;
+  height: 20px;
+  flex-shrink: 0;
+  background: var(--sq-inset);
+  border: var(--sq-line-h) solid var(--sq-line-strong);
+  border-radius: var(--sq-radius-pill);
+  cursor: pointer;
+  position: relative;
+  transition: background-color var(--sq-dur-fast) var(--sq-ease),
+              border-color var(--sq-dur-fast) var(--sq-ease);
+}
+
+.sq-switch::after {
+  content: '';
+  position: absolute;
+  left: 2px;
+  top: 2px;
+  width: 14px;
+  height: 14px;
+  background: var(--sq-text-strong);
+  border-radius: 50%;
+  transition: transform var(--sq-dur-fast) var(--sq-ease),
+              background-color var(--sq-dur-fast) var(--sq-ease);
+}
+
+.sq-switch:hover {
+  background: var(--sq-hover);
+  border-color: var(--sq-text);
+}
+
+.sq-switch:focus-visible {
+  outline: 2px solid var(--sq-brand);
+  outline-offset: 2px;
+}
+
+.sq-switch:checked {
+  background: var(--sq-brand);
+  border-color: var(--sq-brand);
+}
+
+.sq-switch:checked::after {
+  background: var(--sq-text-on-solid);
+  transform: translateX(16px);
+}
+
+.sq-switch:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* Switch label wrapper */
+.sq-switch-label {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sq-space-2);
+  font-size: var(--sq-text-sm);
+  color: var(--sq-text);
+  cursor: pointer;
+  user-select: none;
+}
+
+.sq-switch-label:has(.sq-switch:disabled) {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* ---- Input group (prefix/suffix) ---- */
+.sq-input-group {
+  display: flex;
+  align-items: stretch;
+  width: 100%;
+  background: var(--sq-inset);
+  border: var(--sq-line-h) solid transparent;
+  border-radius: var(--sq-radius-control);
+  overflow: hidden;
+  transition: border-color var(--sq-dur-instant) var(--sq-ease);
+}
+
+.sq-input-group:focus-within {
+  border-color: var(--sq-brand);
+}
+
+.sq-input-group--invalid {
+  border-color: var(--sq-status-error);
+}
+
+.sq-input-group .sq-input {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  border-radius: 0;
+  background: transparent;
+}
+
+.sq-input-group .sq-input:focus-visible {
+  /* The group border (:focus-within) is the single focus indicator, so the
+     inner input must not paint a ring of its own. */
+  border: none;
+  outline: none;
+  background: transparent;
+}
+
+.sq-input-group__affix {
+  display: inline-flex;
+  align-items: center;
+  padding: 0 var(--sq-space-3);
+  font-size: var(--sq-text-sm);
+  color: var(--sq-text-subtle);
+  white-space: nowrap;
+  flex-shrink: 0;
+  border-left: var(--sq-line-h) solid var(--sq-line);
+}
+
+.sq-input-group__affix:first-child {
+  border-left: none;
+  border-right: var(--sq-line-h) solid var(--sq-line);
+}
+
+/* ---- Range slider ---- */
+.sq-range {
+  appearance: none;
+  width: 100%;
+  height: 6px;
+  background: var(--sq-track);
+  border-radius: var(--sq-radius-pill);
+  outline: none;
+  cursor: pointer;
+  transition: opacity var(--sq-dur-instant) var(--sq-ease);
+}
+
+.sq-range:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* Webkit (Chrome, Safari, Edge) */
+.sq-range::-webkit-slider-thumb {
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  background: var(--sq-brand);
+  border-radius: 50%;
+  cursor: pointer;
+  transition: transform var(--sq-dur-instant) var(--sq-ease);
+}
+
+.sq-range::-webkit-slider-thumb:hover {
+  transform: scale(1.15);
+}
+
+.sq-range::-webkit-slider-thumb:active {
+  transform: scale(1.05);
+}
+
+.sq-range:disabled::-webkit-slider-thumb {
+  background: var(--sq-text-subtle);
+  cursor: not-allowed;
+}
+
+/* Firefox */
+.sq-range::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  background: var(--sq-brand);
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: transform var(--sq-dur-instant) var(--sq-ease);
+}
+
+.sq-range::-moz-range-thumb:hover {
+  transform: scale(1.15);
+}
+
+.sq-range::-moz-range-thumb:active {
+  transform: scale(1.05);
+}
+
+.sq-range:disabled::-moz-range-thumb {
+  background: var(--sq-text-subtle);
+  cursor: not-allowed;
+}
+
+.sq-range::-moz-range-track {
+  background: transparent;
+  border: none;
+}
+
+/* Range with value label */
+.sq-range-label {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sq-space-2);
+  width: 100%;
+}
+
+.sq-range-label__head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  font-size: var(--sq-text-sm);
+}
+
+.sq-range-label__name {
+  color: var(--sq-text);
+}
+
+.sq-range-label__value {
+  color: var(--sq-text-strong);
+  font-weight: var(--sq-fw-medium);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── Responsive ─────────────────────────────────────────────────── */
+@media (pointer: coarse) {
+  /* Touch-friendly targets */
+  .sq-checkbox,
+  .sq-radio {
+    width: 20px;
+    height: 20px;
+  }
+  
+  .sq-checkbox:checked::after {
+    left: 5px;
+    top: 2px;
+    width: 5px;
+    height: 10px;
+  }
+  
+  .sq-radio:checked::after {
+    left: 5px;
+    top: 5px;
+    width: 8px;
+    height: 8px;
+  }
+  
+  .sq-switch {
+    width: 44px;
+    height: 24px;
+  }
+  
+  .sq-switch::after {
+    width: 18px;
+    height: 18px;
+    left: 2px;
+    top: 2px;
+  }
+  
+  .sq-switch:checked::after {
+    transform: translateX(20px);
+  }
+}

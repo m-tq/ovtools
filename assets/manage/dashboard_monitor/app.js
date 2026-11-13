@@ -2,7 +2,7 @@
  * Octra Live Monitor - dashboard runtime
  * =====================================
  * Polls /api/status and /api/logs, then renders every section in place.
- * Navigation, theme, dock and gauge CSS are handled by Synteq UI V2.
+ * Navigation, theme, dock and gauge CSS are handled by Synteq UI.
  *
  * Design notes
  *  - Values are written with textContent (never innerHTML) so node output can
@@ -44,7 +44,7 @@
 
   function clearBadge(node, keep) {
     if (!node) return;
-    node.classList.remove('v2-badge--ok', 'v2-badge--warn', 'v2-badge--err', 'v2-badge--brand');
+    node.classList.remove('sq-badge--ok', 'sq-badge--warn', 'sq-badge--err', 'sq-badge--brand');
     if (keep) node.classList.add(keep);
   }
 
@@ -123,8 +123,8 @@
     var fill = $(fillId);
     if (!fill) return;
     var value = num(pct);
-    if (window.SynteqV2 && SynteqV2.renderGauge) {
-      SynteqV2.renderGauge(fill, value, { kind: 'brand' });
+    if (window.SynteqUI && SynteqUI.renderGauge) {
+      SynteqUI.renderGauge(fill, value, { kind: 'brand' });
     } else {
       fill.style.width = Math.max(0, Math.min(100, value)) + '%';
     }
@@ -137,8 +137,8 @@
     var fill = $(fillId);
     if (!fill) return;
     var value = num(pct);
-    if (window.SynteqV2 && SynteqV2.renderGauge) {
-      SynteqV2.renderGauge(fill, value);
+    if (window.SynteqUI && SynteqUI.renderGauge) {
+      SynteqUI.renderGauge(fill, value);
     } else {
       fill.style.width = Math.max(0, Math.min(100, value)) + '%';
     }
@@ -150,18 +150,18 @@
   /* `short` is the one-word form the bottom navigation badge shows ("Active"),
      `text` the sentence-style form the topbar/hero use. */
   var STATUS_MAP = {
-    validator_active: { text: 'validator active', short: 'Active',      cls: 'v2-badge--ok',   dot: '' },
-    observer_synced:  { text: 'observer synced',  short: 'Observer',    cls: 'v2-badge--ok',   dot: '' },
-    syncing:          { text: 'syncing',          short: 'Syncing',     cls: 'v2-badge--warn', dot: 'v2-dot--warn' },
-    offline:          { text: 'offline',          short: 'Offline',     cls: 'v2-badge--err',  dot: 'v2-dot--err' },
-    connecting:       { text: 'connecting',       short: 'Connecting',  cls: '',               dot: 'v2-dot--idle' },
-    unreachable:      { text: 'api unreachable',  short: 'Unreachable', cls: 'v2-badge--err',  dot: 'v2-dot--err' }
+    validator_active: { text: 'validator active', short: 'Active',      cls: 'sq-badge--ok',   dot: '' },
+    observer_synced:  { text: 'observer synced',  short: 'Observer',    cls: 'sq-badge--ok',   dot: '' },
+    syncing:          { text: 'syncing',          short: 'Syncing',     cls: 'sq-badge--warn', dot: 'sq-dot--warn' },
+    offline:          { text: 'offline',          short: 'Offline',     cls: 'sq-badge--err',  dot: 'sq-dot--err' },
+    connecting:       { text: 'connecting',       short: 'Connecting',  cls: '',               dot: 'sq-dot--idle' },
+    unreachable:      { text: 'api unreachable',  short: 'Unreachable', cls: 'sq-badge--err',  dot: 'sq-dot--err' }
   };
 
   function paintDot(node, dotClass) {
     if (!node) return;
-    node.classList.remove('v2-dot--ok', 'v2-dot--warn', 'v2-dot--err', 'v2-dot--idle',
-      'v2-dot--stopped', 'v2-dot--reboot');
+    node.classList.remove('sq-dot--ok', 'sq-dot--warn', 'sq-dot--err', 'sq-dot--idle',
+      'sq-dot--stopped', 'sq-dot--reboot');
     if (dotClass) node.classList.add(dotClass);
   }
 
@@ -169,9 +169,9 @@
      text (no badge chrome). The tone class is what the smoke test asserts, and
      what CSS colours. */
   var HERO_TONE = {
-    'v2-badge--ok': 'dash-status--ok',
-    'v2-badge--warn': 'dash-status--warn',
-    'v2-badge--err': 'dash-status--err'
+    'sq-badge--ok': 'dash-status--ok',
+    'sq-badge--warn': 'dash-status--warn',
+    'sq-badge--err': 'dash-status--err'
   };
 
   function paintStatusTone(node, info) {
@@ -310,9 +310,9 @@
   }
 
   var CHECK_BADGE = {
-    ok:   { cls: 'v2-badge--ok',   text: 'OK' },
-    warn: { cls: 'v2-badge--warn', text: 'WARN' },
-    err:  { cls: 'v2-badge--err',  text: 'FAIL' }
+    ok:   { cls: 'sq-badge--ok',   text: 'OK' },
+    warn: { cls: 'sq-badge--warn', text: 'WARN' },
+    err:  { cls: 'sq-badge--err',  text: 'FAIL' }
   };
 
   function renderHealth(d) {
@@ -333,7 +333,7 @@
       row.setAttribute('role', 'listitem');
 
       var badge = document.createElement('span');
-      badge.className = 'v2-badge ' + info.cls;
+      badge.className = 'sq-badge ' + info.cls;
       badge.textContent = info.text;
 
       var label = document.createElement('span');
@@ -509,7 +509,7 @@
       row.className = 'alert alert--' + alert.level;
 
       var svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-      svg.setAttribute('class', 'v2-icon v2-icon--14');
+      svg.setAttribute('class', 'sq-icon sq-icon--14');
       svg.setAttribute('viewBox', '0 0 24 24');
       svg.setAttribute('aria-hidden', 'true');
       svg.innerHTML = ALERT_ICON[alert.level] || ALERT_ICON.info;
@@ -527,7 +527,7 @@
       close.setAttribute('aria-label', 'Dismiss: ' + alert.title);
       close.title = 'Dismiss this message';
       var x = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-      x.setAttribute('class', 'v2-icon v2-icon--12');
+      x.setAttribute('class', 'sq-icon sq-icon--12');
       x.setAttribute('viewBox', '0 0 24 24');
       x.setAttribute('aria-hidden', 'true');
       x.innerHTML = '<line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>';
@@ -569,7 +569,7 @@
     if (!host) return;
     host.textContent = '';
     var badge = document.createElement('span');
-    badge.className = 'v2-badge ' + (cls || '');
+    badge.className = 'sq-badge ' + (cls || '');
     badge.textContent = text;
     host.appendChild(badge);
   }
@@ -589,7 +589,7 @@
     setText('hero-address', address === 'unknown' ? 'not configured' : shortAddr(address));
     var addrBtn = $('hero-address-btn');
     if (addrBtn) {
-      addrBtn.setAttribute('data-v2-copy', address === 'unknown' ? '' : address);
+      addrBtn.setAttribute('data-sq-copy', address === 'unknown' ? '' : address);
       addrBtn.setAttribute('aria-label', 'Copy validator address');
       addrBtn.title = address;
     }
@@ -605,8 +605,8 @@
     setText('kpi-lag-sub', 'network head ' + fmtInt(p.network_head));
     var lagNode = $('kpi-lag');
     if (lagNode) {
-      lagNode.style.color = lag > 20 ? 'var(--v2-status-error)'
-        : (lag > 2 ? 'var(--v2-status-warning)' : '');
+      lagNode.style.color = lag > 20 ? 'var(--sq-status-error)'
+        : (lag > 2 ? 'var(--sq-status-warning)' : '');
     }
 
     setText('kpi-quorum', fmtFixed(q.prevote_pct, 0) + '%');
@@ -624,16 +624,16 @@
 
     /* consensus round panel */
     setText('con-step-badge', c.step || '-');
-    clearBadge($('con-step-badge'), c.agreed ? 'v2-badge--ok' : '');
+    clearBadge($('con-step-badge'), c.agreed ? 'sq-badge--ok' : '');
     setText('con-epoch', fmtInt(c.epoch));
     setText('con-round', isNum(c.round) && c.round >= 0 ? c.round : '-');
     setText('con-step', c.step || '-');
-    renderBadgeInto('con-agreed', c.agreed ? 'agreed' : 'pending', c.agreed ? 'v2-badge--ok' : 'v2-badge--warn');
+    renderBadgeInto('con-agreed', c.agreed ? 'agreed' : 'pending', c.agreed ? 'sq-badge--ok' : 'sq-badge--warn');
     var parts = c.participants || {};
     setText('con-participants', num(parts.total) + ' validators');
     renderBadgeInto('con-voting',
       c.voting === 'enabled' ? 'voting' : (c.voting === 'disabled' ? 'observer' : 'unknown'),
-      c.voting === 'enabled' ? 'v2-badge--ok' : 'v2-badge--warn');
+      c.voting === 'enabled' ? 'sq-badge--ok' : 'sq-badge--warn');
 
     setText('prevote-count', fmtInt(q.prevotes));
     setText('prevote-quorum', '/ ' + fmtInt(q.quorum));
@@ -665,7 +665,7 @@
     setText('c-quorum-weight', fmtCompact(q.quorum_weight) + ' weight');
     setText('c-quorum-weight-kv', fmtCompact(q.quorum_weight));
     setText('c-proposals', fmtInt(q.prevote_proposals));
-    renderBadgeInto('c-agreed', c.agreed ? 'agreed' : 'pending', c.agreed ? 'v2-badge--ok' : 'v2-badge--warn');
+    renderBadgeInto('c-agreed', c.agreed ? 'agreed' : 'pending', c.agreed ? 'sq-badge--ok' : 'sq-badge--warn');
 
     setText('prevote-w-pct', fmtFixed(q.prevote_weight_pct, 1) + '%');
     setText('prevote-w-raw', fmtCompact(q.prevote_weight) + ' of ' + fmtCompact(q.quorum_weight) + ' quorum weight');
@@ -688,7 +688,7 @@
     }
     var spark = $('epoch-spark');
     if (spark && heads.length >= 2) {
-      SynteqV2.renderSparkline(spark, heads);
+      SynteqUI.renderSparkline(spark, heads);
     }
     setText('epoch-spark-meta', heads.length >= 2
       ? (heads.length + ' samples | ' + fmtFixed(e.rate_per_min, 1) + ' ep/min')
@@ -705,7 +705,7 @@
       var empty = document.createElement('tr');
       var cell = document.createElement('td');
       cell.colSpan = 3;
-      cell.className = 'v2-table__mute';
+      cell.className = 'sq-table__mute';
       cell.textContent = c.available ? 'No prevotes recorded in this round yet.' : 'Consensus RPC unavailable.';
       empty.appendChild(cell);
       body.appendChild(empty);
@@ -716,16 +716,16 @@
       var tr = document.createElement('tr');
 
       var tdId = document.createElement('td');
-      tdId.className = 'v2-table__mono';
+      tdId.className = 'sq-table__mono';
       tdId.textContent = fmtShortHash(proposal.proposal_id, 14, 8);
       tdId.title = proposal.proposal_id;
 
       var tdVoters = document.createElement('td');
-      tdVoters.className = 'v2-table__num';
+      tdVoters.className = 'sq-table__num';
       tdVoters.textContent = fmtInt(proposal.voters);
 
       var tdWeight = document.createElement('td');
-      tdWeight.className = 'v2-table__num';
+      tdWeight.className = 'sq-table__num';
       tdWeight.textContent = fmtCompact(proposal.weight);
 
       tr.appendChild(tdId);
@@ -781,7 +781,7 @@
     var history = s.cpu_history || [];
     var spark = $('cpu-spark');
     if (spark && history.length >= 2) {
-      SynteqV2.renderSparkline(spark, history);
+      SynteqUI.renderSparkline(spark, history);
     }
     var sum = 0;
     for (var i = 0; i < history.length; i++) sum += num(history[i]);
@@ -836,8 +836,8 @@
     setText('p-drift-max', fmtInt(p.drift_max));
     setText('p-ahead', fmtInt(p.ahead_count));
     setText('p-sources', fmtInt(p.public_sources));
-    renderBadgeInto('p-banned', fmtInt(p.banned_count), num(p.banned_count) > 0 ? 'v2-badge--err' : '');
-    renderBadgeInto('p-paused', fmtInt(p.paused_count), num(p.paused_count) > 0 ? 'v2-badge--warn' : '');
+    renderBadgeInto('p-banned', fmtInt(p.banned_count), num(p.banned_count) > 0 ? 'sq-badge--err' : '');
+    renderBadgeInto('p-paused', fmtInt(p.paused_count), num(p.paused_count) > 0 ? 'sq-badge--warn' : '');
 
     setText('net-in', fmtFixed(s.net_in_mbps, 2) + ' Mbps');
     setText('net-out', fmtFixed(s.net_out_mbps, 2) + ' Mbps');
@@ -862,7 +862,7 @@
     // instead of a handful of very wide bars.
     var barsEl = $('net-bars');
     if (barsEl && bars.length) {
-      SynteqV2.renderBars(barsEl, bars, {
+      SynteqUI.renderBars(barsEl, bars, {
         minCols: 24,
         stepSec: Math.max(POLL_MS / 1000, bucketSec)
       });
@@ -882,7 +882,7 @@
       var empty = document.createElement('tr');
       var cell = document.createElement('td');
       cell.colSpan = 6;
-      cell.className = 'v2-table__mute';
+      cell.className = 'sq-table__mute';
       cell.textContent = p.available ? 'No peer records received yet.' : 'Consensus RPC unavailable.';
       empty.appendChild(cell);
       body.appendChild(empty);
@@ -895,32 +895,32 @@
       if (peer.stale) tr.className = 'is-stale';
 
       var tdAddr = document.createElement('td');
-      tdAddr.className = 'v2-table__mono';
+      tdAddr.className = 'sq-table__mono';
       tdAddr.textContent = peer.short || shortAddr(peer.addr);
       tdAddr.title = peer.addr;
 
       var tdHead = document.createElement('td');
-      tdHead.className = 'v2-table__num';
+      tdHead.className = 'sq-table__num';
       tdHead.textContent = fmtInt(peer.head_epoch);
 
       var tdLag = document.createElement('td');
-      tdLag.className = 'v2-table__num';
+      tdLag.className = 'sq-table__num';
       tdLag.textContent = fmtInt(peer.lag);
       if (num(peer.lag) > 20) tdLag.classList.add('lag-err');
       else if (num(peer.lag) > 2) tdLag.classList.add('lag-warn');
 
       var tdDrift = document.createElement('td');
-      tdDrift.className = 'v2-table__num';
+      tdDrift.className = 'sq-table__num';
       tdDrift.textContent = fmtInt(peer.drift);
       if (num(peer.drift) > 10) tdDrift.classList.add('lag-err');
       else if (num(peer.drift) > 3) tdDrift.classList.add('lag-warn');
 
       var tdAge = document.createElement('td');
-      tdAge.className = 'v2-table__num';
+      tdAge.className = 'sq-table__num';
       tdAge.textContent = fmtAge(peer.age_sec);
 
       var tdSrc = document.createElement('td');
-      tdSrc.className = 'v2-table__mute';
+      tdSrc.className = 'sq-table__mute';
       tdSrc.textContent = peer.source || '-';
 
       tr.appendChild(tdAddr);
@@ -943,7 +943,7 @@
 
     setText('pr-meta', 'pm2 | ' + (proc.name || 'unknown'));
     renderBadgeInto('pr-status', proc.status || 'unknown',
-      online ? 'v2-badge--ok' : (proc.status === 'unavailable' ? 'v2-badge--warn' : 'v2-badge--err'));
+      online ? 'sq-badge--ok' : (proc.status === 'unavailable' ? 'sq-badge--warn' : 'sq-badge--err'));
     setText('pr-name-sub', proc.name || '-');
     setText('pr-pid', proc.pid ? fmtInt(proc.pid) : '-');
     setText('pr-uptime', proc.uptime || '-');
@@ -960,11 +960,11 @@
 
     var warns = num(counts.warn);
     var errors = num(counts.error) + num(counts.fatal);
-    renderBadgeInto('pr-warn', fmtInt(warns) + ' lines', warns > 0 ? 'v2-badge--warn' : '');
+    renderBadgeInto('pr-warn', fmtInt(warns) + ' lines', warns > 0 ? 'sq-badge--warn' : '');
 
     var lastWarn = logs.last_warn || {};
     var lastError = logs.last_error || {};
-    renderBadgeInto('pr-error', fmtInt(errors) + ' lines', errors > 0 ? 'v2-badge--err' : '');
+    renderBadgeInto('pr-error', fmtInt(errors) + ' lines', errors > 0 ? 'sq-badge--err' : '');
 
     setText('pr-last-warn', warns ? shortEvent(lastWarn) : 'none');
     setText('pr-last-error', errors ? shortEvent(lastError) : 'none');
@@ -1021,12 +1021,12 @@
 
     var rootBtn = $('copy-state-root');
     if (rootBtn) {
-      rootBtn.setAttribute('data-v2-copy', n.state_root || '');
+      rootBtn.setAttribute('data-sq-copy', n.state_root || '');
       rootBtn.title = n.state_root || '';
     }
     var irminBtn = $('copy-irmin');
     if (irminBtn) {
-      irminBtn.setAttribute('data-v2-copy', n.irmin_commit || '');
+      irminBtn.setAttribute('data-sq-copy', n.irmin_commit || '');
       irminBtn.title = n.irmin_commit || '';
     }
 
@@ -1079,20 +1079,20 @@
     setText('wal-address', w.address ? shortAddr(w.address) : 'not configured');
     var copyBtn = $('wal-copy-address');
     if (copyBtn) {
-      copyBtn.setAttribute('data-v2-copy', w.address || '');
+      copyBtn.setAttribute('data-sq-copy', w.address || '');
       copyBtn.title = w.address || '';
     }
-    clearBadge($('wal-state'), w.state === 'ready' ? 'v2-badge--ok' : 'v2-badge--warn');
+    clearBadge($('wal-state'), w.state === 'ready' ? 'sq-badge--ok' : 'sq-badge--warn');
     setText('wal-state', w.state || 'unknown');
     setText('wal-balance-raw', w.balance_raw || '-');
     setText('wal-holdings', fmtToken(w.holdings));
     setText('wal-pending', fmtInt(w.pending_nonce));
     setText('wal-tx-count', w.tx_count_known ? fmtInt(w.tx_count) : 'sampling...');
     renderBadgeInto('wal-pubkey', w.has_public_key ? 'registered' : 'missing',
-      w.has_public_key ? 'v2-badge--ok' : 'v2-badge--warn');
+      w.has_public_key ? 'sq-badge--ok' : 'sq-badge--warn');
     renderBadgeInto('wal-encrypted',
       !w.detail_known ? 'sampling...' : (w.encrypted_balance ? 'enabled' : 'not set'),
-      !w.detail_known ? '' : (w.encrypted_balance ? 'v2-badge--brand' : ''));
+      !w.detail_known ? '' : (w.encrypted_balance ? 'sq-badge--brand' : ''));
 
     /* Stake & duty panel */
     setText('wal-duty', num(duty.required_span)
@@ -1104,7 +1104,7 @@
     setText('wal-epochs-in-set', fmtInt(w.epochs_in_set));
     renderBadgeInto('wal-membership',
       m.active ? 'active' : (m.scheduled ? 'scheduled' : 'inactive'),
-      m.active ? 'v2-badge--ok' : (m.scheduled ? 'v2-badge--warn' : ''));
+      m.active ? 'sq-badge--ok' : (m.scheduled ? 'sq-badge--warn' : ''));
     setText('wal-next-set',
       (m.activate_epoch ? fmtInt(m.activate_epoch) : '-') + ' / ' +
       (m.next_set_epoch ? fmtInt(m.next_set_epoch) : '-'));
@@ -1120,7 +1120,7 @@
       ? (fmtToken(r.last_amount) + ' | epoch ' + fmtInt(r.last_epoch))
       : '-');
     renderBadgeInto('wal-last-role', r.last_role || '-',
-      r.last_role === 'proposer' ? 'v2-badge--brand' : '');
+      r.last_role === 'proposer' ? 'sq-badge--brand' : '');
     var lastNode = $('wal-last-reward');
     if (lastNode) {
       lastNode.title = isNum(r.epochs_since)
@@ -1137,7 +1137,7 @@
     setText('wal-delta', (deltaRaw >= 0 ? '+' : '') + fmtToken(b.delta));
     var deltaNode = $('wal-delta');
     if (deltaNode) {
-      deltaNode.style.color = deltaRaw < 0 ? 'var(--v2-status-warning)' : '';
+      deltaNode.style.color = deltaRaw < 0 ? 'var(--sq-status-warning)' : '';
       deltaNode.title = 'Balance movement since the setup snapshot - rewards, transfers and fees combined';
     }
     setText('wal-index', fmtFixed(t.progress_pct, 1) + '% | ' +
@@ -1169,7 +1169,7 @@
       var empty = document.createElement('tr');
       var cell = document.createElement('td');
       cell.colSpan = 4;
-      cell.className = 'v2-table__mute';
+      cell.className = 'sq-table__mute';
       cell.textContent = w.available
         ? 'No epoch rewards indexed yet - the index fills while the node keeps producing epochs.'
         : (w.reason || 'Wallet telemetry unavailable.');
@@ -1180,20 +1180,20 @@
         var tr = document.createElement('tr');
 
         var tdEpoch = document.createElement('td');
-        tdEpoch.className = 'v2-table__num';
+        tdEpoch.className = 'sq-table__num';
         tdEpoch.textContent = fmtInt(row.epoch);
 
         var tdRole = document.createElement('td');
-        tdRole.className = 'v2-table__mute';
+        tdRole.className = 'sq-table__mute';
         tdRole.textContent = row.role || '-';
 
         var tdAmount = document.createElement('td');
-        tdAmount.className = 'v2-table__num';
+        tdAmount.className = 'sq-table__num';
         tdAmount.textContent = fmtToken(row.amount);
-        if (row.role === 'proposer') tdAmount.style.color = 'var(--v2-brand)';
+        if (row.role === 'proposer') tdAmount.style.color = 'var(--sq-brand)';
 
         var tdTime = document.createElement('td');
-        tdTime.className = 'v2-table__num';
+        tdTime.className = 'sq-table__num';
         tdTime.textContent = row.at ? fmtClock(row.at) : '-';
         if (row.at) tdTime.title = row.at;
 
@@ -1235,24 +1235,24 @@
 
   function logRow(entry) {
     var row = document.createElement('div');
-    row.className = 'v2-log__row' +
-      (entry.level === 'warn' ? ' v2-log__row--warn' : '') +
-      ((entry.level === 'error' || entry.level === 'fatal') ? ' v2-log__row--error' : '');
+    row.className = 'sq-log__row' +
+      (entry.level === 'warn' ? ' sq-log__row--warn' : '') +
+      ((entry.level === 'error' || entry.level === 'fatal') ? ' sq-log__row--error' : '');
 
     var ts = document.createElement('span');
-    ts.className = 'v2-log__ts';
+    ts.className = 'sq-log__ts';
     ts.textContent = fmtLogTime(entry.ts);
 
     var level = document.createElement('span');
-    level.className = 'v2-log__level v2-log__level--' + levelKey(entry);
+    level.className = 'sq-log__level sq-log__level--' + levelKey(entry);
     level.textContent = (entry.level || 'info').toUpperCase();
 
     var comp = document.createElement('span');
-    comp.className = 'v2-log__comp';
+    comp.className = 'sq-log__comp';
     comp.textContent = entry.component || '|';
 
     var msg = document.createElement('span');
-    msg.className = 'v2-log__msg';
+    msg.className = 'sq-log__msg';
     msg.textContent = entry.detail || entry.msg || '';
 
     row.appendChild(ts);
@@ -1276,7 +1276,7 @@
 
     if (!visible.length) {
       var empty = document.createElement('div');
-      empty.className = 'v2-log__empty';
+      empty.className = 'sq-log__empty';
       empty.textContent = state.logs.length ? 'No lines match the current filter.' : 'Waiting for log stream...';
       body.appendChild(empty);
     } else {
@@ -1391,9 +1391,9 @@
     if (hashApplied) return;
     hashApplied = true;
     var id = (window.location.hash || '').replace('#', '');
-    if (!id || !window.SynteqV2 || !SynteqV2.scrollToSection) return;
+    if (!id || !window.SynteqUI || !SynteqUI.scrollToSection) return;
     requestAnimationFrame(function () {
-      SynteqV2.scrollToSection(id, { behavior: 'auto' });
+      SynteqUI.scrollToSection(id, { behavior: 'auto' });
     });
   }
 
@@ -1437,8 +1437,8 @@
 
   /** Transient feedback next to a control (framework tip primitive). */
   function showTip(target, message, kind) {
-    if (!target || !window.SynteqV2 || !SynteqV2.tip) return;
-    SynteqV2.tip(target, message, kind ? { kind: kind } : undefined);
+    if (!target || !window.SynteqUI || !SynteqUI.tip) return;
+    SynteqUI.tip(target, message, kind ? { kind: kind } : undefined);
   }
 
   function initControls() {
@@ -1494,7 +1494,7 @@
       state.logLevel = button.getAttribute('data-log-level') || 'all';
       var buttons = filter.querySelectorAll('[data-log-level]');
       for (var i = 0; i < buttons.length; i++) {
-        buttons[i].classList.toggle('v2-seg__btn--active', buttons[i] === button);
+        buttons[i].classList.toggle('sq-seg__btn--active', buttons[i] === button);
       }
       renderLogs();
     });

@@ -1,0 +1,237 @@
+/* ==========================================================================
+   SYNTEQ UI — 10. BOTTOM NAVIGATION DOCK (components/sidebar.css)
+
+   Layout rules
+   • Items are centred while they fit (safe centre → never clips to the left).
+   • When they no longer fit: the strip is drag-scrollable + a "More" drop-up
+     lists every item that is out of view (progressive overflow).
+   • Group labels are NOT rendered in the dock — icon + label is enough.
+   ========================================================================== */
+.sq-aside {
+  position: relative;
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
+  min-height: 0;
+  min-width: 0;                   /* never let the dock widen the app grid */
+  overflow: visible;              /* allows the More drop-up to escape upward */
+  background: var(--sq-sidebar);
+  border-top: var(--sq-line-h) solid var(--sq-line);
+  z-index: 20;
+  will-change: transform, opacity;
+  transition: transform var(--sq-dur-normal) var(--sq-ease), opacity var(--sq-dur-fast) var(--sq-ease);
+}
+.sq-aside__brand {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sq-space-2);
+  min-width: 148px;
+  height: 100%;
+  padding: 0 var(--sq-space-4);
+  background: var(--sq-sidebar);
+  color: var(--sq-text-strong);
+  font-size: var(--sq-text-lg);
+  font-weight: var(--sq-fw-semibold);
+  border-right: var(--sq-line-h) solid var(--sq-line);
+  flex-shrink: 0;
+  text-decoration: none;
+  z-index: 2;
+}
+.sq-aside__brand-mark { width: 20px; height: 20px; border-radius: var(--sq-radius-micro); background: var(--sq-brand); display: inline-flex; align-items: center; justify-content: center; color: var(--sq-text-on-solid); flex-shrink: 0; }
+
+/* Nav strip — safe centring + optional drag scroll */
+.sq-nav {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  align-items: stretch;
+  justify-content: flex-start;    /* safe fallback for older engines */
+  justify-content: safe center;   /* centre while it fits, never clip */
+  gap: var(--sq-space-1);
+  padding: var(--sq-space-2);
+  overflow-x: auto;
+  overflow-y: hidden;
+  overscroll-behavior-x: contain;
+  scroll-behavior: smooth;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  -webkit-user-select: none;
+  user-select: none;
+  touch-action: pan-x;
+}
+.sq-nav.has-overflow { cursor: grab; }
+.sq-nav::-webkit-scrollbar { display: none; }
+.sq-nav.is-dragging { cursor: grabbing; scroll-behavior: auto; }
+
+/* Legacy group labels — intentionally hidden inside the horizontal dock */
+.sq-nav__group-label { display: none; }
+
+/* Nav item — icon over label, vertically centred in the dock */
+.sq-nav__item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  text-align: center;
+  gap: var(--sq-space-1);
+  flex: 0 0 auto;
+  min-width: var(--sq-nav-item-w, 84px);
+  max-width: 148px;
+  min-height: 44px;
+  padding: var(--sq-space-1) var(--sq-space-2);
+  border-radius: var(--sq-radius-control);
+  color: var(--sq-text);
+  font-size: var(--sq-text-xs);
+  line-height: 1.3;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-decoration: none;
+  -webkit-user-drag: none;
+}
+.sq-nav__item > svg { flex-shrink: 0; }
+.sq-nav__item .sq-icon { color: var(--sq-text-subtle); flex-shrink: 0; }
+.sq-nav__item:hover { background: var(--sq-hover); color: var(--sq-text-strong); }
+.sq-nav__item:hover .sq-icon { color: var(--sq-text); }
+.sq-nav__item:focus-visible { z-index: 3; }
+.sq-nav__item--active,
+.sq-nav__item.is-active {
+  color: var(--sq-brand);
+  font-weight: var(--sq-fw-semibold);
+  background: color-mix(in srgb, var(--sq-brand) 12%, transparent);
+  border-top: 3px solid var(--sq-brand);
+  padding-top: calc(var(--sq-space-1) - 3px);
+}
+.sq-nav__item--active .sq-icon,
+.sq-nav__item.is-active .sq-icon { color: var(--sq-brand); }
+.sq-nav__badge {
+  position: absolute;
+  top: 3px;
+  right: 12px;
+  font-size: var(--sq-text-xs);
+  color: var(--sq-text-subtle);
+  font-variant-numeric: tabular-nums;
+  pointer-events: none;
+}
+
+/* "More" trigger — only rendered when the strip overflows */
+.sq-nav__more {
+  display: flex;
+  flex: 0 0 auto;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  width: 56px;
+  margin: var(--sq-space-2) var(--sq-space-2) var(--sq-space-2) 0;
+  border-radius: var(--sq-radius-control);
+  color: var(--sq-text-subtle);
+  font-size: 9px;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  background: var(--sq-sidebar);
+  border-left: var(--sq-line-h) solid var(--sq-line);
+}
+.sq-nav__more[hidden] { display: none; }
+.sq-nav__more:hover { background: var(--sq-hover); color: var(--sq-text-strong); }
+.sq-nav__more[aria-expanded="true"] { background: var(--sq-hover); color: var(--sq-text-strong); }
+.sq-nav__more .sq-icon { color: currentColor; }
+
+/* Drop-up menu (progressive overflow) */
+.sq-nav__menu {
+  position: absolute;
+  right: var(--sq-space-3);
+  bottom: calc(100% + var(--sq-space-2));
+  z-index: 40;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 208px;
+  max-width: min(320px, calc(100vw - var(--sq-space-6)));
+  max-height: min(60vh, 420px);
+  overflow-y: auto;
+  padding: var(--sq-space-2);
+  background: var(--sq-canvas);
+  border: var(--sq-line-h) solid var(--sq-line-strong);
+  border-radius: var(--sq-radius-control);
+  animation: sq-drop-up var(--sq-dur-fast) var(--sq-ease) both;
+}
+.sq-nav__menu[hidden] { display: none; }
+.sq-nav__menu-item {
+  display: flex;
+  align-items: center;
+  gap: var(--sq-space-2);
+  min-height: 34px;
+  padding: var(--sq-space-2) var(--sq-space-3);
+  border-radius: var(--sq-radius-control);
+  color: var(--sq-text);
+  font-size: var(--sq-text-sm);
+  text-decoration: none;
+  white-space: nowrap;
+}
+.sq-nav__menu-item:hover { background: var(--sq-hover); color: var(--sq-text-strong); }
+.sq-nav__menu-item .sq-icon { color: var(--sq-text-subtle); }
+.sq-nav__menu-item.is-active { background: color-mix(in srgb, var(--sq-brand) 12%, transparent); color: var(--sq-brand); font-weight: var(--sq-fw-semibold); }
+.sq-nav__menu-item.is-active .sq-icon { color: var(--sq-brand); }
+.sq-nav__menu-item .sq-nav__badge { position: static; margin-left: auto; }
+
+/* Footer — account row */
+.sq-aside__footer {
+  padding: var(--sq-space-2) var(--sq-space-3);
+  border-left: var(--sq-line-h) solid var(--sq-line);
+  display: flex;
+  align-items: center;
+  gap: var(--sq-space-2);
+  font-size: var(--sq-text-xs);
+  color: var(--sq-text-subtle);
+  flex-shrink: 0;
+  min-height: 48px;
+  background: var(--sq-sidebar);
+}
+.sq-aside__footer .sq-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--sq-status-running); flex-shrink: 0; }
+
+/* ── Breakpoints ─────────────────────────────────────────────────── */
+@media (max-width: 1080px) {
+  .sq-nav__item { min-width: 78px; }
+}
+@media (max-width: 860px) {
+  .sq-aside__brand { min-width: 56px; width: 56px; padding: 0; font-size: 0; }
+  .sq-nav__item { min-width: 72px; font-size: var(--sq-text-xs); }
+  .sq-aside__footer { min-width: 54px; padding: var(--sq-space-2); justify-content: center; }
+  .sq-aside__footer .sq-user__info { display: none; }
+  .sq-nav__more { width: 48px; }
+}
+@media (max-width: 520px) {
+  .sq-aside__brand { min-width: 48px; width: 48px; }
+  .sq-nav { padding: var(--sq-space-1); gap: 2px; }
+  .sq-nav__item { min-width: 64px; max-width: 108px; padding: 2px var(--sq-space-1); }
+  .sq-nav__item .sq-icon { width: 15px; height: 15px; }
+  .sq-nav__more { width: 44px; margin: var(--sq-space-1) var(--sq-space-1) var(--sq-space-1) 0; font-size: 0; }
+  .sq-nav__more .sq-icon { width: 18px; height: 18px; }
+  .sq-aside__footer { min-width: 44px; min-height: 40px; }
+}
+@media (max-width: 380px) {
+  .sq-aside__brand { min-width: 42px; width: 42px; }
+  .sq-nav__item { min-width: 58px; font-size: 10px; }
+  .sq-nav__badge { right: 6px; }
+}
+@media (hover: none) {
+  .sq-nav.has-overflow { cursor: default; }
+  .sq-nav.is-dragging { cursor: default; }
+}
+@media (max-height: 480px) and (orientation: landscape) {
+  .sq-aside__brand { min-width: 52px; }
+  .sq-nav { padding: var(--sq-space-1) var(--sq-space-2); }
+  .sq-nav__item {
+    flex-direction: row;
+    min-width: 0;
+    max-width: none;
+    min-height: 36px;
+    padding: 0 var(--sq-space-3);
+    gap: var(--sq-space-2);
+  }
+  .sq-nav__badge { position: static; margin-left: var(--sq-space-1); }
+  .sq-nav__menu { max-height: 70vh; }
+}

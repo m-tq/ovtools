@@ -1,0 +1,37 @@
+/* ==========================================================================
+   SYNTEQ UI — 05. ICONS (components/icons.css)
+   Inline SVG icons sized via currentColor. Fast context recognition.
+   Usage: <svg class="sq-icon sq-icon--16" viewBox="0 0 24 24" aria-hidden="true">...</svg>
+   ========================================================================== */
+.sq-icon {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.75;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  flex-shrink: 0;
+  display: inline-block;
+  vertical-align: middle;
+}
+
+/* Size scale */
+.sq-icon--12 { width: 12px; height: 12px; }
+.sq-icon--14 { width: 14px; height: 14px; }
+.sq-icon--16 { width: 16px; height: 16px; }
+.sq-icon--18 { width: 18px; height: 18px; }
+.sq-icon--20 { width: 20px; height: 20px; }
+
+/* Glyph tint helpers */
+.sq-icon--mute { color: var(--sq-text-subtle); }
+.sq-icon--brand { color: var(--sq-brand); }
+.sq-icon--info { color: var(--sq-status-info); }
+.sq-icon--ok { color: var(--sq-status-running); }
+.sq-icon--warn { color: var(--sq-status-warning); }
+.sq-icon--err { color: var(--sq-status-error); }
+
+/* Icon + label pairing */
+.sq-ico-label {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sq-space-2);
+}

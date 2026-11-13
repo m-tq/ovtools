@@ -1,0 +1,571 @@
+/* ==========================================================================
+   SYNTEQ UI — OVERLAYS & DISCLOSURE (components/overlays.css)
+   Tabs, accordion, menu, popover, dialog, toast — all with keyboard nav,
+   ARIA, and flat-surface styling (1px border + canvas bg, no box-shadow).
+   ========================================================================== */
+
+/* ---- Tabs ---- */
+.sq-tabs {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sq-space-4);
+  width: 100%;
+}
+
+.sq-tabs__list {
+  display: flex;
+  gap: var(--sq-space-1);
+  border-bottom: var(--sq-line-h) solid var(--sq-line);
+  overflow-x: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.sq-tabs__list::-webkit-scrollbar {
+  display: none;
+}
+
+.sq-tabs__tab {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sq-space-2);
+  padding: var(--sq-space-2) var(--sq-space-3);
+  border: none;
+  background: none;
+  color: var(--sq-text-subtle);
+  font-size: var(--sq-text-sm);
+  font-weight: var(--sq-fw-regular);
+  white-space: nowrap;
+  cursor: pointer;
+  transition: color var(--sq-dur-instant) var(--sq-ease);
+}
+
+.sq-tabs__tab:hover {
+  color: var(--sq-text);
+}
+
+.sq-tabs__tab[aria-selected="true"] {
+  color: var(--sq-text-strong);
+  font-weight: var(--sq-fw-medium);
+}
+
+.sq-tabs__tab[aria-selected="true"]::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--sq-brand);
+}
+
+.sq-tabs__tab:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.sq-tabs__panel {
+  display: none;
+}
+
+.sq-tabs__panel[aria-hidden="false"] {
+  display: block;
+}
+
+/* ---- Accordion (native details/summary) ---- */
+.sq-accordion {
+  display: flex;
+  flex-direction: column;
+  border-top: var(--sq-line-h) solid var(--sq-line);
+}
+
+.sq-accordion__item {
+  border-bottom: var(--sq-line-h) solid var(--sq-line);
+}
+
+.sq-accordion__trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: var(--sq-space-3) 0;
+  background: none;
+  border: none;
+  color: var(--sq-text-strong);
+  font-size: var(--sq-text-sm);
+  font-weight: var(--sq-fw-medium);
+  text-align: left;
+  cursor: pointer;
+  list-style: none;
+  transition: color var(--sq-dur-instant) var(--sq-ease);
+}
+
+.sq-accordion__trigger:hover {
+  color: var(--sq-brand);
+}
+
+.sq-accordion__trigger::-webkit-details-marker {
+  display: none;
+}
+
+.sq-accordion__trigger::after {
+  content: '';
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  background-image: url("data:image/svg+xml,%3Csvg width='16' height='16' viewBox='0 0 16 16' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M4 6L8 10L12 6' stroke='%237a8080' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: center;
+  transition: transform var(--sq-dur-fast) var(--sq-ease);
+}
+
+.sq-accordion__item[open] .sq-accordion__trigger::after {
+  transform: rotate(180deg);
+}
+
+.sq-accordion__content {
+  padding: 0 0 var(--sq-space-4) 0;
+  color: var(--sq-text);
+  font-size: var(--sq-text-sm);
+  line-height: var(--sq-leading-base);
+}
+
+/* Light theme arrow color */
+[data-theme="light"] .sq-accordion__trigger::after {
+  background-image: url("data:image/svg+xml,%3Csvg width='16' height='16' viewBox='0 0 16 16' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M4 6L8 10L12 6' stroke='%23666e6e' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+}
+
+/* ---- Menu (generalized from nav menu pattern) ---- */
+.sq-menu-trigger {
+  position: relative;
+}
+
+.sq-menu {
+  position: absolute;
+  z-index: 40;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 180px;
+  max-width: min(320px, calc(100vw - var(--sq-space-6)));
+  max-height: min(60vh, 420px);
+  overflow-y: auto;
+  padding: var(--sq-space-2);
+  background: var(--sq-canvas);
+  border: var(--sq-line-h) solid var(--sq-line-strong);
+  border-radius: var(--sq-radius-control);
+  animation: sq-menu-in var(--sq-dur-fast) var(--sq-ease) both;
+  scrollbar-width: thin;
+  scrollbar-color: var(--sq-line-strong) transparent;
+}
+
+.sq-menu[hidden] {
+  display: none;
+}
+
+.sq-menu::-webkit-scrollbar {
+  width: 6px;
+}
+
+.sq-menu::-webkit-scrollbar-thumb {
+  background: var(--sq-line-strong);
+  border-radius: 3px;
+}
+
+/* Menu positioning variants */
+.sq-menu--bottom {
+  top: calc(100% + var(--sq-space-1));
+  left: 0;
+}
+
+.sq-menu--top {
+  bottom: calc(100% + var(--sq-space-1));
+  left: 0;
+}
+
+.sq-menu--right {
+  top: 0;
+  left: calc(100% + var(--sq-space-1));
+}
+
+.sq-menu__item {
+  display: flex;
+  align-items: center;
+  gap: var(--sq-space-2);
+  min-height: 32px;
+  padding: var(--sq-space-2) var(--sq-space-3);
+  border-radius: var(--sq-radius-control);
+  color: var(--sq-text);
+  font-size: var(--sq-text-sm);
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background-color var(--sq-dur-instant) var(--sq-ease),
+              color var(--sq-dur-instant) var(--sq-ease);
+}
+
+.sq-menu__item:hover,
+.sq-menu__item:focus-visible {
+  background: var(--sq-hover);
+  color: var(--sq-text-strong);
+}
+
+.sq-menu__item[aria-disabled="true"] {
+  opacity: 0.4;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.sq-menu__separator {
+  height: var(--sq-line-h);
+  margin: var(--sq-space-1) 0;
+  background: var(--sq-line);
+  border: none;
+}
+
+@keyframes sq-menu-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ---- Popover (non-modal tooltip-like overlay) ---- */
+.sq-popover {
+  position: absolute;
+  z-index: 50;
+  max-width: min(280px, calc(100vw - var(--sq-space-4)));
+  padding: var(--sq-space-2) var(--sq-space-3);
+  background: var(--sq-canvas);
+  border: var(--sq-line-h) solid var(--sq-line-strong);
+  border-radius: var(--sq-radius-control);
+  color: var(--sq-text);
+  font-size: var(--sq-text-xs);
+  line-height: var(--sq-leading-base);
+  animation: sq-popover-in var(--sq-dur-fast) var(--sq-ease) both;
+}
+
+.sq-popover[hidden] {
+  display: none;
+}
+
+.sq-popover--rich {
+  max-width: min(360px, calc(100vw - var(--sq-space-4)));
+  padding: var(--sq-space-3) var(--sq-space-4);
+}
+
+.sq-popover__title {
+  font-size: var(--sq-text-sm);
+  font-weight: var(--sq-fw-medium);
+  color: var(--sq-text-strong);
+  margin-bottom: var(--sq-space-2);
+}
+
+@keyframes sq-popover-in {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* ---- Dialog (polish existing native dialog) ---- */
+.sq-dialog {
+  width: min(460px, calc(100vw - var(--sq-space-6)));
+  /* The global reset (`* { margin: 0 }`) also zeroes the UA `dialog { margin: auto }`,
+     which pinned every modal to the top-left corner. Re-assert centring here: a
+     modal dialog is fixed + inset 0 from the UA sheet, so `margin: auto` is what
+     centres it on both axes. */
+  margin: auto;
+  max-height: calc(100dvh - var(--sq-space-8));
+  overflow-y: auto;
+  padding: var(--sq-space-6);
+  background: var(--sq-canvas);
+  color: var(--sq-text);
+  border: var(--sq-line-h) solid var(--sq-line-strong);
+  border-radius: var(--sq-radius-control);
+  animation: sq-dialog-in var(--sq-dur-normal) var(--sq-ease) both;
+}
+
+.sq-dialog::backdrop {
+  background: color-mix(in srgb, var(--sq-canvas) 75%, transparent);
+  backdrop-filter: blur(2px);
+  animation: sq-backdrop-in var(--sq-dur-normal) var(--sq-ease) both;
+}
+
+.sq-dialog--sm {
+  width: min(360px, calc(100vw - var(--sq-space-6)));
+}
+
+.sq-dialog--lg {
+  width: min(680px, calc(100vw - var(--sq-space-6)));
+  max-height: calc(100dvh - var(--sq-space-8));
+  overflow-y: auto;
+}
+
+.sq-dialog__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--sq-space-3);
+  margin-bottom: var(--sq-space-4);
+}
+
+.sq-dialog__title {
+  font-size: var(--sq-text-lg);
+  font-weight: var(--sq-fw-semibold);
+  color: var(--sq-text-strong);
+  line-height: var(--sq-leading-tight);
+}
+
+.sq-dialog__close {
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--sq-radius-micro);
+  color: var(--sq-text-subtle);
+  cursor: pointer;
+  transition: background-color var(--sq-dur-instant) var(--sq-ease),
+              color var(--sq-dur-instant) var(--sq-ease);
+}
+
+.sq-dialog__close:hover {
+  background: var(--sq-hover);
+  color: var(--sq-text-strong);
+}
+
+.sq-dialog__body {
+  color: var(--sq-text);
+  font-size: var(--sq-text-sm);
+  line-height: var(--sq-leading-base);
+  margin-bottom: var(--sq-space-5);
+}
+
+.sq-dialog__footer {
+  display: flex;
+  gap: var(--sq-space-2);
+  justify-content: flex-end;
+}
+
+@keyframes sq-dialog-in {
+  from {
+    opacity: 0;
+    transform: scale(0.96) translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes sq-backdrop-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* ---- Command palette (dialog + search input + result list) ---- */
+.sq-command {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sq-space-2);
+}
+
+/* Result rows are left-aligned full-width targets, not centred buttons:
+   `.sq-btn` centres its label, which made the palette look like a menu. */
+.sq-command [data-sq-command] {
+  justify-content: flex-start;
+  text-align: left;
+  min-height: var(--sq-input-h);
+}
+
+/* The palette's search field sits above the list, so it gets the emphasis. */
+.sq-command .sq-input {
+  margin-bottom: var(--sq-space-1);
+}
+
+/* ---- Toast (upgraded from controls.css primitive) ---- */
+.sq-toast-region {
+  position: fixed;
+  right: var(--sq-space-5);
+  bottom: calc(var(--sq-bottomnav-h, 60px) + var(--sq-space-5));
+  z-index: 60;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sq-space-2);
+  pointer-events: none;
+}
+
+.sq-toast {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--sq-space-2);
+  min-width: 280px;
+  max-width: min(420px, calc(100vw - var(--sq-space-6)));
+  padding: var(--sq-space-3) var(--sq-space-4);
+  background: var(--sq-canvas);
+  border: var(--sq-line-h) solid var(--sq-line-strong);
+  border-left-width: 3px;
+  border-radius: var(--sq-radius-control);
+  color: var(--sq-text);
+  font-size: var(--sq-text-sm);
+  line-height: var(--sq-leading-base);
+  pointer-events: auto;
+  animation: sq-toast-in var(--sq-dur-normal) var(--sq-ease) both;
+}
+
+.sq-toast--info {
+  border-left-color: var(--sq-status-info);
+}
+
+.sq-toast--ok {
+  border-left-color: var(--sq-status-running);
+}
+
+.sq-toast--warn {
+  border-left-color: var(--sq-status-warning);
+}
+
+.sq-toast--err {
+  border-left-color: var(--sq-status-error);
+}
+
+.sq-toast__icon {
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.sq-toast--info .sq-toast__icon {
+  color: var(--sq-status-info);
+}
+
+.sq-toast--ok .sq-toast__icon {
+  color: var(--sq-status-running);
+}
+
+.sq-toast--warn .sq-toast__icon {
+  color: var(--sq-status-warning);
+}
+
+.sq-toast--err .sq-toast__icon {
+  color: var(--sq-status-error);
+}
+
+.sq-toast__content {
+  flex: 1;
+  min-width: 0;
+}
+
+.sq-toast__title {
+  font-weight: var(--sq-fw-medium);
+  color: var(--sq-text-strong);
+  margin-bottom: var(--sq-space-1);
+}
+
+.sq-toast__message {
+  color: var(--sq-text);
+}
+
+.sq-toast__dismiss {
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--sq-radius-micro);
+  color: var(--sq-text-subtle);
+  cursor: pointer;
+  transition: background-color var(--sq-dur-instant) var(--sq-ease),
+              color var(--sq-dur-instant) var(--sq-ease);
+}
+
+.sq-toast__dismiss:hover {
+  background: var(--sq-hover);
+  color: var(--sq-text-strong);
+}
+
+.sq-toast.is-leaving {
+  animation: sq-toast-out var(--sq-dur-fast) var(--sq-ease) both;
+}
+
+@keyframes sq-toast-in {
+  from {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes sq-toast-out {
+  from {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(20%) scale(0.92);
+  }
+}
+
+/* ── Responsive ─────────────────────────────────────────────────── */
+@media (max-width: 600px) {
+  .sq-toast-region {
+    right: var(--sq-space-3);
+    bottom: calc(var(--sq-bottomnav-h, 60px) + var(--sq-space-3));
+    left: var(--sq-space-3);
+  }
+
+  .sq-toast {
+    min-width: 0;
+    width: 100%;
+  }
+
+  .sq-dialog {
+    width: calc(100vw - var(--sq-space-4));
+    padding: var(--sq-space-5);
+  }
+
+  .sq-dialog--lg {
+    max-height: calc(100dvh - var(--sq-space-6));
+  }
+
+  .sq-menu {
+    max-width: calc(100vw - var(--sq-space-4));
+  }
+}
+
+@media (max-width: 420px) {
+  .sq-dialog__header {
+    margin-bottom: var(--sq-space-3);
+  }
+
+  .sq-dialog__body {
+    margin-bottom: var(--sq-space-4);
+  }
+
+  .sq-dialog__footer {
+    flex-direction: column;
+  }
+
+  .sq-dialog__footer .sq-btn {
+    width: 100%;
+  }
+}

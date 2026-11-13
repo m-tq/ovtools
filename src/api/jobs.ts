@@ -1,12 +1,14 @@
 import * as fs from 'fs/promises';
 import * as path from 'path';
-import type { JobRequest, JobState, LogEntry, Settings } from '../types';
+import type { DiskPlan, JobRequest, JobState, LogEntry, Settings } from '../types';
 import { createLogger, Logger, readJSON } from '../utils/helpers';
-import { DEFAULT_ROLE, SETTINGS_FILE, phaseMeta } from '../constants';
+import { COMMON_ASSETS_DIR, DEFAULT_ROLE, SETTINGS_FILE, phaseMeta } from '../constants';
+import { createSSHClient, shellQuote } from '../ssh/client';
 import { DeployOrchestrator } from '../orchestrator/deploy';
 import { MigrateOrchestrator } from '../orchestrator/migrate';
 import { ManageOrchestrator } from '../orchestrator/manage';
 import { getEnrollment, probeNode } from './nodes';
+import { isHostKeyError, trustHostKey } from './hostkeys';
 import { buildStepPlan } from '../steps';
 
 const IP_RE = /^[0-9a-fA-F.:]{3,45}$/;
@@ -74,6 +76,84 @@ export class JobManager {
 
   getLogger(): Logger | null {
     return this.logger;
+  }
+
+  /**
+   * Read-only look at the target disk before deploy/migrate touches it.
+   * Runs pre-run.sh with SCAN_ONLY=1, so nothing is mounted rw, wiped or
+   * formatted. The console uses this to ask for an explicit destructive-action
+   * confirmation when the selected device would be erased.
+   */
+  async scanDisk(request: JobRequest): Promise<DiskPlan> {
+    const program = request.program;
+    if (program !== 'deploy' && program !== 'migrate') {
+      throw new Error('disk scan is available for deploy and migrate only');
+    }
+    const settings = await loadSettings();
+    const auth = this.auth(request, 'new');
+    const ip = String(request.newIp || '').trim();
+    if (!IP_RE.test(ip)) throw new Error('the target address is required');
+    await this.validateAuth(auth, 'target', ip);
+
+    const config = { host: ip, port: 22, username: 'root', auth };
+    let client;
+    try {
+      client = await createSSHClient(config);
+    } catch (err) {
+      if (!isHostKeyError((err as Error).message)) throw err;
+      const trust = await trustHostKey(ip, auth);
+      if (!trust.ok) throw new Error(`host key for ${ip} is not trusted and auto-trust failed: ${trust.detail}`);
+      client = await createSSHClient(config);
+    }
+    const dir = '/tmp/ovtools-disk-scan';
+    try {
+      await client.exec(`rm -rf ${dir} && mkdir -p ${dir}`, { timeout: 60000 });
+      await client.uploadFile(path.join(COMMON_ASSETS_DIR, 'pre-run.sh'), `${dir}/pre-run.sh`);
+      await client.uploadFile(path.join(COMMON_ASSETS_DIR, 'config.sh'), `${dir}/config.sh`);
+      const env = ['SCAN_ONLY=1'];
+      if (program === 'deploy') {
+        env.push(
+          `SWAP_GB=${Number(settings.swapGB) || 8}`,
+          `BLOCK_DEVICE=${shellQuote(settings.dataDevice)}`,
+          `DATA_MIN_GB=${Number(settings.dataMinGB) || 1000}`,
+          `WIPE_VOLUME=${request.keepData ? '0' : '1'}`
+        );
+      } else {
+        env.push(`WIPE_VOLUME=${request.wipeTargetVolume ? '1' : '0'}`);
+      }
+      const result = await client.exec(`${env.join(' ')} bash ${dir}/pre-run.sh`, { timeout: 180000 });
+      if (result.exitCode !== 0) {
+        throw new Error((result.stderr || result.stdout || 'the disk scan failed').trim().slice(0, 600));
+      }
+      const fields = new Map<string, string>();
+      for (const line of result.stdout.split('\n')) {
+        const match = /^(SCAN_[A-Z0-9_]+)=(.*)$/.exec(line.trim());
+        if (match) fields.set(match[1], match[2]);
+      }
+      const action = fields.get('SCAN_ACTION') || 'none';
+      const lsblkB64 = fields.get('SCAN_LSBLK_B64') || '';
+      const lsblk = lsblkB64 ? Buffer.from(lsblkB64, 'base64').toString('utf8') : '';
+      return {
+        action: (['format', 'keep', 'fallback', 'none'].includes(action) ? action : 'none') as DiskPlan['action'],
+        program,
+        ip,
+        device: fields.get('SCAN_DEVICE') || null,
+        disk: fields.get('SCAN_DISK') || null,
+        sizeGB: Number.isFinite(Number(fields.get('SCAN_SIZE_GB'))) ? Number(fields.get('SCAN_SIZE_GB')) : null,
+        fstype: fields.get('SCAN_FSTYPE') || null,
+        label: fields.get('SCAN_LABEL') || null,
+        mountpoint: fields.get('SCAN_MOUNT') || null,
+        systemDisk: fields.get('SCAN_SYSTEM') === 'yes',
+        hasDataset: fields.get('SCAN_DATASET') === 'yes',
+        hasChain: fields.get('SCAN_CHAIN') === 'yes',
+        model: fields.get('SCAN_MODEL') || null,
+        reason: fields.get('SCAN_REASON') || '',
+        lsblk,
+      };
+    } finally {
+      await client.exec(`rm -rf ${dir}`, { timeout: 30000 }).catch(() => undefined);
+      await client.disconnect();
+    }
   }
 
   async start(request: JobRequest): Promise<JobState> {
@@ -183,6 +263,7 @@ export class JobManager {
             reset: Boolean(request.reset),
             wipeVolume: Boolean(request.wipeVolume),
             keepData: Boolean(request.keepData),
+            allowFormat: typeof request.allowFormat === 'boolean' ? request.allowFormat : undefined,
             phase,
           },
           logger
@@ -196,6 +277,7 @@ export class JobManager {
             newAuth,
             wipeTargetVolume: Boolean(request.wipeTargetVolume),
             keepTargetData: Boolean(request.keepTargetData),
+            allowFormat: typeof request.allowFormat === 'boolean' ? request.allowFormat : undefined,
             phase,
             samples: 3,
             interval: 30,

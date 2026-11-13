@@ -1,0 +1,280 @@
+/* ==========================================================================
+   SYNTEQ UI - ADVANCED TABLE MODULE (components/tables.css)
+   Toolbar, sortable headers, row selection, pagination and a sticky head.
+   Flat-surface model: hairline separators only, no shadows, no card chrome.
+   Base table styles live in data.css; this file layers behaviour on top.
+   ========================================================================== */
+
+/* ---- Toolbar (sits above the table, closed by a hairline) ---- */
+.sq-table-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--sq-space-2) var(--sq-space-3);
+  padding-bottom: var(--sq-space-3);
+  border-bottom: var(--sq-line-h) solid var(--sq-line);
+  min-width: 0;
+}
+
+.sq-table-toolbar__start,
+.sq-table-toolbar__end {
+  display: inline-flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--sq-space-2);
+  min-width: 0;
+}
+
+.sq-table-toolbar__title {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sq-space-2);
+  font-size: var(--sq-text-md);
+  font-weight: var(--sq-fw-medium);
+  color: var(--sq-text-strong);
+  white-space: nowrap;
+}
+
+.sq-table-toolbar__meta {
+  font-size: var(--sq-text-xs);
+  color: var(--sq-text-subtle);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+/* Filter field inside the toolbar */
+.sq-table-toolbar__filter {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sq-space-2);
+  height: var(--sq-input-h);
+  padding: 0 var(--sq-space-2);
+  background: var(--sq-inset);
+  border: var(--sq-line-h) solid var(--sq-line);
+  border-radius: var(--sq-radius-control);
+  color: var(--sq-text-subtle);
+  min-width: 0;
+  transition: border-color var(--sq-dur-fast) var(--sq-ease);
+}
+
+.sq-table-toolbar__filter:focus-within {
+  border-color: var(--sq-brand);
+}
+
+.sq-table-toolbar__filter input {
+  width: 100%;
+  min-width: 0;
+  background: transparent;
+  border: 0;
+  outline: none;
+  color: var(--sq-text);
+  font-family: var(--sq-font-sans);
+  font-size: var(--sq-text-sm);
+}
+
+.sq-table-toolbar__filter input::placeholder {
+  color: var(--sq-text-subtle);
+}
+
+/* ---- Sticky head (works inside .sq-table-wrap scroll regions) ---- */
+.sq-table--sticky thead th {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: var(--sq-canvas);
+  border-bottom: var(--sq-line-h) solid var(--sq-line-strong);
+}
+
+/* ---- Sortable column header ---- */
+.sq-table__sort {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sq-space-1);
+  padding: 0;
+  background: none;
+  border: 0;
+  font: inherit;
+  letter-spacing: inherit;
+  text-transform: inherit;
+  color: inherit;
+  cursor: pointer;
+  transition: color var(--sq-dur-instant) var(--sq-ease);
+}
+
+.sq-table__sort:hover {
+  color: var(--sq-text-strong);
+}
+
+.sq-table__sort svg,
+.sq-table__sort-icon {
+  flex-shrink: 0;
+  opacity: 0.4;
+  transition: transform var(--sq-dur-fast) var(--sq-ease),
+              opacity var(--sq-dur-fast) var(--sq-ease);
+}
+
+.sq-table th[aria-sort="ascending"] .sq-table__sort,
+.sq-table th[aria-sort="descending"] .sq-table__sort {
+  color: var(--sq-text-strong);
+}
+
+.sq-table th[aria-sort="ascending"] .sq-table__sort svg,
+.sq-table th[aria-sort="descending"] .sq-table__sort svg {
+  opacity: 1;
+  color: var(--sq-brand);
+}
+
+.sq-table th[aria-sort="descending"] .sq-table__sort svg {
+  transform: rotate(180deg);
+}
+
+/* Numeric headers keep their right alignment when they become buttons */
+.sq-table th.sq-table__num .sq-table__sort {
+  justify-content: flex-end;
+  width: 100%;
+}
+
+/* ---- Row selection ---- */
+.sq-table__check {
+  width: var(--sq-space-7);
+  padding-right: 0;
+  text-align: center;
+}
+
+.sq-table thead th.sq-table__check {
+  color: var(--sq-text-subtle);
+}
+
+.sq-table tr.is-selected td {
+  background: color-mix(in srgb, var(--sq-brand) 7%, transparent);
+}
+
+.sq-table tbody tr.is-selected:hover td {
+  background: color-mix(in srgb, var(--sq-brand) 11%, transparent);
+}
+
+/* ---- Density modifiers ---- */
+.sq-table--compact th,
+.sq-table--compact td {
+  padding-top: var(--sq-space-1);
+  padding-bottom: var(--sq-space-1);
+}
+
+.sq-table--dense {
+  font-size: var(--sq-text-xs);
+}
+
+.sq-table--dense th,
+.sq-table--dense td {
+  padding: var(--sq-space-1) var(--sq-space-2);
+}
+
+/* ---- Empty / no-results row ---- */
+.sq-table__empty {
+  padding: var(--sq-space-6) var(--sq-space-3);
+  text-align: center;
+  font-family: var(--sq-font-sans);
+  font-size: var(--sq-text-xs);
+  color: var(--sq-text-subtle);
+  white-space: normal;
+}
+
+
+
+/* ---- Pagination ---- */
+.sq-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--sq-space-2) var(--sq-space-3);
+  padding-top: var(--sq-space-3);
+  border-top: var(--sq-line-h) solid var(--sq-line);
+  min-width: 0;
+}
+
+.sq-pagination__info {
+  font-size: var(--sq-text-xs);
+  color: var(--sq-text-subtle);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.sq-pagination__pages {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sq-space-1);
+  flex-wrap: wrap;
+}
+
+.sq-pagination__btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: var(--sq-space-6);
+  height: var(--sq-space-6);
+  padding: 0 var(--sq-space-1);
+  background: transparent;
+  border: var(--sq-line-h) solid transparent;
+  border-radius: var(--sq-radius-control);
+  color: var(--sq-text-subtle);
+  font-family: var(--sq-font-mono);
+  font-size: var(--sq-text-xs);
+  font-variant-numeric: tabular-nums;
+  cursor: pointer;
+  transition: background-color var(--sq-dur-instant) var(--sq-ease),
+              color var(--sq-dur-instant) var(--sq-ease),
+              border-color var(--sq-dur-instant) var(--sq-ease);
+}
+
+.sq-pagination__btn:hover:not(:disabled) {
+  background: var(--sq-hover);
+  color: var(--sq-text-strong);
+}
+
+.sq-pagination__btn[aria-current="page"] {
+  border-color: var(--sq-brand);
+  color: var(--sq-brand);
+  font-weight: var(--sq-fw-medium);
+}
+
+.sq-pagination__btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.sq-pagination__gap {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: var(--sq-space-4);
+  height: var(--sq-space-6);
+  color: var(--sq-text-subtle);
+  font-size: var(--sq-text-xs);
+  user-select: none;
+}
+
+/* ---- Responsive ---- */
+@media (max-width: 720px) {
+  .sq-table-toolbar,
+  .sq-pagination {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .sq-pagination__pages {
+    width: 100%;
+  }
+}
+
+@media (max-width: 520px) {
+  .sq-table--compact th,
+  .sq-table--compact td {
+    padding-inline: var(--sq-space-2);
+  }
+
+  .sq-table__check {
+    width: var(--sq-space-6);
+  }
+}

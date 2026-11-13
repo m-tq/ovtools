@@ -180,6 +180,9 @@ export class DeployOrchestrator extends BaseOrchestrator {
         SWAP_GB: String(this.config.swapGB),
         BLOCK_DEVICE: this.config.dataDevice,
         DATA_MIN_GB: String(this.config.dataMinGB),
+        ...(typeof this.config.allowFormat === 'boolean'
+          ? { FORMAT_APPROVED: this.config.allowFormat ? '1' : '0' }
+          : {}),
       },
       timeoutSec: 1800,
       phase: 'prep',
