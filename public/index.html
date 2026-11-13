@@ -7,8 +7,8 @@
   <meta name="description" content="Octra Validator Tools - deploy, migrate and manage Octra validators" />
   <title>Octra Validator Tools</title>
   <link rel="icon" type="image/svg+xml" href="favicon.svg?v=2.2.1" />
-  <link rel="stylesheet" href="assets/css/synteq-ui.css?v=1.0.6" />
-  <link rel="stylesheet" href="styles.css?v=2.1.8" />
+  <link rel="stylesheet" href="assets/css/synteq-ui.css?v=1.0.7" />
+  <link rel="stylesheet" href="styles.css?v=2.1.9" />
 </head>
 <body>
 
@@ -1104,6 +1104,17 @@
   </div>
 </div>
 
+<!-- ---------- PRE-RUN DISK SCAN (read-only, blocks double submits) ---------- -->
+<div class="mc-modal" id="disk-scan-modal" hidden role="dialog" aria-modal="true" aria-live="polite" aria-labelledby="disk-scan-title">
+  <div class="mc-modal__body mc-disk-scan">
+    <span class="sq-spinner sq-spinner--lg" aria-hidden="true"></span>
+    <h2 class="mc-modal__title" id="disk-scan-title">Scanning target disks</h2>
+    <p class="mc-modal__text" id="disk-scan-text">
+      Checking the target read-only before anything is written. No disk is being formatted.
+    </p>
+  </div>
+</div>
+
 <!-- ---------- WAITING MODAL (long finalization: follow-up runs in background) ---------- -->
 <!-- Deploy/migrate/manage can return while the chain is still confirming the
      result (set fold, state-sync, recover). The server keeps probing the node
@@ -1189,8 +1200,8 @@
   </div>
 </div>
 
-<script src="assets/js/synteq-ui.js?v=1.0.6"></script>
-  <script src="app.js?v=3.0.6"></script>
+<script src="assets/js/synteq-ui.js?v=1.0.7"></script>
+  <script src="app.js?v=3.0.7"></script>
 </body>
 </html>
 

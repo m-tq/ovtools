@@ -100,12 +100,21 @@
 .sq-nav__item.is-active {
   color: var(--sq-brand);
   font-weight: var(--sq-fw-semibold);
-  background: color-mix(in srgb, var(--sq-brand) 12%, transparent);
-  border-top: 3px solid var(--sq-brand);
-  padding-top: calc(var(--sq-space-1) - 3px);
+  /* Active state is colour only: no pill, no underline, no raised background. */
+  background: transparent;
+  box-shadow: none;
+  border-top: 0;
+  padding-top: var(--sq-space-1);
 }
 .sq-nav__item--active .sq-icon,
 .sq-nav__item.is-active .sq-icon { color: var(--sq-brand); }
+.sq-nav__item--active:hover,
+.sq-nav__item.is-active:hover {
+  background: transparent;
+  color: var(--sq-brand);
+}
+.sq-nav__item--active:hover .sq-icon,
+.sq-nav__item.is-active:hover .sq-icon { color: var(--sq-brand); }
 .sq-nav__badge {
   position: absolute;
   top: 3px;

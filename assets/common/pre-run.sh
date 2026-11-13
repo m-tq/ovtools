@@ -160,7 +160,7 @@ device_for() {
 volume_is_octra() {
   local dev="$1" tmp rc=1
   tmp=$(mktemp -d)
-  if mount -o ro "${dev}" "${tmp}" 2>/dev/null; then
+  if mount -o ro,noload "${dev}" "${tmp}" 2>/dev/null; then
     if [[ -f "${tmp}/${DATA_MARKER}" ]]; then
       rc=0
     elif [[ -d "${tmp}/devnet" ]] || [[ -d "${tmp}/validator-control" ]]; then
@@ -469,10 +469,15 @@ scan_data_store() {
       label=$(blkid -o value -s LABEL "${dev}" 2>/dev/null || true)
       model=$(lsblk -no MODEL "${disk}" 2>/dev/null | head -1 | xargs 2>/dev/null || true)
       is_system_disk "${dev}" && system="yes" || system="no"
-      if [[ -n "${fstype}" ]] && volume_is_octra "${dev}"; then
+      # The label is enough to recognise a volume this toolkit created. Only
+      # fall back to a read-only mount (and the chain-state probe) for older
+      # volumes that predate the label.
+      if [[ -n "${fstype}" && "${label}" == "${DATA_LABEL}" ]]; then
+        has_dataset="yes"
+      elif [[ -n "${fstype}" ]] && volume_is_octra "${dev}"; then
         has_dataset="yes"
         tmp=$(mktemp -d)
-        if mount -o ro "${dev}" "${tmp}" 2>/dev/null; then
+        if mount -o ro,noload "${dev}" "${tmp}" 2>/dev/null; then
           [[ -f "${tmp}/devnet/HEAD.json" ]] && chain="yes"
           umount "${tmp}" 2>/dev/null || true
         fi

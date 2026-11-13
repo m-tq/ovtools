@@ -107,9 +107,16 @@ export class JobManager {
     }
     const dir = '/tmp/ovtools-disk-scan';
     try {
+      // SFTP upload opens a channel per file and is slow on high-latency VPS
+      // links (~7s for a 27KB script). A base64 exec keeps the pre-run scan
+      // feeling immediate instead of looking like a dead button.
+      const scanScript = (await fs.readFile(path.join(COMMON_ASSETS_DIR, 'pre-run.sh'))).toString('base64');
+      const scanConfig = (await fs.readFile(path.join(COMMON_ASSETS_DIR, 'config.sh'))).toString('base64');
       await client.exec(`rm -rf ${dir} && mkdir -p ${dir}`, { timeout: 60000 });
-      await client.uploadFile(path.join(COMMON_ASSETS_DIR, 'pre-run.sh'), `${dir}/pre-run.sh`);
-      await client.uploadFile(path.join(COMMON_ASSETS_DIR, 'config.sh'), `${dir}/config.sh`);
+      await client.exec(
+        `printf %s ${shellQuote(scanScript)} | base64 -d > ${dir}/pre-run.sh && printf %s ${shellQuote(scanConfig)} | base64 -d > ${dir}/config.sh`,
+        { timeout: 60000 }
+      );
       const env = ['SCAN_ONLY=1'];
       if (program === 'deploy') {
         env.push(

@@ -2347,11 +2347,26 @@
     if (resolve) resolve(result === true ? 'allow' : result);
   }
 
-  function guardDiskBeforeRun(payload, meta, anchor) {
-    if (!needsDiskConfirmation(payload)) return Promise.resolve(true);
+  function showDiskScan(ip) {
+    var modal = panelId('disk-scan-modal');
+    if (!modal) return;
+    setText('disk-scan-text', 'Checking ' + (ip || 'the target') +
+      ' read-only before anything is written. No disk is being formatted.');
+    modal.hidden = false;
     var note = $('action-note');
     if (note) note.textContent = 'Scanning the target disks read-only before any format...';
+  }
+
+  function hideDiskScan() {
+    var modal = panelId('disk-scan-modal');
+    if (modal) modal.hidden = true;
+  }
+
+  function guardDiskBeforeRun(payload, meta, anchor) {
+    if (!needsDiskConfirmation(payload)) return Promise.resolve(true);
+    showDiskScan(payload.newIp);
     return postJSON('/api/disk-plan', payload).then(function (body) {
+      hideDiskScan();
       var plan = body && body.plan;
       if (!plan) return true;
       if (plan.action === 'format') {
@@ -2392,6 +2407,7 @@
       }
       return true;
     }).catch(function (err) {
+      hideDiskScan();
       if (note) note.textContent = 'Disk scan failed: ' + err.message + ' - run cancelled for safety.';
       tip(anchor, err.message, 'err');
       return false;
