@@ -187,6 +187,7 @@ export class MigrateOrchestrator extends BaseOrchestrator {
 
     const started = Date.now();
     let lastSize = 0;
+    let deadPolls = 0;
     while (Date.now() - started < timeoutSec * 1000) {
       await new Promise(resolve => setTimeout(resolve, 5000));
       const probe = await client.exec(
@@ -208,8 +209,19 @@ export class MigrateOrchestrator extends BaseOrchestrator {
       if (state === 'DONE') return { state, detail, soft: false, exitCode: 0 };
       if (state === 'FAILED') return { state, detail, soft: false, exitCode: 1 };
       if (state.startsWith('WAITING-')) return { state, detail, soft: true, exitCode: 2 };
-      if (!/^(active|activating|reloading|deactivating)$/.test(active) && Date.now() - started > 15000) {
-        return { state: 'FAILED', detail: `unit ${unit} died without a verdict (see ${outFile})`, soft: false, exitCode: 1 };
+      // A single empty `systemctl is-active` read (SSH hiccup, systemd busy)
+      // must not kill a long rsync. Require repeated dead probes.
+      if (!/^(active|activating|reloading|deactivating)$/.test(active)) {
+        if (Date.now() - started > 15000) {
+          deadPolls++;
+          if (deadPolls >= 3) {
+            const tail = await client.exec(`tail -n 20 ${shellQuote(outFile)} 2>/dev/null`, { timeout: 60000 });
+            for (const line of tail.stdout.split('\n')) if (line.trim()) this.log(`    ${line}`, 'remote', client.host);
+            return { state: 'FAILED', detail: `unit ${unit} died without a verdict (see ${outFile})`, soft: false, exitCode: 1 };
+          }
+        }
+      } else {
+        deadPolls = 0;
       }
     }
     return { state: 'TIMEOUT', detail: `${label} did not finish in ${timeoutSec}s`, soft: false, exitCode: 1 };

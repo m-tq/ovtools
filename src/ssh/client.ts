@@ -213,7 +213,9 @@ export class SSHClient {
           stderrBuf += text;
           stderrBuf = emitLines(stderrBuf, 'stderr');
         });
-        stream.on('close', (code: number | null) => finish(code, false));
+        // A channel that closes without an exit status (dropped connection,
+        // sshd killed the child) must never look like a successful command.
+        stream.on('close', (code: number | null) => finish(code === null || code === undefined ? 255 : code, false));
         stream.on('error', (streamErr: Error) => {
           if (settled) return;
           settled = true;
