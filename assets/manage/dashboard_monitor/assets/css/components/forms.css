@@ -459,6 +459,11 @@
   transition: opacity var(--sq-dur-instant) var(--sq-ease);
 }
 
+.sq-range:focus-visible {
+  outline: 2px solid var(--sq-brand);
+  outline-offset: 4px;
+}
+
 .sq-range:disabled {
   opacity: 0.4;
   cursor: not-allowed;
@@ -515,6 +520,12 @@
 .sq-range::-moz-range-track {
   background: transparent;
   border: none;
+}
+
+/* Match the WebKit track: no browser-default accent fill on the low side. */
+.sq-range::-moz-range-progress {
+  background: transparent;
+  border-radius: var(--sq-radius-pill);
 }
 
 /* Range with value label */

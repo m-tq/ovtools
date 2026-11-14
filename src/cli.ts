@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import * as readline from 'readline';
 import { createLogger, readJSON, writeJSON } from './utils/helpers';
 import { createDeployOrchestrator } from './orchestrator/deploy';
 import { createMigrateOrchestrator } from './orchestrator/migrate';
@@ -6,6 +7,7 @@ import { createManageOrchestrator } from './orchestrator/manage';
 import { startWebServer } from './api/server';
 import { openBrowser } from './utils/browser';
 import { checkForUpdate, currentVersion, updateNotice } from './utils/update';
+import type { UpdateInfo } from './utils/update';
 import { DEFAULT_ASSETS_REPO, DEFAULT_ROLE, SETTINGS_FILE } from './constants';
 import { normalizeSettings } from './api/jobs';
 import type { DeployConfig, HostAuth, ManageConfig, ManagePhase, MigrateConfig, Settings } from './types';
@@ -203,14 +205,66 @@ async function runManage(p: Parsed, defaultPhase?: ManagePhase): Promise<void> {
   await logger.flush();
 }
 
-async function printUpdateNotice(): Promise<void> {
-  if (process.env.OVTOOLS_NO_UPDATE_CHECK === '1' || process.env.OVTOOLS_NO_UPDATE_CHECK === 'true') return;
+function updateCheckEnabled(): boolean {
+  return process.env.OVTOOLS_NO_UPDATE_CHECK !== '1' && process.env.OVTOOLS_NO_UPDATE_CHECK !== 'true';
+}
+
+async function availableUpdate(): Promise<UpdateInfo | null> {
+  if (!updateCheckEnabled()) return null;
   try {
-    const update = await checkForUpdate();
-    if (update) process.stdout.write(updateNotice(update));
+    return await checkForUpdate();
   } catch {
-    // update checks never block the console
+    return null;
   }
+}
+
+async function printUpdateNotice(): Promise<void> {
+  const update = await availableUpdate();
+  if (update) process.stdout.write(updateNotice(update));
+}
+
+function printUpdateInstructions(update: UpdateInfo): void {
+  process.stdout.write([
+    `Update available: ${update.current} -> ${update.latest}`,
+    '',
+    'ovtools exits now so the global install can replace it safely.',
+    'Run this yourself:',
+    '',
+    `  npm install -g ovtools@${update.latest}`,
+    '',
+  ].join('\n'));
+}
+
+async function askUpdateChoice(update: UpdateInfo): Promise<'update' | 'continue' | 'exit'> {
+  // Piped/scripted runs must not hang on a prompt.
+  if (!process.stdin.isTTY || !process.stdout.isTTY) {
+    process.stdout.write(updateNotice(update));
+    return 'continue';
+  }
+  process.stdout.write(updateNotice(update));
+  const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
+  const answer = await new Promise<string>((resolve) => {
+    let settled = false;
+    const done = (value: string) => {
+      if (settled) return;
+      settled = true;
+      resolve(value);
+    };
+    rl.question('Update now or continue to the web GUI? [u]pdate / [c]ontinue: ', done);
+    rl.on('SIGINT', () => {
+      done('^C');
+      rl.close();
+    });
+    rl.on('close', () => done(''));
+  });
+  rl.close();
+  const value = answer.trim().toLowerCase();
+  if (value === 'u' || value === 'update' || value === 'y' || value === 'yes') return 'update';
+  if (value === '^c' || value === 'q' || value === 'quit' || value === 'exit') return 'exit';
+  if (value && value !== 'c' && value !== 'continue' && value !== 'n' && value !== 'no') {
+    process.stdout.write('  Not understood - continuing to the console.\n');
+  }
+  return 'continue';
 }
 
 async function launchConsole(port: number, host: string, autoPort: boolean, open: boolean): Promise<number> {
@@ -258,9 +312,17 @@ export async function main(argv = process.argv.slice(2)): Promise<number> {
     return 0;
   }
   if (!argv.length) {
-    // Show the notice but still open the console: blocking the launch just
-    // because a newer release exists left the operator with no UI at all.
-    await printUpdateNotice();
+    const update = await availableUpdate();
+    if (update) {
+      const choice = await askUpdateChoice(update);
+      if (choice === 'update') {
+        // Exit first: a running global install should not be replaced under the
+        // process that is still holding the old files open.
+        printUpdateInstructions(update);
+        return 0;
+      }
+      if (choice === 'exit') return 0;
+    }
     return launchConsole(9091, '127.0.0.1', true, true);
   }
   const command = argv[0];

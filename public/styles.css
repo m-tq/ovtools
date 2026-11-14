@@ -320,20 +320,6 @@
   color: var(--sq-brand);
 }
 
-/* ---- bottom navigation: active item colours icon + text only ------------ */
-.sq-nav__item--active,
-.sq-nav__item.is-active,
-.sq-nav__item--active:hover,
-.sq-nav__item.is-active:hover {
-  background: transparent;
-  box-shadow: none;
-  color: var(--sq-brand);
-}
-.sq-nav__item--active .sq-icon,
-.sq-nav__item.is-active .sq-icon,
-.sq-nav__item--active:hover .sq-icon,
-.sq-nav__item.is-active:hover .sq-icon { color: var(--sq-brand); }
-
 /* the data directory is a full path now: let it wrap instead of overflowing */
 #hero-project { overflow-wrap: anywhere; }
 

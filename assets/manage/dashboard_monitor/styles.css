@@ -237,20 +237,6 @@
   border-radius: 0;
 }
 
-/* -- Bottom navigation: active item colours icon + text only -------- */
-.sq-nav__item--active,
-.sq-nav__item.is-active,
-.sq-nav__item--active:hover,
-.sq-nav__item.is-active:hover {
-  background: transparent;
-  box-shadow: none;
-  color: var(--sq-brand);
-}
-.sq-nav__item--active .sq-icon,
-.sq-nav__item.is-active .sq-icon,
-.sq-nav__item--active:hover .sq-icon,
-.sq-nav__item.is-active:hover .sq-icon { color: var(--sq-brand); }
-
 /* -- Log toolbar (the viewer itself is a framework component) ------- */
 .log-toolbar {
   display: flex;

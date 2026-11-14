@@ -1,6 +1,6 @@
 {
   "name": "ovtools",
-  "version": "1.0.8",
+  "version": "1.0.9",
   "description": "Octra Validator Tools - production-grade CLI and web console for deploying, migrating, and managing Octra validators",
   "main": "dist/index.js",
   "bin": {

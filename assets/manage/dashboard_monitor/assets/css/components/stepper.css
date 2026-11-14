@@ -27,7 +27,7 @@
 .sq-stepper__item:not(:last-child)::after {
   content: "";
   position: absolute;
-  left: var(--sq-space-3);
+  left: calc(var(--sq-space-6) / 2);
   top: var(--sq-space-5);
   bottom: 0;
   width: var(--sq-line-h);
@@ -148,7 +148,7 @@
 .sq-stepper--horizontal .sq-stepper__item:not(:last-child)::after {
   left: calc(var(--sq-space-3) + var(--sq-space-5));
   right: 0;
-  top: var(--sq-space-3);
+  top: calc(var(--sq-space-5) / 2);
   bottom: auto;
   width: auto;
   height: var(--sq-line-h);
@@ -176,7 +176,7 @@
   }
 
   .sq-stepper--horizontal .sq-stepper__item:not(:last-child)::after {
-    left: var(--sq-space-3);
+    left: calc(var(--sq-space-6) / 2);
     right: auto;
     top: var(--sq-space-5);
     bottom: 0;

@@ -42,16 +42,5 @@
 .sq-row-hover { transition: background-color var(--sq-dur-fast) var(--sq-ease); }
 .sq-row-hover:hover { background: var(--sq-hover); }
 
-/* Skeleton shimmer (for async text-first data) */
-@keyframes sq-shimmer {
-  0% { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
-}
-.sq-skeleton {
-  background: linear-gradient(90deg, var(--sq-inset) 0%, var(--sq-hover) 50%, var(--sq-inset) 100%);
-  background-size: 200% 100%;
-  animation: sq-shimmer 1.4s infinite linear;
-  border-radius: var(--sq-radius-micro);
-  color: transparent;
-  user-select: none;
-}
+/* Skeleton shimmer lives in feedback.css: it is a loading state, not ambient
+   motion, and keeping one definition avoids modifier overrides by import order. */

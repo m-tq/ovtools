@@ -130,6 +130,15 @@
       stageEl.appendChild(padCol);
     }
 
+    // Keep the absolute 0-100 scale for normal data, but expand it when a
+    // stacked in/out pair exceeds 100 so the taller column cannot overflow.
+    var scale = 100;
+    samples.forEach(function (pair) {
+      var inPct  = Math.max(0, Math.min(100, pair[0] || 0));
+      var outPct = Math.max(0, Math.min(100, pair[1] || 0));
+      scale = Math.max(scale, inPct + outPct);
+    });
+
     samples.forEach(function (pair, idx) {
       var inPct  = Math.max(0, Math.min(100, pair[0] || 0));
       var outPct = Math.max(0, Math.min(100, pair[1] || 0));
@@ -145,11 +154,12 @@
 
       var segOut = document.createElement('div');
       segOut.className = 'sq-bars__seg sq-bars__seg--out';
-      segOut.style.height = outPct + '%';
+      segOut.style.height = (outPct / scale) * 100 + '%';
 
       var segIn = document.createElement('div');
       segIn.className = 'sq-bars__seg sq-bars__seg--in';
-      segIn.style.height = inPct + '%';
+      segIn.style.height = (inPct / scale) * 100 + '%';
+
 
       col.appendChild(segOut);
       col.appendChild(segIn);
@@ -829,7 +839,7 @@
             // Rect-based math: offsetTop is relative to offsetParent, not the
             // scroll container, and lands on the wrong section.
             var delta = section.getBoundingClientRect().top - content.getBoundingClientRect().top + content.scrollTop - 16;
-            content.scrollTo({ top: Math.max(0, delta), behavior: 'smooth' });
+            content.scrollTo({ top: Math.max(0, delta), behavior: prefersReduced() ? 'auto' : 'smooth' });
           }
         }
         else toast(item.textContent.trim() + ' selected');
@@ -1488,6 +1498,18 @@
     return el.closest('.sq-chart__body') || el.parentElement;
   }
 
+  // SVG geometry is in viewBox units, while pointer/tooltip coordinates are CSS
+  // pixels. getScreenCTM() also accounts for preserveAspectRatio letterboxing,
+  // so hover alignment survives responsive scaling.
+  function svgClientPoint(svgEl, x, y) {
+    if (!svgEl || !svgEl.createSVGPoint || !svgEl.getScreenCTM) return null;
+    var pt = svgEl.createSVGPoint();
+    pt.x = x;
+    pt.y = y;
+    var ctm = svgEl.getScreenCTM();
+    return ctm ? pt.matrixTransform(ctm) : null;
+  }
+
   function ensureChartTip(host) {
     var tip = host.querySelector('.sq-chart__tip');
     if (!tip) {
@@ -1505,6 +1527,8 @@
     if (!host) return;
     var tip = host.querySelector('.sq-chart__tip');
     if (tip) tip.hidden = true;
+    var cursor = host.querySelector('.sq-chart__cursor');
+    if (cursor) cursor.style.opacity = '0';
     var cols = host.querySelectorAll('.sq-chart__col.is-hover');
     Array.prototype.forEach.call(cols, function (col) { col.classList.remove('is-hover'); });
   }
@@ -1681,8 +1705,14 @@
     var g = svgEl.__sqGeom;
     if (!g) return;
 
-    var box = svgEl.getBoundingClientRect();
-    var ratio = (event.clientX - box.left - g.padL) / (g.plotW || 1);
+    var ctm = svgEl.getScreenCTM && svgEl.getScreenCTM();
+    if (!ctm) return;
+
+    var pointer = svgEl.createSVGPoint();
+    pointer.x = event.clientX;
+    pointer.y = event.clientY;
+    var local = pointer.matrixTransform(ctm.inverse());
+    var ratio = (local.x - g.padL) / (g.plotW || 1);
     var index = Math.round(ratio * (g.count - 1));
     index = Math.max(0, Math.min(g.count - 1, index));
 
@@ -1723,8 +1753,11 @@
     if (!isFinite(topY)) topY = g.padT;
 
     var hostBox = host.getBoundingClientRect();
-    tip.style.left = Math.round(box.left - hostBox.left + g.sx(index)) + 'px';
-    tip.style.top = Math.round(box.top - hostBox.top + topY) + 'px';
+    var anchor = svgClientPoint(svgEl, g.sx(index), topY);
+    if (anchor) {
+      tip.style.left = Math.round(anchor.x - hostBox.left) + 'px';
+      tip.style.top = Math.round(anchor.y - hostBox.top) + 'px';
+    }
     tip.hidden = false;
 
     if (g.cursor) {

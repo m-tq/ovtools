@@ -189,6 +189,11 @@
   left: calc(100% + var(--sq-space-1));
 }
 
+.sq-menu--left {
+  top: 0;
+  right: calc(100% + var(--sq-space-1));
+}
+
 .sq-menu__item {
   display: flex;
   align-items: center;

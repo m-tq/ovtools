@@ -169,21 +169,23 @@
   display: flex;
   flex-direction: column-reverse;
   justify-content: flex-start;
-  gap: 1px;
+  gap: 0;
   height: 100%;
-  cursor: pointer;
+  cursor: default;
+  /* The column owns the radius and clips both series, so in/out touch with
+     no seam and cannot overflow the chart when their values sum above 100. */
+  border-radius: var(--sq-radius-micro) var(--sq-radius-micro) 0 0;
+  overflow: hidden;
 }
 .sq-bars__seg {
   width: 100%;
-  min-height: 1px;
-  border-radius: var(--sq-radius-micro);
+  border-radius: 0;
   transition: opacity var(--sq-dur-fast) var(--sq-ease), height var(--sq-dur-normal) var(--sq-ease);
 }
 .sq-bars__seg--in { background: var(--sq-tel-in); }
 .sq-bars__seg--out { background: var(--sq-tel-out); opacity: 0.55; }
 .sq-bars__col:hover .sq-bars__seg { opacity: 1; }
 /* Padding columns (renderBars minCols) hold the layout but carry no data */
-.sq-bars__col--pad { cursor: default; }
 .sq-bars[data-sq-bars-empty] { opacity: 0.35; }
 
 /* ---- Legend (text-first) ---- */

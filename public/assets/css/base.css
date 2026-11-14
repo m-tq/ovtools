@@ -56,7 +56,6 @@ body { position: fixed; inset: 0; }
 :focus-visible {
   outline: 2px solid var(--sq-text-strong);
   outline-offset: 2px;
-  border-radius: var(--sq-radius-micro);
 }
 
 /* [hidden] must always win over a component's own display rule.

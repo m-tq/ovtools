@@ -31,8 +31,10 @@ ovtools help
 
 Running `ovtools` with no arguments starts the web console on
 `http://127.0.0.1:9091` and opens your browser. It first checks npm for a newer
-release: when one exists it prints the update command and exits; otherwise the
-console starts.
+release. If one exists, it asks whether to update or continue to the web GUI.
+Choosing update exits the app and prints the `npm install -g` command to run
+manually; choosing continue opens the console as usual. Piped or scripted runs
+cannot prompt and continue to the console after printing the notice.
 
 ## Quick start
 

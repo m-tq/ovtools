@@ -137,10 +137,37 @@
   background: var(--sq-canvas);
 }
 
-.sq-code--scroll .sq-code__pre {
+/* Bounded height: the body scrolls so the gutter and code stay aligned.
+   The gutter is sticky on the horizontal axis so line numbers remain visible
+   while long lines scroll under them. */
+.sq-code--scroll .sq-code__body {
   max-height: var(--sq-code-h, 320px);
-  overflow-y: auto;
+  overflow: auto;
   overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: var(--sq-line-strong) transparent;
+}
+
+.sq-code--scroll .sq-code__body::-webkit-scrollbar {
+  width: var(--sq-space-2);
+  height: var(--sq-space-2);
+}
+
+.sq-code--scroll .sq-code__body::-webkit-scrollbar-thumb {
+  background: var(--sq-line-strong);
+  border-radius: var(--sq-radius-micro);
+}
+
+.sq-code--scroll .sq-code__pre {
+  max-height: none;
+  overflow: visible;
+}
+
+.sq-code--scroll .sq-code__lines {
+  position: sticky;
+  left: 0;
+  align-self: flex-start;
+  z-index: 1;
 }
 
 .sq-code__caption {

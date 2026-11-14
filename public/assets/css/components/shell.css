@@ -13,7 +13,18 @@
   transition: grid-template-rows var(--sq-dur-normal) var(--sq-ease);
 }
 .sq-app.nav-collapsed { --sq-nav-current: 0px; }
-.sq-app.nav-collapsed .sq-aside { transform: translateY(100%); opacity: 0; visibility: hidden; pointer-events: none; }
+.sq-app.nav-collapsed .sq-aside {
+  transform: translateY(100%);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  /* Delay hiding until the slide/fade finishes; hiding immediately would make
+     the exit animation invisible. */
+  transition:
+    transform var(--sq-dur-normal) var(--sq-ease),
+    opacity var(--sq-dur-fast) var(--sq-ease),
+    visibility 0s linear var(--sq-dur-normal);
+}
 .sq-aside { grid-area: aside; min-height: 0; }
 .sq-topbar { grid-area: topbar; min-height: 0; }
 .sq-main { grid-area: main; min-height: 0; min-width: 0; overflow: hidden; display: flex; }

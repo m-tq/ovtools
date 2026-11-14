@@ -15,13 +15,26 @@
 .sq-sidebar-toggle,
 .sq-theme-toggle,
 .sq-nav__more,
-[data-sq-copy] { position: relative; overflow: hidden; }
+[data-sq-copy] {
+  position: relative;
+  overflow: hidden;
+  -webkit-tap-highlight-color: transparent;
+  /* Release uses the 180ms curve; :active below shortens the press-in so the
+     control responds immediately but eases back smoothly. */
+  transition:
+    background-color var(--sq-dur-fast) var(--sq-ease),
+    color var(--sq-dur-fast) var(--sq-ease),
+    border-color var(--sq-dur-fast) var(--sq-ease),
+    transform var(--sq-dur-fast) var(--sq-ease),
+    opacity var(--sq-dur-fast) var(--sq-ease);
+}
 
 .sq-btn::after,
 .sq-iconbtn::after,
 .sq-seg__btn::after,
 .sq-search::after,
 .sq-sidebar-toggle::after,
+.sq-theme-toggle::after,
 .sq-nav__more::after,
 [data-sq-copy]::after {
   content: '';
@@ -38,17 +51,21 @@
 .sq-iconbtn:active:not(:disabled),
 .sq-seg__btn:active:not(:disabled),
 .sq-search:active:not(:disabled),
-.sq-sidebar-toggle:active,
+.sq-sidebar-toggle:active:not(:disabled),
+.sq-theme-toggle:active:not(:disabled),
+.sq-nav__more:active:not(:disabled),
 [data-sq-copy]:active {
   transform: translateY(1px) scale(0.985);
+  transition-duration: var(--sq-dur-instant);
 }
 
 .sq-btn:active:not(:disabled)::after,
 .sq-iconbtn:active:not(:disabled)::after,
 .sq-seg__btn:active:not(:disabled)::after,
 .sq-search:active:not(:disabled)::after,
-.sq-sidebar-toggle:active::after,
-.sq-nav__more:active::after,
+.sq-sidebar-toggle:active:not(:disabled)::after,
+.sq-theme-toggle:active:not(:disabled)::after,
+.sq-nav__more:active:not(:disabled)::after,
 [data-sq-copy]:active::after { opacity: .08; }
 
 /* ---- Transient tip (copy confirmation, control feedback) ----

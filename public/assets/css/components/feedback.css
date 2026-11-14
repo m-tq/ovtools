@@ -168,6 +168,7 @@
 /* ---- Spinner ---- */
 .sq-spinner {
   display: inline-block;
+  flex-shrink: 0;
   width: 20px;
   height: 20px;
   border: 2px solid var(--sq-line-strong);
@@ -194,6 +195,21 @@
   }
   to {
     transform: rotate(360deg);
+  }
+}
+
+/* Essential loading indicators must keep moving even when ambient motion is
+   reduced. The global rule in base.css still removes mount/stagger/shimmer
+   animation, but a frozen spinner looks broken rather than calm. */
+@media (prefers-reduced-motion: reduce) {
+  .sq-spinner {
+    animation-duration: 1.2s !important;
+    animation-iteration-count: infinite !important;
+  }
+
+  .sq-progress__fill--indeterminate {
+    animation-duration: 2.4s !important;
+    animation-iteration-count: infinite !important;
   }
 }
 
@@ -268,7 +284,7 @@
   margin-top: var(--sq-space-2);
 }
 
-/* ---- Skeleton (polish existing from motion.css) ---- */
+/* ---- Skeleton (single source of truth; motion.css no longer duplicates it) ---- */
 .sq-skeleton {
   background: linear-gradient(90deg, var(--sq-inset) 0%, var(--sq-hover) 50%, var(--sq-inset) 100%);
   background-size: 200% 100%;
