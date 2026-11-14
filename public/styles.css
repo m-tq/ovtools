@@ -563,6 +563,7 @@
 .mc-enroll__note:empty { display: none; }
 .mc-waiting__problem { color: var(--sq-status-error); }
 #disk-modal .mc-modal__body { width: min(560px, 100%); }
+.mc-disk-select { width: 100%; margin: 4px 0 var(--sq-space-2); }
 .mc-disk-scan { align-items: center; text-align: center; }
 .mc-disk-scan .sq-spinner { margin-bottom: var(--sq-space-2); }
 .mc-waiting__log {

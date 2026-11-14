@@ -8,7 +8,7 @@
   <title>Octra Validator Tools</title>
   <link rel="icon" type="image/svg+xml" href="favicon.svg?v=2.2.1" />
   <link rel="stylesheet" href="assets/css/synteq-ui.css?v=1.0.8" />
-  <link rel="stylesheet" href="styles.css?v=2.2.0" />
+  <link rel="stylesheet" href="styles.css?v=2.2.1" />
 </head>
 <body>
 
@@ -1061,24 +1061,23 @@
   </div>
 </div>
 
-<!-- ---------- DESTRUCTIVE DISK CONFIRMATION ---------- -->
-<!-- Deploy/migrate scan the target read-only. When the selected data device
-     would be formatted, this modal shows exactly which device (and what is on
-     it) and requires a fresh, explicit acknowledgement. -->
+<!-- ---------- DATA DISK CONFIGURATION ---------- -->
+<!-- Deploy/migrate scan the target read-only. The largest usable disk is the
+     default; the operator may pick another one and choose whether it should be
+     formatted. Nothing is erased until the task starts with Format checked. -->
 <div class="mc-modal" id="disk-modal" hidden role="dialog" aria-modal="true" aria-labelledby="disk-title">
   <div class="mc-modal__body">
-    <h2 class="mc-modal__title" id="disk-title">Disk format confirmation</h2>
+    <h2 class="mc-modal__title" id="disk-title">Data disk configuration</h2>
     <p class="mc-modal__text" id="disk-intro">
-      The next step will erase the selected device. Check the details before allowing it.
+      Pick the disk for the node data store. Formatting is optional; unchecked
+      means the existing filesystem is kept.
     </p>
     <div class="mc-enroll__addr">
       <span class="mc-field__label">Target</span>
       <span class="sq-mono mc-enroll__value" id="disk-host">-</span>
     </div>
-    <div class="mc-enroll__addr">
-      <span class="mc-field__label">Device to erase</span>
-      <span class="sq-mono mc-enroll__value" id="disk-device">-</span>
-    </div>
+    <label class="mc-field__label" for="disk-select">Data disk</label>
+    <select class="sq-input mc-disk-select" id="disk-select"></select>
     <div class="mc-enroll__addr">
       <span class="mc-field__label">Disk / model</span>
       <span class="sq-mono mc-enroll__value" id="disk-model">-</span>
@@ -1093,13 +1092,13 @@
     </div>
     <pre class="mc-waiting__log" id="disk-lsblk">-</pre>
     <label class="mc-enroll__check">
-      <input type="checkbox" id="disk-ack" />
-      <span id="disk-ack-label">I understand this device will be wiped and its current data cannot be recovered.</span>
+      <input type="checkbox" id="disk-format" />
+      <span>Format this disk (erase all current data on it)</span>
     </label>
+    <p class="mc-modal__text mc-enroll__note" id="disk-format-note"></p>
     <div class="mc-modal__actions">
       <button class="sq-btn sq-btn--ghost" id="disk-cancel">Cancel</button>
-      <button class="sq-btn sq-btn--ghost" id="disk-keep" hidden>Continue without format</button>
-      <button class="sq-btn sq-btn--danger" id="disk-allow" disabled>Format disk and continue</button>
+      <button class="sq-btn sq-btn--danger" id="disk-allow">Apply configuration and start</button>
     </div>
   </div>
 </div>
@@ -1201,7 +1200,7 @@
 </div>
 
 <script src="assets/js/synteq-ui.js?v=1.0.8"></script>
-  <script src="app.js?v=3.0.7"></script>
+  <script src="app.js?v=3.0.8"></script>
 </body>
 </html>
 

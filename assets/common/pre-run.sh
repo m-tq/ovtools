@@ -220,7 +220,11 @@ wipe_device() {  # wipe_device <device>
 }
 
 mount_data_volume() {  # mount_data_volume <device>
-  local dev="$1" fs_exists=0 force="${WIPE_VOLUME:-${FORCE_FORMAT:-0}}" has_dataset=0
+  local dev="$1" fs_exists=0 force="${WIPE_VOLUME:-${FORCE_FORMAT:-0}}" has_dataset=0 no_format=0
+  # The console sends FORMAT_APPROVED=0 when the operator left "Format disk"
+  # unchecked. In that mode we never erase the selected device; it must already
+  # carry a usable filesystem.
+  [[ "${FORMAT_APPROVED:-}" == "0" ]] && no_format=1
   if is_system_disk "${dev}"; then
     err "refusing to format ${dev}: it carries the running system"
     return 1
@@ -246,7 +250,20 @@ mount_data_volume() {  # mount_data_volume <device>
     has_dataset=1
   fi
 
-  if (( fs_exists == 1 )) && [[ "${force}" != "1" ]] && (( has_dataset == 1 )); then
+  if (( no_format == 1 )); then
+    if (( fs_exists == 0 )); then
+      err "${dev} has no filesystem and 'Format disk' was not checked"
+      err "select a formatted disk, or check 'Format disk' to create ext4 on ${dev}"
+      return 1
+    fi
+    warn "format disabled by the operator - keeping the existing filesystem on ${dev}"
+    if (( has_dataset == 1 )); then
+      log "an Octra data set is present - reusing it"
+    else
+      warn "the node data will be placed on this filesystem without erasing it"
+    fi
+    PRERUN_ACTION="kept"
+  elif (( fs_exists == 1 )) && [[ "${force}" != "1" ]] && (( has_dataset == 1 )); then
     log "${dev} already holds an Octra data set - keeping it (no format)"
     PRERUN_ACTION="kept"
   else
@@ -262,14 +279,6 @@ mount_data_volume() {  # mount_data_volume <device>
     else
       log "No filesystem on ${dev} - formatting it now"
       PRERUN_ACTION="formatted"
-    fi
-    # Hard safety gate: the console always sends FORMAT_APPROVED=0/1. An explicit
-    # 0 means the operator did not approve erasing this device; an unset value
-    # keeps the legacy CLI behaviour.
-    if [[ "${FORMAT_APPROVED:-}" == "0" ]]; then
-      err "refusing to format ${dev}: formatting was not approved in the console"
-      err "rerun the task and tick 'Allow format' in the disk confirmation modal"
-      return 1
     fi
     wipe_device "${dev}"
     log "Formatting ${dev} as ext4 (label ${DATA_LABEL})..."
@@ -347,7 +356,7 @@ prepare_data_store() {
     current_dev=$(findmnt -n -o SOURCE "${MOUNT_POINT}" 2>/dev/null || echo "${MOUNT_POINT}")
     PRERUN_DEV="${current_dev}"
     PRERUN_ACTION="mounted"
-    if [[ "${PRERUN_FORCE}" == "1" ]]; then
+    if [[ "${PRERUN_FORCE}" == "1" && "${FORMAT_APPROVED:-}" != "0" ]]; then
       # A force that silently does nothing is worse than no force at all. On a
       # retry the volume is already mounted, and the old code only touched the
       # marker here - so WIPE_VOLUME=1 was ignored and the stale chain state
@@ -540,6 +549,23 @@ scan_data_store() {
   echo "SCAN_MODEL=${model}"
   echo "SCAN_REASON=${reason}"
   echo "SCAN_LSBLK_B64=$(lsblk -o NAME,SIZE,TYPE,FSTYPE,MOUNTPOINT,MODEL 2>/dev/null | base64 -w0 2>/dev/null || lsblk -o NAME,SIZE,TYPE,FSTYPE,MOUNTPOINT,MODEL 2>/dev/null | base64 | tr -d '\n')"
+
+  # Every non-system disk the operator may pick. The first/selected one above is
+  # still the automatic "largest disk" choice; this list feeds the selector.
+  local seen="" opt_name opt_dev opt_fs opt_label opt_mount opt_model opt_dataset
+  while read -r opt_name disk_gb; do
+    opt_dev=$(device_for "/dev/${opt_name}")
+    case " ${seen} " in *" ${opt_dev} "*) continue ;; esac
+    seen="${seen} ${opt_dev}"
+    opt_fs=$(blkid -o value -s TYPE "${opt_dev}" 2>/dev/null || true)
+    opt_label=$(blkid -o value -s LABEL "${opt_dev}" 2>/dev/null || true)
+    opt_mount=$(findmnt -n -o TARGET "${opt_dev}" 2>/dev/null | head -1 || true)
+    opt_model=$(lsblk -no MODEL "/dev/${opt_name}" 2>/dev/null | head -1 | xargs 2>/dev/null || true)
+    opt_dataset="no"
+    [[ "${opt_label}" == "${DATA_LABEL}" ]] && opt_dataset="yes"
+    printf 'SCAN_OPTION=%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n' \
+      "${opt_dev}" "/dev/${opt_name}" "${disk_gb}" "${opt_fs}" "${opt_label}" "${opt_mount}" "${opt_model}" "${opt_dataset}"
+  done < <(list_data_disks)
 }
 
 if [[ "${SCAN_ONLY:-0}" == "1" ]]; then

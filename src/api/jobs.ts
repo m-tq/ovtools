@@ -1,6 +1,6 @@
 import * as fs from 'fs/promises';
 import * as path from 'path';
-import type { DiskPlan, JobRequest, JobState, LogEntry, Settings } from '../types';
+import type { DiskOption, DiskPlan, JobRequest, JobState, LogEntry, Settings } from '../types';
 import { createLogger, Logger, readJSON } from '../utils/helpers';
 import { COMMON_ASSETS_DIR, DEFAULT_ROLE, SETTINGS_FILE, phaseMeta } from '../constants';
 import { createSSHClient, shellQuote } from '../ssh/client';
@@ -140,6 +140,43 @@ export class JobManager {
       const action = fields.get('SCAN_ACTION') || 'none';
       const lsblkB64 = fields.get('SCAN_LSBLK_B64') || '';
       const lsblk = lsblkB64 ? Buffer.from(lsblkB64, 'base64').toString('utf8') : '';
+      const options: DiskOption[] = [];
+      for (const line of result.stdout.split('\n')) {
+        const match = /^SCAN_OPTION=(.*)$/.exec(line.trim());
+        if (!match) continue;
+        const [device, disk, size, fstype, label, mountpoint, model, dataset] = match[1].split('\t');
+        if (!device) continue;
+        options.push({
+          device,
+          disk: disk || device,
+          sizeGB: Number.isFinite(Number(size)) ? Number(size) : null,
+          fstype: fstype || null,
+          label: label || null,
+          mountpoint: mountpoint || null,
+          hasDataset: dataset === 'yes',
+          model: model || null,
+        });
+      }
+      const selectedDevice = fields.get('SCAN_DEVICE') || null;
+      if (selectedDevice && !options.some(opt => opt.device === selectedDevice)) {
+        options.unshift({
+          device: selectedDevice,
+          disk: fields.get('SCAN_DISK') || selectedDevice,
+          sizeGB: Number.isFinite(Number(fields.get('SCAN_SIZE_GB'))) ? Number(fields.get('SCAN_SIZE_GB')) : null,
+          fstype: fields.get('SCAN_FSTYPE') || null,
+          label: fields.get('SCAN_LABEL') || null,
+          mountpoint: fields.get('SCAN_MOUNT') || null,
+          hasDataset: fields.get('SCAN_DATASET') === 'yes',
+          model: fields.get('SCAN_MODEL') || null,
+        });
+      }
+      if (selectedDevice) {
+        options.sort((a, b) => {
+          const left = a.device === selectedDevice ? 1 : 0;
+          const right = b.device === selectedDevice ? 1 : 0;
+          return right - left;
+        });
+      }
       return {
         action: (['format', 'keep', 'fallback', 'none'].includes(action) ? action : 'none') as DiskPlan['action'],
         program,
@@ -156,6 +193,7 @@ export class JobManager {
         model: fields.get('SCAN_MODEL') || null,
         reason: fields.get('SCAN_REASON') || '',
         lsblk,
+        options,
       };
     } finally {
       await client.exec(`rm -rf ${dir}`, { timeout: 30000 }).catch(() => undefined);
@@ -262,7 +300,7 @@ export class JobManager {
             bond: bondRaw,
             domain: request.domain || settings.dashboardDomain || undefined,
             swapGB: settings.swapGB,
-            dataDevice: settings.dataDevice,
+            dataDevice: request.dataDevice ? String(request.dataDevice) : settings.dataDevice,
             dataMinGB: settings.dataMinGB,
             skipDashboard: true,
             samples: 3,
@@ -285,6 +323,7 @@ export class JobManager {
             wipeTargetVolume: Boolean(request.wipeTargetVolume),
             keepTargetData: Boolean(request.keepTargetData),
             allowFormat: typeof request.allowFormat === 'boolean' ? request.allowFormat : undefined,
+            dataDevice: request.dataDevice ? String(request.dataDevice) : undefined,
             phase,
             samples: 3,
             interval: 30,

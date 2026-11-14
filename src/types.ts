@@ -73,6 +73,7 @@ export interface MigrateConfig {
   wipeTargetVolume: boolean;
   keepTargetData: boolean;
   allowFormat?: boolean;
+  dataDevice?: string;
   phase?: string;
   samples?: number;
   interval?: number;
@@ -154,6 +155,7 @@ export interface JobRequest {
   wipeTargetVolume?: boolean;
   keepTargetData?: boolean;
   allowFormat?: boolean;
+  dataDevice?: string;
 }
 
 export interface JobProgress {
@@ -199,6 +201,17 @@ export interface JobWatching {
   problem?: string | null;
 }
 
+export interface DiskOption {
+  device: string;
+  disk: string;
+  sizeGB: number | null;
+  fstype: string | null;
+  label: string | null;
+  mountpoint: string | null;
+  hasDataset: boolean;
+  model: string | null;
+}
+
 export interface DiskPlan {
   action: 'format' | 'keep' | 'fallback' | 'none';
   program: string;
@@ -215,6 +228,7 @@ export interface DiskPlan {
   model: string | null;
   reason: string;
   lsblk: string;
+  options: DiskOption[];
 }
 
 export interface JobStep {

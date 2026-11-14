@@ -64,7 +64,8 @@
     waitingClosed: null,
     tasksSig: null,
     diskResolve: null,
-    diskSystemDisk: false
+    diskPayload: null,
+    diskOptions: {}
   };
 
   /* - DOM helpers - */
@@ -2294,45 +2295,73 @@
     return ['deploy', 'all', 'auto', 'prep'].indexOf(String(payload.phase || '')) >= 0;
   }
 
-  function openDiskConfirm(plan, mode) {
+  function diskOptionLabel(option) {
+    var bits = [option.device];
+    if (option.sizeGB !== null && option.sizeGB !== undefined) bits.push(option.sizeGB + ' GB');
+    bits.push(option.fstype || 'no filesystem');
+    if (option.hasDataset) bits.push('Octra data set');
+    if (option.model) bits.push(option.model);
+    return bits.join(' - ');
+  }
+
+  function updateDiskSelection() {
+    var select = panelId('disk-select');
+    var formatBox = panelId('disk-format');
+    var allow = panelId('disk-allow');
+    var note = panelId('disk-format-note');
+    if (!select || !allow) return;
+    var option = state.diskOptions[select.value] || null;
+    var format = Boolean(formatBox && formatBox.checked);
+    var noFilesystem = Boolean(option && !option.fstype);
+    if (option) {
+      setText('disk-model', (option.disk || option.device) + (option.model ? ' / ' + option.model : ''));
+      setText('disk-size', (option.sizeGB !== null && option.sizeGB !== undefined ? option.sizeGB + ' GB' : '-') +
+        ' / ' + (option.fstype || 'no filesystem'));
+      setText('disk-mount', (option.mountpoint || '-') + ' / ' +
+        (option.hasDataset ? 'Octra data set' : 'no Octra data set'));
+    }
+    allow.disabled = noFilesystem && !format;
+    allow.className = 'sq-btn ' + (format ? 'sq-btn--danger' : 'sq-btn--brand');
+    var action = state.diskPayload && state.diskPayload.program === 'migrate' ? 'migrate' : 'deploy';
+    allow.textContent = 'Apply configuration and start ' + action;
+    if (note) {
+      note.textContent = format
+        ? 'All current data on ' + (option ? option.device : 'the selected disk') + ' will be erased when the task starts.'
+        : (noFilesystem
+          ? 'This disk has no filesystem. Check "Format disk" to create one, or pick another disk.'
+          : 'Existing filesystem is kept; nothing on this disk is erased.');
+      note.className = 'mc-modal__text mc-enroll__note' + ((noFilesystem && !format) || format ? ' mc-waiting__problem' : '');
+    }
+    if (option && option.mountpoint) allow.title = 'This disk is currently mounted at ' + option.mountpoint + '.';
+    else allow.title = '';
+  }
+
+  function openDiskConfirm(plan, payload) {
     var modal = panelId('disk-modal');
     if (!modal) return Promise.resolve(false);
-    var mustFormat = mode === 'format';
-    setText('disk-title', mustFormat ? 'Disk format confirmation' : 'Data disk confirmation');
-    setText('disk-host', plan.ip || '-');
-    setText('disk-device', plan.device || '-');
-    setText('disk-model', (plan.disk || '-') + (plan.model ? ' / ' + plan.model : ''));
-    setText('disk-size', (plan.sizeGB !== null && plan.sizeGB !== undefined ? plan.sizeGB + ' GB' : '-') +
-      ' / ' + (plan.fstype || 'no filesystem'));
-    setText('disk-mount', (plan.mountpoint || '-') + ' / ' +
-      (plan.hasDataset ? ('Octra data set' + (plan.hasChain ? ' (chain state)' : '')) : 'no Octra data set'));
-    setText('disk-intro', mustFormat
-      ? (plan.hasChain
-        ? 'This device holds an Octra chain data set. Formatting destroys that state and any migration copy on it. '
-        : 'This device will be erased. Every partition and filesystem on it is lost. ') + (plan.reason || '')
-      : 'This device already holds data. The pipeline keeps it by default; formatting is only allowed if you explicitly approve it. ' + (plan.reason || ''));
-    var ackLabel = panelId('disk-ack-label');
-    if (ackLabel) {
-      ackLabel.textContent = mustFormat
-        ? 'I understand this device will be wiped and its current data cannot be recovered.'
-        : 'Allow formatting this device if the pipeline decides a reformat is required.';
+    state.diskPayload = payload;
+    state.diskOptions = {};
+    var select = panelId('disk-select');
+    var formatBox = panelId('disk-format');
+    if (select) {
+      select.textContent = '';
+      (plan.options || []).forEach(function (option) {
+        state.diskOptions[option.device] = option;
+        var row = document.createElement('option');
+        row.value = option.device;
+        row.textContent = diskOptionLabel(option);
+        select.appendChild(row);
+      });
+      if (plan.device && state.diskOptions[plan.device]) select.value = plan.device;
+      else if (select.options.length) select.value = select.options[0].value;
     }
+    if (formatBox) formatBox.checked = false;
+    setText('disk-title', 'Data disk configuration');
+    setText('disk-host', plan.ip || '-');
+    setText('disk-intro', 'The largest usable disk is selected by default. Pick another disk if needed, then choose whether it may be formatted.');
     var rows = panelId('disk-lsblk');
     if (rows) rows.textContent = plan.lsblk || '-';
-    var ack = panelId('disk-ack');
-    var allow = panelId('disk-allow');
-    var keep = panelId('disk-keep');
-    if (ack) ack.checked = false;
-    if (allow) {
-      allow.disabled = true;
-      allow.textContent = mustFormat ? 'Format disk and continue' : 'Allow format and continue';
-    }
-    if (keep) keep.hidden = mustFormat;
-    state.diskSystemDisk = Boolean(plan.systemDisk);
-    if (plan.systemDisk && allow) {
-      allow.disabled = true;
-      allow.title = 'The running system lives on this device; formatting is refused.';
-    }
+    updateDiskSelection();
     modal.hidden = false;
     return new Promise(function (resolve) {
       state.diskResolve = resolve;
@@ -2344,7 +2373,7 @@
     if (modal) modal.hidden = true;
     var resolve = state.diskResolve;
     state.diskResolve = null;
-    if (resolve) resolve(result === true ? 'allow' : result);
+    if (resolve) resolve(result === true);
   }
 
   function showDiskScan(ip) {
@@ -2364,48 +2393,49 @@
 
   function guardDiskBeforeRun(payload, meta, anchor) {
     if (!needsDiskConfirmation(payload)) return Promise.resolve(true);
+    var note = $('action-note');
     showDiskScan(payload.newIp);
     return postJSON('/api/disk-plan', payload).then(function (body) {
       hideDiskScan();
       var plan = body && body.plan;
       if (!plan) return true;
-      if (plan.action === 'format') {
-        return openDiskConfirm(plan, 'format').then(function (choice) {
-          if (choice !== 'allow') {
-            if (note) note.textContent = 'Run cancelled: disk formatting was not approved.';
-            return false;
-          }
-          payload.allowFormat = true;
-          if (note) note.textContent = 'Format approved for ' + (plan.device || 'the data device') + '. Starting the run...';
-          return true;
-        });
-      }
       if (plan.action === 'none') {
         if (note) note.textContent = 'No usable data disk found: ' + (plan.reason || 'the target has no data store') + ' - run cancelled.';
         return false;
       }
-      if (plan.hasDataset) {
-        return openDiskConfirm(plan, 'keep').then(function (choice) {
-          if (choice === false) {
-            if (note) note.textContent = 'Run cancelled: the existing data disk was not approved.';
-            return false;
-          }
-          payload.allowFormat = choice === 'allow';
-          if (note) {
-            note.textContent = payload.allowFormat
-              ? 'Format allowed for ' + (plan.device || 'the data device') + '. Starting the run...'
-              : 'Keeping the existing data on ' + (plan.device || 'the data device') + '; formatting is blocked.';
-          }
+      var options = plan.options || [];
+      if (!options.length) {
+        if (plan.action === 'fallback') {
+          payload.allowFormat = false;
+          payload.dataDevice = '';
+          if (note) note.textContent = 'No dedicated disk: data stays on ' + (plan.mountpoint || 'the main filesystem') + ' - nothing is formatted.';
           return true;
-        });
+        }
+        if (note) note.textContent = 'No selectable data disk found: ' + (plan.reason || 'attach a data volume first') + ' - run cancelled.';
+        return false;
       }
-      payload.allowFormat = false;
-      if (note) {
-        note.textContent = plan.action === 'keep'
-          ? 'Data disk kept: ' + (plan.device || 'existing data store') + ' - no format needed.'
-          : 'No dedicated data disk: data stays on ' + (plan.mountpoint || 'the main filesystem') + ' - no format needed.';
-      }
-      return true;
+      return openDiskConfirm(plan, payload).then(function (apply) {
+        if (!apply) {
+          if (note) note.textContent = 'Run cancelled: data disk configuration was not applied.';
+          return false;
+        }
+        var select = panelId('disk-select');
+        var formatBox = panelId('disk-format');
+        payload.dataDevice = select ? select.value : (plan.device || '');
+        payload.allowFormat = Boolean(formatBox && formatBox.checked);
+        if (payload.program === 'migrate') {
+          payload.wipeTargetVolume = payload.allowFormat;
+          payload.keepTargetData = !payload.allowFormat;
+        } else {
+          payload.wipeVolume = payload.allowFormat;
+          payload.keepData = !payload.allowFormat;
+        }
+        if (note) {
+          note.textContent = (payload.allowFormat ? 'Formatting ' : 'Keeping ') + payload.dataDevice +
+            '; starting the run...';
+        }
+        return true;
+      });
     }).catch(function (err) {
       hideDiskScan();
       if (note) note.textContent = 'Disk scan failed: ' + err.message + ' - run cancelled for safety.';
@@ -3095,16 +3125,12 @@
       });
     }
     // the destructive disk confirmation
-    var diskAck = panelId('disk-ack');
+    var diskFormat = panelId('disk-format');
+    if (diskFormat) diskFormat.addEventListener('change', updateDiskSelection);
+    var diskSelect = panelId('disk-select');
+    if (diskSelect) diskSelect.addEventListener('change', updateDiskSelection);
     var diskAllow = panelId('disk-allow');
-    if (diskAck && diskAllow) {
-      diskAck.addEventListener('change', function () {
-        diskAllow.disabled = !diskAck.checked || state.diskSystemDisk;
-      });
-    }
-    if (diskAllow) diskAllow.addEventListener('click', function () { closeDiskConfirm('allow'); });
-    var diskKeep = panelId('disk-keep');
-    if (diskKeep) diskKeep.addEventListener('click', function () { closeDiskConfirm('keep'); });
+    if (diskAllow) diskAllow.addEventListener('click', function () { closeDiskConfirm(true); });
     var diskCancel = panelId('disk-cancel');
     if (diskCancel) diskCancel.addEventListener('click', function () { closeDiskConfirm(false); });
     var diskModal = panelId('disk-modal');

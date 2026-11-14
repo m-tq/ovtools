@@ -264,9 +264,11 @@ export class MigrateOrchestrator extends BaseOrchestrator {
 
       const prev = await this.getPrerunState(this.newClient!, '/root/migration/prerun.env');
       let prevMode = this.prepMode(prev, alreadyPulled, !this.config.keepTargetData);
-      const formatEnv: Record<string, string> = typeof this.config.allowFormat === 'boolean'
-        ? { FORMAT_APPROVED: this.config.allowFormat ? '1' : '0' }
-        : {};
+      const formatEnv: Record<string, string> = {};
+      if (typeof this.config.allowFormat === 'boolean') {
+        formatEnv.FORMAT_APPROVED = this.config.allowFormat ? '1' : '0';
+      }
+      if (this.config.dataDevice) formatEnv.BLOCK_DEVICE = this.config.dataDevice;
       let preRun = 'bash /root/pre-run.sh';
       if (this.config.wipeTargetVolume) {
         preRun = 'WIPE_VOLUME=1 bash /root/pre-run.sh';
