@@ -131,6 +131,53 @@ prepare_upstream_build() {
   fi
 }
 
+# clean_pm2_supervisor_env - PM2 sometimes inherits OCTRA_DATA_DIR from the shell
+# that first started it. The official upgrade tool counts every process with that
+# variable as a data-directory owner and refuses with:
+#   data directory is used by unexpected processes: <daemon>,<node>
+# Restart the daemon with a clean environment; the app is restored from dump.pm2.
+# Sets PM2_WAS_REPAIRED=1 so the caller can wait for the node to settle.
+PM2_WAS_REPAIRED=0
+clean_pm2_supervisor_env() {
+  local daemon home pm2
+  daemon=$(pgrep -u "${NODE_USER}" -f 'PM2 v.*God Daemon' 2>/dev/null | head -1 || true)
+  [[ -n "${daemon}" ]] || return 0
+  if ! tr '\0' '\n' < "/proc/${daemon}/environ" 2>/dev/null | grep -q '^OCTRA_DATA_DIR='; then
+    return 0
+  fi
+  warn "the PM2 supervisor inherited OCTRA_DATA_DIR - restarting it with a clean environment"
+  home=$(getent passwd "${NODE_USER}" | cut -d: -f6)
+  pm2=$(su - "${NODE_USER}" -c 'command -v pm2' 2>/dev/null || true)
+  [[ -n "${pm2}" ]] || die "pm2 is not on PATH for ${NODE_USER}"
+  su - "${NODE_USER}" -c 'pm2 save --force' || true
+  su - "${NODE_USER}" -c 'pm2 kill' || true
+  sleep 3
+  su - "${NODE_USER}" -c "env -i HOME='${home}' USER='${NODE_USER}' LOGNAME='${NODE_USER}' PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin PM2_HOME='${home}/.pm2' '${pm2}' resurrect"
+  sleep 5
+  su - "${NODE_USER}" -c 'pm2 save --force' || true
+  PM2_WAS_REPAIRED=1
+  log "PM2 supervisor restarted with a clean environment"
+}
+
+# wait_for_node_rpc - after a supervisor repair the node has to reopen its store.
+wait_for_node_rpc() {
+  local limit="${PM2_REPAIR_WAIT:-3600}" start now
+  start=$(date +%s)
+  while true; do
+    read_state
+    if [[ "${PROCESS}" == "online" && "${RPC}" == "ready" ]]; then
+      return 0
+    fi
+    now=$(date +%s)
+    if (( now - start >= limit )); then
+      warn "node did not reach rpc=ready within ${limit}s (process=${PROCESS:-?} rpc=${RPC:-?})"
+      return 1
+    fi
+    log "waiting for the node to reopen its store after the supervisor repair ($((now - start))s/${limit}s)"
+    sleep 20
+  done
+}
+
 # node_script <timeout> <command...>: run one of the node's control scripts from
 # the node directory as the node user, bounded so a control script that waits on
 # the chain can never freeze a step. stdout+stderr are merged (what the operator
@@ -258,9 +305,10 @@ upgrade_verdict() {  # upgrade_verdict <output-file>
   local file="$1"
   [[ -f "${file}" ]] || return 0
   awk '
-    /validator_active|observer_synced|status = pending|pending|refused/ {
+    /validator_active|observer_synced|status = installed|validator_entry_pending|status = pending|pending|refused/ {
       if ($0 ~ /validator_active/) { print "validator_active"; exit }
       if ($0 ~ /observer_synced/)  { print "observer_synced"; exit }
+      if ($0 ~ /status = installed/ || $0 ~ /validator_entry_pending/) { print "installed"; exit }
       if ($0 ~ /pending/)          { print "pending"; exit }
       if ($0 ~ /refused/)          { print "refused"; exit }
     }' "${file}" | tail -1

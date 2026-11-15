@@ -45,6 +45,10 @@ TOOL_OUT="${UPGRADE_DIR}/upgrade-tool.out"
 ensure_tool git git || die "git is missing and could not be installed"
 ensure_tool opam opam || die "opam is missing and could not be installed"
 prepare_upstream_build
+clean_pm2_supervisor_env
+if [[ "${PM2_WAS_REPAIRED}" == "1" ]]; then
+  wait_for_node_rpc || warn "continuing without a ready RPC after the supervisor repair"
+fi
 read_state
 [[ "${PROCESS}" == "online" || -z "${PROCESS}" ]] || warn "the node process is ${PROCESS} - the tool will start/restart it"
 
@@ -101,6 +105,12 @@ VERDICT=$(upgrade_verdict "${TOOL_OUT}")
 REASON=$(upgrade_reason "${TOOL_OUT}")
 
 case "${VERDICT}" in
+  installed)
+    warn "the update is installed, but the validator entry is still pending"
+    warn "keep the node running - it will be re-admitted by the set; do NOT re-enroll"
+    set_status WAITING-ENTRY "binary installed${REASON:+ - ${REASON}} - waiting for validator entry"
+    exit 2
+    ;;
   pending)
     warn "the tool reports 'pending'${REASON:+ - ${REASON}}"
     warn "do NOT restart the node manually (upstream) - re-run this phase later"
@@ -120,23 +130,31 @@ log "after  : SOURCE_COMMIT=${AFTER_COMMIT:-unknown} git HEAD=${AFTER_HEAD:-unkn
 log "binary : ${BINARY:-unknown}${PVAC:+ pvac ${PVAC}}"
 
 if [[ "${PROCESS}" != "online" || "${RPC}" != "ready" ]]; then
-  warn "the node is not back yet (process=${PROCESS:-?} rpc=${RPC:-?})"
-  warn "check it with: su - ${NODE_USER} -c 'cd ${NODE_SRC_DIR} && sh controls/stat.sh --logs'"
-  set_status WAITING-UPGRADE "the update ran but the node is not ready yet (process=${PROCESS:-?} rpc=${RPC:-?}) - re-run the update or read stat.sh --logs"
-  exit 2
+  if [[ "${VERDICT}" == "validator_active" || "${VERDICT}" == "observer_synced" ]]; then
+    # The official tool already probed the freshly restarted binary. An
+    # immediate re-read can race an epoch tick (rpc momentarily unavailable);
+    # never downgrade a confirmed verdict to WAITING on that race.
+    log "official tool confirmed ${VERDICT}; node is still settling (process=${PROCESS:-?} rpc=${RPC:-?})"
+  else
+    warn "the node is not back yet (process=${PROCESS:-?} rpc=${RPC:-?})"
+    warn "check it with: su - ${NODE_USER} -c 'cd ${NODE_SRC_DIR} && sh controls/stat.sh --logs'"
+    set_status WAITING-UPGRADE "the update ran but the node is not ready yet (process=${PROCESS:-?} rpc=${RPC:-?}) - re-run the update or read stat.sh --logs"
+    exit 2
+  fi
 fi
 
 if (( APPLY_RC != 0 )); then
   warn "the tool exited ${APPLY_RC} but the node is online as ${ROLE:-?}${VERDICT:+ (verdict ${VERDICT})}"
 fi
-if [[ -n "${AFTER_COMMIT}" && -n "${AFTER_HEAD}" && "${AFTER_COMMIT}" != "${AFTER_HEAD}" ]]; then
+if [[ -n "${AFTER_COMMIT}" && -n "${AFTER_HEAD}" && "${AFTER_COMMIT}" != "${AFTER_HEAD}" ]] \
+  && [[ "${VERDICT}" != "validator_active" && "${VERDICT}" != "observer_synced" ]]; then
   warn "SOURCE_COMMIT (${AFTER_COMMIT}) does not match git HEAD (${AFTER_HEAD}) - check the checkout"
 fi
 
 if [[ -z "${VERDICT}" ]]; then
   if [[ "${ACTIVE}" == "true" ]]; then VERDICT="validator_active"; else VERDICT="observer_synced"; fi
 fi
-if [[ "${ACTIVE}" == "true" ]]; then
+if [[ "${VERDICT}" == "validator_active" || "${ACTIVE}" == "true" ]]; then
   log "=== the node is an ACTIVE validator again, running the binary it just built ==="
 else
   log "=== the node is online and synced (observer) with the freshly built binary ==="

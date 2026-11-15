@@ -1234,11 +1234,10 @@
     var modal = panelId('waiting-modal');
     if (!modal || !watching || !watching.ip) return;
     var key = waitingKey(watching);
-    if (state.waitingClosed === key) {
-      // A dismissed wait stays dismissed unless the follow-up finds a blocker.
-      if (!watching.problem) return;
-      state.waitingClosed = null;
-    }
+    // Once the operator closes this wait, keep it closed for this run. Problems
+    // still stream into the log and the Running Tasks page; do not reopen the
+    // modal on every 60s follow-up tick.
+    if (state.waitingClosed === key) return;
     var stateText = watching.state || (status && status.state) || 'waiting for confirmation';
     var detail = watching.detail || (status && status.detail) || '';
     var bits = [];

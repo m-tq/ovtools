@@ -402,7 +402,12 @@ export class JobManager {
           // Follow the node in the background and close the modal only when the
           // tool's own wait resolves (recover waits for activation; the others
           // are confirmed by a healthy probe).
-          this.startActivationWatch(this.state.newIp!, phase, phase === 'recover');
+          const waitState = this.state.status?.state || '';
+          this.startActivationWatch(
+            this.state.newIp!,
+            phase,
+            phase === 'recover' || waitState === 'WAITING-ENTRY' || waitState === 'WAITING-UPGRADE'
+          );
         } else {
           this.state.watching = null;
         }
@@ -581,6 +586,7 @@ export class JobManager {
     let lastHead: number | null = null;
     let lastMove = Date.now();
     let misses = 0;
+    let probeMisses = 0;
     let healthy = 0;
     let lastProblem: string | null = null;
 
@@ -613,9 +619,17 @@ export class JobManager {
         misses = 0;
         let problem: string | null = null;
         if (!probe.reachable) {
-          problem = `node did not answer the status probe${probe.error ? ` (${probe.error})` : ''}`;
-        } else if (head !== null && Date.now() - lastMove > 10 * 60 * 1000) {
-          problem = `head_epoch ${head} has not moved for ${Math.floor((Date.now() - lastMove) / 60000)} minutes`;
+          // A node that is restarting (especially during an upgrade) can miss a
+          // single probe. Only call it a blocker after three consecutive misses.
+          probeMisses += 1;
+          if (probeMisses >= 3) {
+            problem = `node did not answer the status probe${probe.error ? ` (${probe.error})` : ''}`;
+          }
+        } else {
+          probeMisses = 0;
+          if (head !== null && Date.now() - lastMove > 10 * 60 * 1000) {
+            problem = `head_epoch ${head} has not moved for ${Math.floor((Date.now() - lastMove) / 60000)} minutes`;
+          }
         }
         if (problem && problem !== lastProblem) {
           this.logger?.log(`follow-up: ${problem}`, 'warn', { program: this.state.program, host: ip });
