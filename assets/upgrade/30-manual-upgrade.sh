@@ -43,6 +43,7 @@ BUILD_LOG="${UPGRADE_DIR}/manual-build.out"
 [[ -f "${NODE_ENV}" ]] || die "node.env is missing (${NODE_ENV}) - this is not the node host"
 
 ensure_build_tools
+prepare_upstream_build
 
 # the opam switch the toolchain step built (upstream: $PWD/runtime_data/toolchains/ocaml)
 SWITCH="$(ocaml_switch_root 2>/dev/null || printf '%s' "${NODE_SRC_DIR}/runtime_data/toolchains/ocaml")"

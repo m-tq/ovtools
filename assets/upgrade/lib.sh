@@ -88,6 +88,49 @@ trap '_upgrade_on_err "$?" "$LINENO" "$BASH_COMMAND"' ERR
 # --- the node's own controls (always as the octra user) ---------------
 as_octra() { su - "${NODE_USER}" -c "$*"; }
 
+# prepare_upstream_build - make the checkout writable and the OCaml switch
+# usable before the official tool or the manual build runs.
+#
+# Root-run steps can leave .git files owned by root (git pull then fails for
+# octra), the generated config/node-data.json makes the tree look dirty, and
+# opam 2.3's `switch create <path>` leaves a root _opam symlink that its own
+# `switch link` step then refuses to replace. Repair all three up front.
+prepare_upstream_build() {
+  local switch="${NODE_SRC_DIR}/runtime_data/toolchains/ocaml"
+  chown -R "${NODE_USER}:${NODE_USER}" "${NODE_SRC_DIR}" 2>/dev/null || true
+  mkdir -p "${NODE_SRC_DIR}/.git/info"
+  if ! grep -qx 'config/node-data.json' "${NODE_SRC_DIR}/.git/info/exclude" 2>/dev/null; then
+    echo 'config/node-data.json' >> "${NODE_SRC_DIR}/.git/info/exclude"
+  fi
+  chown "${NODE_USER}:${NODE_USER}" "${NODE_SRC_DIR}/.git/info/exclude" 2>/dev/null || true
+
+  ensure_package libev-dev || die "could not install libev-dev (required by ocaml/irmin)"
+  ensure_package libgmp-dev || die "could not install libgmp-dev (required by zarith)"
+  ensure_package liblmdb-dev || die "could not install liblmdb-dev (required by irmin-pack)"
+  ensure_tool pkg-config pkg-config || die "could not install pkg-config (required by the build)"
+
+  if [[ -d "${switch}/_opam/.opam-switch" ]]; then
+    # Valid switch: let `opam switch link` recreate the root link itself.
+    rm -f "${NODE_SRC_DIR}/_opam"
+  else
+    # Stub/incomplete switch from an interrupted build. Removing it makes the
+    # official tool create the switch from its own cwd, which then makes
+    # `opam switch link` fail on the root _opam symlink (opam 2.3). Create it
+    # here from a neutral cwd, then let the tool link it.
+    rm -rf "${switch}/_opam" 2>/dev/null || true
+    rm -f "${NODE_SRC_DIR}/_opam"
+    local tmp
+    tmp=$(mktemp -d /tmp/ovtools-opam-create.XXXXXX)
+    chown "${NODE_USER}:${NODE_USER}" "${tmp}" 2>/dev/null || true
+    log "opam switch is missing/incomplete - recreating ${switch} before the official tool"
+    if ! su - "${NODE_USER}" -c "cd '${tmp}' && opam switch create '${switch}' 4.14.2 -y"; then
+      warn "could not pre-create the opam switch - the official tool will try its own path"
+    fi
+    rm -rf "${tmp}"
+    rm -f "${NODE_SRC_DIR}/_opam"
+  fi
+}
+
 # node_script <timeout> <command...>: run one of the node's control scripts from
 # the node directory as the node user, bounded so a control script that waits on
 # the chain can never freeze a step. stdout+stderr are merged (what the operator

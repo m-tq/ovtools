@@ -43,6 +43,8 @@ TOOL_OUT="${UPGRADE_DIR}/upgrade-tool.out"
 [[ -f "${UPGRADE_SH}" ]] || die "controls/upgrade.sh is missing on this node - use the manual update (fallback phase)"
 
 ensure_tool git git || die "git is missing and could not be installed"
+ensure_tool opam opam || die "opam is missing and could not be installed"
+prepare_upstream_build
 read_state
 [[ "${PROCESS}" == "online" || -z "${PROCESS}" ]] || warn "the node process is ${PROCESS} - the tool will start/restart it"
 
