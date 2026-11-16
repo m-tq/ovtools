@@ -10,7 +10,7 @@
   <!-- Asset URLs carry a version: nginx/Cloudflare cache css+js for a day, so a
        deploy must change these query strings (or the folder path) to bust it. -->
   <link rel="stylesheet" href="assets/css/synteq-ui.css?v=1.0.8" />
-  <link rel="stylesheet" href="styles.css?v=2.2.5" />
+  <link rel="stylesheet" href="styles.css?v=2.2.7" />
 </head>
 <body>
 
@@ -353,7 +353,12 @@
               <span class="sq-section__title">Epoch progression</span>
               <span class="sq-section__meta sq-mono" id="epoch-spark-meta">-</span>
             </div>
-            <svg class="sq-spark" id="epoch-spark" viewBox="0 0 400 56" preserveAspectRatio="none" role="img" aria-label="Head epoch progression"></svg>
+            <div class="sq-chart" id="epoch-chart">
+              <div class="sq-chart__body">
+                <svg class="sq-chart__svg" id="epoch-chart-svg" style="--sq-chart-h:112px" role="img" aria-label="Head epoch progression"></svg>
+              </div>
+              <div class="sq-chart__legend" data-sq-chart-legend></div>
+            </div>
             <div class="sq-kv">
               <div class="sq-kv__row">
                 <span class="sq-kv__label">Head epoch</span>
@@ -519,7 +524,12 @@
             <span class="sq-section__title">CPU - last 5 minutes</span>
             <span class="sq-section__meta sq-mono" id="cpu-spark-meta">-</span>
           </div>
-          <svg class="sq-spark sq-spark--tall" id="cpu-spark" viewBox="0 0 400 56" preserveAspectRatio="none" role="img" aria-label="CPU utilisation trend"></svg>
+            <div class="sq-chart" id="cpu-chart">
+              <div class="sq-chart__body">
+                <svg class="sq-chart__svg" id="cpu-chart-svg" style="--sq-chart-h:148px" role="img" aria-label="CPU utilisation trend"></svg>
+              </div>
+              <div class="sq-chart__legend" data-sq-chart-legend></div>
+            </div>
         </div>
       </section>
 
@@ -621,7 +631,13 @@
                 <span class="sq-kv__value sq-mono" id="net-out">-</span>
               </div>
             </div>
-            <div class="sq-bars" id="net-bars" role="img" aria-label="Network throughput history"></div>
+            <div class="sq-chart" id="net-chart">
+              <div class="sq-chart__body">
+                <div class="sq-chart__cols" id="net-chart-cols" role="img" aria-label="Network throughput history"></div>
+              </div>
+              <div class="sq-chart__xlabels" data-sq-chart-labels></div>
+              <div class="sq-chart__legend" data-sq-chart-legend></div>
+            </div>
             <span class="sq-t-xs sq-mute" id="net-bars-meta">-</span>
           </div>
 
@@ -857,6 +873,38 @@
 
         </div>
 
+        <div class="panel">
+          <div class="sq-section__head">
+            <span class="sq-section__title">Node updater</span>
+            <span class="sq-section__meta" id="updater-meta">checking...</span>
+            <button class="sq-btn sq-btn--ghost" id="updater-refresh" type="button">Check now</button>
+          </div>
+          <div class="sq-kv">
+            <div class="sq-kv__row">
+              <span class="sq-kv__label">Status</span>
+              <span class="sq-kv__value" id="updater-status">checking</span>
+            </div>
+            <div class="sq-kv__row">
+              <span class="sq-kv__label">Running commit</span>
+              <span class="sq-kv__value sq-mono truncate" id="updater-current">-</span>
+            </div>
+            <div class="sq-kv__row">
+              <span class="sq-kv__label">Upstream commit</span>
+              <span class="sq-kv__value sq-mono truncate" id="updater-upstream">-</span>
+            </div>
+            <div class="sq-kv__row">
+              <span class="sq-kv__label">Release sequence</span>
+              <span class="sq-kv__value sq-mono" id="updater-sequence">-</span>
+            </div>
+            <div class="sq-kv__row">
+              <span class="sq-kv__label">Last checked</span>
+              <span class="sq-kv__value sq-mono" id="updater-checked">-</span>
+            </div>
+          </div>
+          <p class="sq-t-xs sq-mute" id="updater-note">
+            The dashboard runs the official read-only upgrade test; it never rebuilds or restarts the node.
+          </p>
+        </div>
 
         <div class="sq-grid sq-grid--2">
 
@@ -1191,7 +1239,7 @@
 </div><!-- /.sq-app -->
 
 <script src="assets/js/synteq-ui.js?v=1.0.8"></script>
-  <script src="app.js?v=2.7.2"></script>
+  <script src="app.js?v=2.8.1"></script>
 </body>
 </html>
 

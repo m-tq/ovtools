@@ -78,7 +78,10 @@ OVTOOLS_TOKEN='<secret>' ovtools web
 `~/.ovtools` holds run logs, resumable step state, downloaded identity backups,
 pasted keys/certificates and pinned SSH host keys.
 
-Passwords are kept in memory only and are never written to disk.
+Passwords are kept in memory only by default. The Manage tab can opt into
+remembering a node session: it is stored in `~/.ovtools/sessions.json`,
+AES-256-GCM encrypted with a key derived from this machine and OS user, with
+mode `0600`. Use the checkbox to disable it or **Forget** to delete an entry.
 
 ## Assets on the VPS
 
@@ -111,8 +114,9 @@ npm run dev:web   # restart the console on http://127.0.0.1:9099
 
 ## Security
 
-- Passwords stay in memory; keys and certificates are stored with restricted
-  permissions.
+- Passwords stay in memory unless Manage's "Remember this node session" is
+  enabled; that vault is encrypted at rest and never sent back to the browser.
+  Keys and certificates are stored with restricted permissions.
 - Deployment assets run as root on the target VPS. Only point `--assets-repo`
   at a repository you control.
 - SSH host keys are pinned. A reinstalled VPS is accepted once, logged and re-pinned.

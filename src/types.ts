@@ -156,6 +156,8 @@ export interface JobRequest {
   keepTargetData?: boolean;
   allowFormat?: boolean;
   dataDevice?: string;
+  useSavedAuth?: boolean;
+  rememberAuth?: boolean;
 }
 
 export interface JobProgress {

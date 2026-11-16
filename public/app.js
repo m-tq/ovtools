@@ -65,7 +65,8 @@
     tasksSig: null,
     diskResolve: null,
     diskPayload: null,
-    diskOptions: {}
+    diskOptions: {},
+    sessions: {}
   };
 
   /* - DOM helpers - */
@@ -398,6 +399,50 @@
     };
   }
 
+  function savedSession(ip) {
+    return state.sessions[String(ip || '').trim()] || null;
+  }
+
+  function loadSessions() {
+    return getJSON('/api/sessions').then(function (body) {
+      state.sessions = {};
+      (body.sessions || []).forEach(function (row) {
+        if (row && row.ip) state.sessions[row.ip] = row;
+      });
+      updateSessionHint();
+      return body.sessions || [];
+    }).catch(function () { return []; });
+  }
+
+  function forgetSavedSession() {
+    var input = panelId('m-inp-ip');
+    var ip = String((input && input.value) || '').trim();
+    if (!ip) return Promise.resolve();
+    return fetch('/api/sessions?ip=' + encodeURIComponent(ip), { method: 'DELETE' })
+      .then(function (r) { return r.json(); })
+      .then(loadSessions)
+      .catch(function () {});
+  }
+
+  function updateSessionHint() {
+    var ipInput = panelId('m-inp-ip');
+    if (!ipInput) return;
+    var session = savedSession(ipInput.value);
+    var note = panelId('m-session-note');
+    var forget = panelId('m-forget');
+    var remember = panelId('m-remember');
+    if (forget) forget.hidden = !session;
+    if (!note) return;
+    if (session) {
+      note.textContent = 'Saved session for root@' + session.ip +
+        ' - leave the password/key empty to reuse it.';
+    } else if (remember && remember.checked) {
+      note.textContent = 'Credentials will be saved after the first successful run on this machine.';
+    } else {
+      note.textContent = 'Session will not be saved.';
+    }
+  }
+
   function authOf(selectId, keyId) {
     var select = $(selectId);
     var method = select ? String(select.value || 'password') : 'password';
@@ -645,6 +690,7 @@
       state.checkLoaded = true;
       renderCheck(body.check);
       applyGating();
+      loadSessions();
       tip(btn, body.check.result.ready ? 'All checks passed' : 'Check found blockers',
         body.check.result.ready ? 'ok' : 'err');
     }).catch(function (err) {
@@ -1705,6 +1751,10 @@
       // the verify samples/interval are program constants on the server
       payload.bondOct = 0;
     }
+    payload.useSavedAuth = true;
+    payload.rememberAuth = state.program === 'manage'
+      ? Boolean(panelId('m-remember') && panelId('m-remember').checked)
+      : false;
     // the manage program collects its input in modals (bond amount, monitor
     // domain + TLS choice): they set the fields on the payload just before posting
     return payload;
@@ -1716,9 +1766,10 @@
     var method = side === 'old' ? p.oldAuth : p.newAuth;
     var key = side === 'old' ? p.oldKey : p.newKey;
     var password = side === 'old' ? p.oldPassword : p.newPassword;
-    if (method === 'key') { return !!key; }
+    var ip = side === 'old' ? p.oldIp : p.newIp;
+    if (method === 'key') { return !!key || !!savedSession(ip); }
     if (method === 'agent') { return true; }
-    return !!password;
+    return !!password || !!savedSession(ip);
   }
 
   function phaseMeta(id) {
@@ -2467,6 +2518,7 @@
       state.seq = Math.max(0, started - 1);
       clearLog();
       connectLog();
+      loadSessions();
       // the operator just confirmed a popup or pressed a button: show the run
       scrollToLogs();
     }).catch(function (err) {
@@ -3202,12 +3254,25 @@
 
     $('btn-log-clear').addEventListener('click', clearLog);
     $('btn-log-download').addEventListener('click', downloadLog);
+
+    var manageIp = panelId('m-inp-ip');
+    if (manageIp) {
+      manageIp.addEventListener('input', updateSessionHint);
+      manageIp.addEventListener('change', updateSessionHint);
+    }
+    var remember = panelId('m-remember');
+    if (remember) remember.addEventListener('change', updateSessionHint);
+    var forget = panelId('m-forget');
+    if (forget) forget.addEventListener('click', function (ev) {
+      forgetSavedSession().then(function () { tip(ev.currentTarget, 'Saved session forgotten'); });
+    });
   }
 
   function init() {
     wire();
     // project settings (swap / data volume / dashboard) - shared by both programs
     loadSettings();
+    loadSessions();
     syncPasswordFields();
     syncAllAuthFields();
     restoreHosts();

@@ -155,6 +155,12 @@
 .mc-pass__toggle[aria-pressed="true"] .mc-pass__eye-open { display: none; }
 .mc-pass__toggle[aria-pressed="true"] .mc-pass__eye-off { display: inline-flex; }
 .mc-pass__toggle[disabled] { opacity: 0.4; cursor: not-allowed; }
+.mc-remember {
+  display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+  margin-top: 4px; font-size: var(--sq-text-xs); color: var(--sq-text-subtle);
+}
+.mc-remember label { display: inline-flex; align-items: center; gap: 6px; cursor: pointer; }
+.mc-remember #m-session-note { flex: 1 1 auto; min-width: 0; }
 
 /* ---- options row ------------------------------------------------------- */
 .mc-form {

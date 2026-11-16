@@ -420,6 +420,23 @@
         text: fmtFixed(s.swap_percent, 1) + '% of swap is allocated - memory pressure is likely.'
       });
     }
+    var updater = d.updater || {};
+    if (updater.available) {
+      alerts.push({
+        id: 'updater-available',
+        level: 'warn',
+        title: 'Node update available',
+        text: 'Upstream ' + fmtShortHash(updater.upstream_commit, 10, 6) +
+          ' is newer than the running ' + fmtShortHash(updater.current_commit, 10, 6) + '.'
+      });
+    } else if (updater.status === 'error') {
+      alerts.push({
+        id: 'updater-error',
+        level: 'info',
+        title: 'Updater check failed',
+        text: updater.error || 'The read-only release check did not answer.'
+      });
+    }
 
     var order = { error: 0, warn: 1, info: 2 };
     alerts.sort(function (a, b) { return order[a.level] - order[b.level]; });
@@ -680,15 +697,23 @@
     setText('c-pending', fmtInt(n.pending_epochs));
     setText('c-rate', fmtFixed(e.rate_per_min, 2) + ' / min');
 
-    /* epoch progression sparkline (series kept by the backend) */
+    /* epoch progression line chart (timestamps + head kept by the backend) */
     var history = e.history || [];
     var heads = [];
+    var epochLabels = [];
     for (var i = 0; i < history.length; i++) {
-      if (Array.isArray(history[i]) && isNum(history[i][1])) heads.push(history[i][1]);
+      if (!Array.isArray(history[i]) || !isNum(history[i][1])) continue;
+      heads.push(history[i][1]);
+      var when = new Date(num(history[i][0]) * 1000);
+      epochLabels.push(isNaN(when.getTime()) ? '' : when.toLocaleTimeString('en-GB', { hour12: false }));
     }
-    var spark = $('epoch-spark');
-    if (spark && heads.length >= 2) {
-      SynteqUI.renderSparkline(spark, heads);
+    var chart = $('epoch-chart-svg');
+    if (chart && window.SynteqUI && SynteqUI.renderLineChart && heads.length >= 2) {
+      SynteqUI.renderLineChart(chart, [{ name: 'head epoch', values: heads }], {
+        labels: epochLabels,
+        decimals: 0,
+        format: function (value) { return fmtInt(value); }
+      });
     }
     setText('epoch-spark-meta', heads.length >= 2
       ? (heads.length + ' samples | ' + fmtFixed(e.rate_per_min, 1) + ' ep/min')
@@ -779,9 +804,19 @@
     setText('res-storage-meta', fmtFixed(s.disk_total_gb, 0) + ' GB volume');
 
     var history = s.cpu_history || [];
-    var spark = $('cpu-spark');
-    if (spark && history.length >= 2) {
-      SynteqUI.renderSparkline(spark, history);
+    var cpuLabels = [];
+    for (var ci = 0; ci < history.length; ci++) {
+      cpuLabels.push(fmtAge((history.length - 1 - ci) * (POLL_MS / 1000)));
+    }
+    var cpuChart = $('cpu-chart-svg');
+    if (cpuChart && window.SynteqUI && SynteqUI.renderLineChart && history.length >= 2) {
+      SynteqUI.renderLineChart(cpuChart, [{ name: 'cpu', values: history }], {
+        labels: cpuLabels,
+        min: 0,
+        max: 100,
+        decimals: 1,
+        unit: '%'
+      });
     }
     var sum = 0;
     for (var i = 0; i < history.length; i++) sum += num(history[i]);
@@ -851,20 +886,24 @@
     }
     var peak = Math.max(peakIn, peakOut, 1);
     var cols = netBuckets(history, NET_COLS);
-    var bars = [];
-    for (var j = 0; j < cols.length; j++) {
-      bars.push([cols[j][0] / peak * 100, cols[j][1] / peak * 100]);
-    }
+    var inSeries = [], outSeries = [], netLabels = [];
     var bucketSec = cols.length
       ? (history.length / cols.length) * (POLL_MS / 1000)
       : POLL_MS / 1000;
-    // Pad short series so freshly started backends still draw slim columns
-    // instead of a handful of very wide bars.
-    var barsEl = $('net-bars');
-    if (barsEl && bars.length) {
-      SynteqUI.renderBars(barsEl, bars, {
+    for (var j = 0; j < cols.length; j++) {
+      inSeries.push(num(cols[j][0]));
+      outSeries.push(num(cols[j][1]));
+      netLabels.push((j % 8 === 0 || j === cols.length - 1) ? fmtAge((cols.length - 1 - j) * bucketSec) : '');
+    }
+    var netEl = $('net-chart-cols');
+    if (netEl && cols.length && window.SynteqUI && SynteqUI.renderStackedBars) {
+      SynteqUI.renderStackedBars(netEl, [
+        { name: 'in', values: inSeries },
+        { name: 'out', values: outSeries }
+      ], {
+        labels: netLabels,
         minCols: 24,
-        stepSec: Math.max(POLL_MS / 1000, bucketSec)
+        max: peakIn + peakOut
       });
     }
     setText('net-bars-meta',
@@ -987,6 +1026,39 @@
   }
 
   /* -- system ----------------------------------------------------- */
+  function renderUpdater(d) {
+    var u = d.updater || {};
+    var status = u.checking ? 'checking' : (u.status || 'unknown');
+    var text = status === 'update_available' ? 'update available'
+      : status === 'current' ? 'up to date'
+      : status === 'error' ? 'check failed'
+      : status === 'unavailable' ? 'unavailable'
+      : status === 'checking' ? 'checking...'
+      : 'unknown';
+    var cls = status === 'update_available' ? 'sq-badge--warn'
+      : status === 'current' ? 'sq-badge--ok'
+      : status === 'error' ? 'sq-badge--err'
+      : '';
+    renderBadgeInto('updater-status', text, cls);
+    setText('updater-meta', u.checked_at
+      ? ('checked ' + fmtAge((Date.now() / 1000) - u.checked_at) + ' ago')
+      : 'checking...');
+    setText('updater-current', fmtShortHash(u.current_commit, 10, 6));
+    setText('updater-upstream', fmtShortHash(u.upstream_commit, 10, 6));
+    setText('updater-sequence', u.release_sequence || '-');
+    setText('updater-checked', u.checked_at
+      ? (fmtClock(new Date(u.checked_at * 1000).toISOString()) + ' | ' + fmtAge(u.age_sec) + ' ago')
+      : '-');
+    var note = $('updater-note');
+    if (note) {
+      note.textContent = status === 'update_available'
+        ? 'A newer release is published. Run Manage active node - Update node when the validator can restart.'
+        : status === 'error'
+          ? ('The read-only upgrade test failed: ' + (u.error || 'unknown error'))
+          : 'The dashboard runs the official read-only upgrade test; it never rebuilds or restarts the node.';
+    }
+  }
+
   function renderSystem(d) {
     var n = d.node || {}, s = d.system || {}, be = d.backend || {};
 
@@ -1380,6 +1452,7 @@
     renderPeers(d);
     renderProcess(d);
     renderSystem(d);
+    renderUpdater(d);
     renderWallets(d);
 
     applyHashSection();
@@ -1452,6 +1525,23 @@
         pollStatus();
         fetchLogs();
         showTip(refresh, 'Refreshed');
+      });
+    }
+
+    var updaterRefresh = $('updater-refresh');
+    if (updaterRefresh) {
+      updaterRefresh.addEventListener('click', function () {
+        updaterRefresh.disabled = true;
+        fetch('/api/updater?force=1', { cache: 'no-store' })
+          .then(function (r) { return r.json(); })
+          .then(function () {
+            setTimeout(function () { updaterRefresh.disabled = false; pollStatus(); }, 1200);
+            showTip(updaterRefresh, 'Updater check started');
+          })
+          .catch(function () {
+            updaterRefresh.disabled = false;
+            showTip(updaterRefresh, 'Updater check failed', 'err');
+          });
       });
     }
 

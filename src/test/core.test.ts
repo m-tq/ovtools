@@ -101,6 +101,8 @@ test('web API: ping, config, static UI, approval gate, settings', async () => {
     assert.match(html, /mc-nodeactions__wide/);
     assert.match(html, /id="disk-modal"/);
     assert.match(html, /id="tasks"/);
+    assert.match(html, /id="m-remember"/);
+    assert.match(html, /id="m-forget"/);
 
     const pick = await fetch(`${base}/api/pickdir`, { method: 'POST' });
     assert.equal(pick.status, 400);

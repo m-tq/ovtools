@@ -23,6 +23,7 @@ import { jobs, loadSettings, normalizeSettings } from './jobs';
 import { runCheck } from './checks';
 import { nodeSummary } from './nodes';
 import { loadHostkeys, trustHostKey } from './hostkeys';
+import { forgetSession, getSession, listSessions, saveSession } from './sessions';
 import { acceptWebSocket } from '../utils/websocket';
 
 const MIME: Record<string, string> = {
@@ -80,6 +81,50 @@ function sendJson(res: http.ServerResponse, payload: unknown, code = 200): void 
 
 function fail(res: http.ServerResponse, code: number, message: string): void {
   sendJson(res, { ok: false, error: message }, code);
+}
+
+async function hydrateSavedAuth(body: any): Promise<void> {
+  if (!body || body.useSavedAuth === false) return;
+  const pairs = body.program === 'migrate'
+    ? [['oldIp', 'oldAuth', 'oldPassword', 'oldKey'], ['newIp', 'newAuth', 'newPassword', 'newKey']]
+    : [['newIp', 'newAuth', 'newPassword', 'newKey']];
+  for (const [ipKey, authKey, passKey, keyKey] of pairs) {
+    const ip = String(body[ipKey] || '').trim();
+    if (!ip) continue;
+    const method = String(body[authKey] || 'password') === 'key' ? 'key' : 'password';
+    const present = method === 'key' ? String(body[keyKey] || '').trim() : String(body[passKey] || '');
+    if (present) continue;
+    const saved = await getSession(ip);
+    if (!saved) continue;
+    body[authKey] = saved.method;
+    if (saved.method === 'key') {
+      body[keyKey] = saved.keyPath || '';
+      body[passKey] = '';
+    } else {
+      body[passKey] = saved.password || '';
+      body[keyKey] = '';
+    }
+  }
+}
+
+async function rememberBodyAuth(body: any): Promise<void> {
+  if (!body || body.rememberAuth !== true) return;
+  const pairs = body.program === 'migrate'
+    ? [['oldIp', 'oldAuth', 'oldPassword', 'oldKey'], ['newIp', 'newAuth', 'newPassword', 'newKey']]
+    : [['newIp', 'newAuth', 'newPassword', 'newKey']];
+  for (const [ipKey, authKey, passKey, keyKey] of pairs) {
+    const ip = String(body[ipKey] || '').trim();
+    if (!ip) continue;
+    const method = String(body[authKey] || 'password') === 'key' ? 'key' : 'password';
+    const auth = method === 'key'
+      ? { method, keyPath: String(body[keyKey] || '') }
+      : { method, password: String(body[passKey] || '') };
+    try {
+      await saveSession(ip, 'root', auth as any);
+    } catch {
+      // Saving the session must never fail the run.
+    }
+  }
 }
 
 function authorized(req: http.IncomingMessage, url: URL): boolean {
@@ -203,6 +248,26 @@ async function handleApi(req: http.IncomingMessage, res: http.ServerResponse, ur
     }
   }
 
+  if (pathname === '/api/sessions') {
+    if (method === 'GET') return sendJson(res, { ok: true, sessions: await listSessions() });
+    if (method === 'POST') {
+      const body = await readBody(req);
+      const ip = String(body.ip || '').trim();
+      if (!ip) return fail(res, 400, 'ip is required');
+      const auth = String(body.auth || 'password') === 'key'
+        ? { method: 'key' as const, keyPath: String(body.key || '') }
+        : { method: 'password' as const, password: String(body.password || '') };
+      if (!auth.password && !auth.keyPath) return fail(res, 400, 'nothing to save');
+      await saveSession(ip, 'root', auth as any);
+      return sendJson(res, { ok: true, sessions: await listSessions() });
+    }
+    if (method === 'DELETE') {
+      const ip = String(url.searchParams.get('ip') || '').trim();
+      await forgetSession(ip);
+      return sendJson(res, { ok: true, sessions: await listSessions() });
+    }
+  }
+
   if (method === 'GET' && pathname === '/api/state') {
     return sendJson(res, { ok: true, state: jobs.snapshot(), check: lastCheck });
   }
@@ -215,8 +280,18 @@ async function handleApi(req: http.IncomingMessage, res: http.ServerResponse, ur
     if (jobs.snapshot().running) return fail(res, 409, 'a phase is running - check again when it finishes');
     const body = await readBody(req);
     try {
+      await hydrateSavedAuth(body);
       const { key, result } = await runCheck(body);
       lastCheck = { key, ts: result.checkedAt, age: 0, result };
+      if (body.rememberAuth === true) {
+        const reachable = new Set(
+          result.items.filter(item => item.status === 'ok' && item.id.endsWith('-reach')).map(item => item.id)
+        );
+        const ok = body.program === 'migrate'
+          ? reachable.has('source-reach') && reachable.has('target-reach')
+          : reachable.has('node-reach');
+        if (ok) await rememberBodyAuth(body);
+      }
       return sendJson(res, { ok: true, check: lastCheck });
     } catch (err) {
       return fail(res, 400, (err as Error).message);
@@ -251,6 +326,7 @@ async function handleApi(req: http.IncomingMessage, res: http.ServerResponse, ur
   if (method === 'POST' && pathname === '/api/run') {
     const body = await readBody(req) as JobRequest & { domain?: string };
     try {
+      await hydrateSavedAuth(body);
       if (body.domain) {
         const saved = await loadSettings();
         if (saved.dashboardDomain !== body.domain) {
@@ -259,6 +335,7 @@ async function handleApi(req: http.IncomingMessage, res: http.ServerResponse, ur
         }
       }
       const state = await jobs.start(body);
+      await rememberBodyAuth(body);
       return sendJson(res, { ok: true, state });
     } catch (err) {
       return fail(res, 400, (err as Error).message);

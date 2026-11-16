@@ -89,6 +89,10 @@ _wallet_deep = {"ts": 0.0, "attempt": 0.0, "address": "", "data": None, "running
 _wallet_scanning = False
 _wallet_state_file = {"path": None}
 
+UPDATER_TTL = 900.0
+_updater = {"ts": 0.0, "running": False, "data": None}
+_updater_lock = threading.Lock()
+
 _start_time = time.time()
 _lock = threading.Lock()
 
@@ -1638,6 +1642,93 @@ def init_wallet_state(reset=False):
 
 
 
+# -- Upstream release checker ---------------------------------------
+def _updater_check():
+    """Run the official read-only upgrade test as the node user."""
+    tool = NODE_SRC_DIR / "controls" / "upgrade.sh"
+    if not tool.is_file():
+        return {"status": "unavailable", "error": "controls/upgrade.sh not found", "available": False}
+    try:
+        result = subprocess.run(
+            ["su", "-", "octra", "-c", f"cd {NODE_SRC_DIR} && sh controls/upgrade.sh"],
+            capture_output=True, text=True, timeout=75,
+        )
+    except Exception as error:
+        return {"status": "error", "error": str(error), "available": False}
+    text = (result.stdout or "") + "\n" + (result.stderr or "")
+
+    def field(line, name):
+        match = re.search(rf"\b{re.escape(name)}\s*=\s*([^\s]+)", line or "")
+        return match.group(1) if match else None
+
+    lines = text.splitlines()
+    check = next((line for line in reversed(lines) if "event = upgrade_check" in line), "")
+    diag = next((line for line in reversed(lines) if "binary_match = " in line), "")
+    marker = next((line for line in reversed(lines) if "event = release_marker" in line), "")
+    available_raw = field(check, "upgrade_available")
+    binary = field(diag, "binary_match")
+    source = field(diag, "source_match")
+    runtime = field(diag, "runtime_match")
+    if check:
+        available = str(available_raw).lower() == "true"
+        status = "update_available" if available else (
+            "current" if binary == "True" and source == "True" and runtime == "True" else "unknown"
+        )
+    elif result.returncode == 0:
+        available = False
+        status = "unknown"
+    else:
+        available = False
+        status = "error"
+    return {
+        "status": status,
+        "available": available,
+        "current_commit": field(check, "repo_head"),
+        "upstream_commit": field(check, "upstream_head"),
+        "release_sequence": field(check, "release_sequence"),
+        "release_action": field(check, "release_action"),
+        "release_public": field(check, "release_public"),
+        "release_source": field(check, "release_source"),
+        "expires_at": field(marker, "expires_at"),
+        "binary_match": binary == "True",
+        "source_match": source == "True",
+        "runtime_match": runtime == "True",
+        "validator_active": "validator_member = True" in diag and "voting = True" in diag,
+        "role": field(diag, "role"),
+        "error": None if check else ("the upgrade test returned no release marker" if result.returncode == 0 else (result.stderr or result.stdout or "").strip()[:400]),
+    }
+
+
+def _updater_worker():
+    try:
+        data = _updater_check()
+    except Exception as error:
+        data = {"status": "error", "error": str(error), "available": False}
+    data["checked_at"] = time.time()
+    with _updater_lock:
+        _updater["ts"] = time.time()
+        _updater["running"] = False
+        _updater["data"] = data
+
+
+def updater_snapshot(force=False):
+    now = time.time()
+    with _updater_lock:
+        data = _updater["data"]
+        age = now - _updater["ts"] if data else None
+        if data and not force and age is not None and age < UPDATER_TTL:
+            return dict(data, age_sec=round(age, 1), checking=False)
+        if _updater["running"]:
+            if data:
+                return dict(data, age_sec=round(age or 0, 1), checking=True)
+            return {"status": "checking", "available": False, "checking": True, "age_sec": None}
+        _updater["running"] = True
+    threading.Thread(target=_updater_worker, daemon=True).start()
+    if data:
+        return dict(data, age_sec=round(age or 0, 1), checking=True)
+    return {"status": "checking", "available": False, "checking": True, "age_sec": None}
+
+
 # -- Status assembly -----------------------------------------------
 def build_status():
     api_port = get_api_port()
@@ -1726,7 +1817,7 @@ def build_status():
     logs = log_summary(pm2_log_tail_cached(120))
     backend = availability_block()
     backend.update({
-        "version": "2.1",
+        "version": "2.2",
         "uptime_secs": int(time.time() - _start_time),
         "uptime": human_age(time.time() - _start_time),
     })
@@ -1741,6 +1832,7 @@ def build_status():
         "system": system_info(),
         "logs": logs,
         "backend": backend,
+        "updater": updater_snapshot(),
     }
 
 
@@ -1793,6 +1885,10 @@ class DashboardHandler(SimpleHTTPRequestHandler):
                 self._json(build_status())
             elif route == "/api/wallet":
                 self._json(build_wallet())
+            elif route == "/api/updater":
+                qs = parse_qs(parsed.query)
+                force = str(qs.get("force", ["0"])[0]).lower() in ("1", "true", "yes")
+                self._json({"updater": updater_snapshot(force=force)})
             elif route == "/api/logs":
                 qs = parse_qs(parsed.query)
                 try:
