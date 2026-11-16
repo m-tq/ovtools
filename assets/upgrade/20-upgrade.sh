@@ -89,6 +89,19 @@ if (( TEST_RC != 0 )); then
 fi
 log "the test run passed${TEST_VERDICT:+ (${TEST_VERDICT})}"
 
+if upgrade_is_current "${TOOL_OUT}"; then
+  log "checkout, binary and runtime already match the release - --apply is a no-op"
+  read_state || true
+  if upgrade_current_active "${TOOL_OUT}"; then
+    log "the node is already active on the current binary - no restart needed"
+    set_status DONE "already current (no restart) role=${ROLE:-?} active=true epoch=${EPOCH:-?}"
+    exit 0
+  fi
+  warn "the binary is current but the validator entry is still pending - keep it running"
+  set_status WAITING-ENTRY "already current (no restart) - waiting for validator entry"
+  exit 2
+fi
+
 if [[ "${APPLY}" != "1" ]]; then
   log "UPGRADE_APPLY=0: test only - the node is untouched"
   set_status DONE "test-only (SOURCE_COMMIT=${BEFORE_COMMIT:-unknown})"

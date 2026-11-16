@@ -321,3 +321,28 @@ upgrade_reason() {   # the last line that explains why (refused/pending)
   printf '%s' "${line##*: }"
 }
 
+# upgrade_is_current - true when the official tool already sees the checkout,
+# binary and runtime as current (upgrade_available=False and all match flags
+# True). In that case --apply has nothing to do and can race/fail on a transient
+# "network head is unavailable"; skip it and report the node as done.
+upgrade_is_current() {  # upgrade_is_current <output-file>
+  local file="$1" check diag available binary source runtime
+  [[ -f "${file}" ]] || return 1
+  check=$(grep -a 'event = upgrade_check' "${file}" 2>/dev/null | tail -1 || true)
+  # The diagnostic is emitted on two lines; the match flags live on the
+  # "pid = ... binary_match = ..." continuation.
+  diag=$(grep -a 'binary_match = ' "${file}" 2>/dev/null | tail -1 || true)
+  [[ -n "${check}" && -n "${diag}" ]] || return 1
+  available=$(printf '%s' "${check}" | sed -n 's/.*upgrade_available = \([A-Za-z]*\).*/\1/p')
+  binary=$(printf '%s' "${diag}" | sed -n 's/.*binary_match = \([A-Za-z]*\).*/\1/p')
+  source=$(printf '%s' "${diag}" | sed -n 's/.*source_match = \([A-Za-z]*\).*/\1/p')
+  runtime=$(printf '%s' "${diag}" | sed -n 's/.*runtime_match = \([A-Za-z]*\).*/\1/p')
+  [[ "${available}" == "False" && "${binary}" == "True" && "${source}" == "True" && "${runtime}" == "True" ]]
+}
+
+upgrade_current_active() {  # upgrade_current_active <output-file>
+  local line
+  line=$(grep -a 'validator_member = ' "$1" 2>/dev/null | tail -1 || true)
+  [[ "${line}" == *"validator_member = True"* && "${line}" == *"voting = True"* ]]
+}
+
