@@ -35,6 +35,7 @@ import time
 import unicodedata
 import urllib.request
 from collections import deque
+from datetime import datetime, timezone
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from urllib.parse import urlparse, parse_qs
@@ -87,6 +88,7 @@ _log_cache  = {"ts": 0.0, "lines": 0, "data": []}
 _wallet_rpc = {"ts": 0.0, "address": "", "data": None}
 _wallet_deep = {"ts": 0.0, "attempt": 0.0, "address": "", "data": None, "running": False}
 _wallet_scanning = False
+_wallet_daily = {"running": False}
 _wallet_state_file = {"path": None}
 
 UPDATER_TTL = 900.0
@@ -1035,6 +1037,8 @@ def empty_tracking():
         "started_ts": 0.0,
         "updated_ts": 0.0,
         "recent": [],
+        "daily": {},
+        "daily_backfilled": False,
     }
 
 
@@ -1132,6 +1136,7 @@ def fold_log_block(text, tracking, address, eligible_from=0):
     first = _int(tracking.get("first_epoch"))
     last = _int(tracking.get("last_epoch"))
     recent = list(tracking.get("recent") or [])
+    daily = dict(tracking.get("daily") or {})
     first_at = str(tracking.get("first_reward_at") or "")
     changed = False
 
@@ -1183,6 +1188,9 @@ def fold_log_block(text, tracking, address, eligible_from=0):
         recent.append([pending, "proposer" if is_proposer else "validator", amount, line[:24]])
         if len(recent) > WALLET_RECENT_MAX:
             recent = recent[-WALLET_RECENT_MAX:]
+        day = line[:10]
+        if re.fullmatch(r"\d{4}-\d{2}-\d{2}", day):
+            daily[day] = _int(daily.get(day)) + amount
         changed = True
 
     if changed:
@@ -1191,6 +1199,7 @@ def fold_log_block(text, tracking, address, eligible_from=0):
         tracking["first_epoch"] = first
         tracking["last_epoch"] = last
         tracking["recent"] = recent
+        tracking["daily"] = daily
     return changed
 
 
@@ -1339,7 +1348,66 @@ def wallet_deep_account(api_port, address):
 
 
 
+def _wallet_daily_worker(address):
+    """One-time daily history build from the operator log."""
+    global _wallet_daily
+    try:
+        path = node_log_path()
+        if path is None:
+            return
+        prefix = address[:LOG_ADDR_PREFIX]
+        daily = {}
+        with open(path, "r", errors="ignore") as handle:
+            for line in handle:
+                if "component = epoch" not in line or "event = reward" not in line:
+                    continue
+                fields = dict(LOG_FIELD_RE.findall(line))
+                if _int(fields.get("validators")) <= 0:
+                    continue
+                each = _int(fields.get("each"))
+                proposer_total = _int(fields.get("proposer_total"))
+                is_proposer = str(fields.get("proposer") or "").rstrip(".") == prefix
+                amount = (proposer_total + each) if is_proposer else each
+                day = line[:10]
+                if amount > 0 and re.fullmatch(r"\d{4}-\d{2}-\d{2}", day):
+                    daily[day] = daily.get(day, 0) + amount
+        with _lock:
+            state = wallet_state_load()
+            tracking = dict(state.get("tracking") or empty_tracking())
+            existing = dict(tracking.get("daily") or {})
+            for day, amount in existing.items():
+                if day not in daily:
+                    daily[day] = amount
+            tracking["daily"] = daily
+            tracking["daily_backfilled"] = True
+            state["tracking"] = tracking
+            wallet_state_save(state)
+    finally:
+        with _lock:
+            _wallet_daily["running"] = False
+
+
+def ensure_wallet_daily(address):
+    if not address:
+        return
+    with _lock:
+        if _wallet_daily["running"] or _wallet_scanning:
+            return
+        tracking = wallet_state_load().get("tracking") or {}
+        if tracking.get("daily_backfilled"):
+            return
+        # Only backfill after the incremental index has caught up; otherwise the
+        # same reward lines would be added twice (once by the backfill, once by
+        # the normal scan).
+        if _int(tracking.get("log_size")) <= 0 or _int(tracking.get("offset")) < _int(tracking.get("log_size")):
+            return
+        _wallet_daily["running"] = True
+    threading.Thread(target=_wallet_daily_worker, args=(address,), daemon=True).start()
+
+
 def wallet_scan_due(tracking):
+    if _wallet_daily["running"]:
+        return False
     caught_up = (_int(tracking.get("log_size")) > 0 and
                  _int(tracking.get("offset")) >= _int(tracking.get("log_size")))
     ttl = WALLET_SCAN_TTL if caught_up else WALLET_CATCHUP
@@ -1379,7 +1447,7 @@ def wallet_skeleton(address=""):
             "avg_per_epoch": 0.0, "est_per_day": 0.0, "epochs_per_day": 0.0,
             "share_pct": 0.0,
             "last_epoch": 0, "last_amount": 0.0, "last_role": "",
-            "last_at": "", "epochs_since": None, "recent": [],
+            "last_at": "", "epochs_since": None, "recent": [], "daily": [],
         },
         "baseline": {
             "balance": 0.0, "balance_raw": "0", "epoch": 0,
@@ -1401,7 +1469,6 @@ def wallet_block(api_port, node):
     block = wallet_skeleton("" if address == "unknown" else address)
     if not address or address == "unknown":
         return block
-
     snap = wallet_rpc_snapshot(api_port, address)
     account = snap.get("balance") or {}
     enrollment = snap.get("enrollment") or {}
@@ -1421,6 +1488,7 @@ def wallet_block(api_port, node):
         state, _ = wallet_state_init(address, account, head_epoch,
                                      source="first dashboard observation")
     tracking = dict(state.get("tracking") or empty_tracking())
+    ensure_wallet_daily(address)
     if wallet_scan_due(tracking) and wallet_scan_log(address, bonded_epoch):
         state = wallet_state_load()
         tracking = dict(state.get("tracking") or empty_tracking())
@@ -1571,6 +1639,10 @@ def _wallet_reward_block(block, tracking, baseline, baseline_raw, balance_raw,
              "at": str(row[3]) if len(row) > 3 else ""}
             for row in list(tracking.get("recent") or [])[::-1]
         ],
+        "daily": [
+            {"date": day, "raw": str(_int(amount)), "amount": token_amount(_int(amount))}
+            for day, amount in sorted((tracking.get("daily") or {}).items())
+        ],
     }
 
     age = (time.time() - _num(baseline.get("ts"))) if baseline.get("ts") else None
@@ -1665,11 +1737,37 @@ def _updater_check():
     check = next((line for line in reversed(lines) if "event = upgrade_check" in line), "")
     diag = next((line for line in reversed(lines) if "binary_match = " in line), "")
     marker = next((line for line in reversed(lines) if "event = release_marker" in line), "")
+
+    # The expired-marker path prints only "status = refused reason = release
+    # marker is expired". Keep the current/marker data visible instead of
+    # showing an error with three empty fields.
+    marker_file = NODE_SRC_DIR / ".git" / "octra-release-v2.json"
+    marker_data = {}
+    try:
+        marker_data = json.loads(marker_file.read_text())
+    except Exception:
+        marker_data = {}
+    current = ""
+    try:
+        current = (NODE_SRC_DIR / "SOURCE_COMMIT").read_text().strip()[:64]
+    except Exception:
+        current = ""
+    expires_at = field(marker, "expires_at") or str(marker_data.get("expires_at") or "")
+    expired = "release marker is expired" in text
+    if expires_at:
+        try:
+            expired = expired or datetime.fromisoformat(expires_at.replace("Z", "+00:00")) < datetime.now(timezone.utc)
+        except Exception:
+            pass
+
     available_raw = field(check, "upgrade_available")
     binary = field(diag, "binary_match")
     source = field(diag, "source_match")
     runtime = field(diag, "runtime_match")
-    if check:
+    if expired:
+        available = False
+        status = "marker_expired"
+    elif check:
         available = str(available_raw).lower() == "true"
         status = "update_available" if available else (
             "current" if binary == "True" and source == "True" and runtime == "True" else "unknown"
@@ -1680,22 +1778,30 @@ def _updater_check():
     else:
         available = False
         status = "error"
+
+    current_commit = field(check, "repo_head") or current or marker_data.get("source_commit") or None
+    upstream_commit = field(check, "upstream_head") or marker_data.get("public_commit") or None
+    sequence = field(check, "release_sequence") or marker_data.get("sequence")
+    action = field(check, "release_action") or marker_data.get("action")
+    error = None
+    if status == "error":
+        error = (result.stderr or result.stdout or "").strip()[:400] or "the upgrade test returned no release marker"
     return {
         "status": status,
         "available": available,
-        "current_commit": field(check, "repo_head"),
-        "upstream_commit": field(check, "upstream_head"),
-        "release_sequence": field(check, "release_sequence"),
-        "release_action": field(check, "release_action"),
-        "release_public": field(check, "release_public"),
-        "release_source": field(check, "release_source"),
-        "expires_at": field(marker, "expires_at"),
+        "current_commit": current_commit,
+        "upstream_commit": upstream_commit,
+        "release_sequence": str(sequence) if sequence is not None else None,
+        "release_action": action,
+        "release_public": field(check, "release_public") or marker_data.get("public_commit"),
+        "release_source": field(check, "release_source") or marker_data.get("source_commit"),
+        "expires_at": expires_at or None,
         "binary_match": binary == "True",
         "source_match": source == "True",
         "runtime_match": runtime == "True",
         "validator_active": "validator_member = True" in diag and "voting = True" in diag,
         "role": field(diag, "role"),
-        "error": None if check else ("the upgrade test returned no release marker" if result.returncode == 0 else (result.stderr or result.stdout or "").strip()[:400]),
+        "error": error,
     }
 
 
@@ -1817,7 +1923,7 @@ def build_status():
     logs = log_summary(pm2_log_tail_cached(120))
     backend = availability_block()
     backend.update({
-        "version": "2.2",
+        "version": "2.3",
         "uptime_secs": int(time.time() - _start_time),
         "uptime": human_age(time.time() - _start_time),
     })

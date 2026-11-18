@@ -10,7 +10,7 @@
   <!-- Asset URLs carry a version: nginx/Cloudflare cache css+js for a day, so a
        deploy must change these query strings (or the folder path) to bust it. -->
   <link rel="stylesheet" href="assets/css/synteq-ui.css?v=1.0.8" />
-  <link rel="stylesheet" href="styles.css?v=2.2.7" />
+  <link rel="stylesheet" href="styles.css?v=2.2.8" />
 </head>
 <body>
 
@@ -1206,26 +1206,53 @@
 
         </div>
 
-        <div class="panel">
-          <div class="sq-section__head">
-            <span class="sq-section__title">Epoch rewards - newest first</span>
-            <span class="sq-section__meta sq-mono" id="wal-rewards-meta">-</span>
+        <div class="sq-grid sq-grid--2">
+
+          <div class="panel">
+            <div class="sq-section__head">
+              <span class="sq-section__title">Daily reward summary</span>
+              <div class="reward-range" id="reward-range">
+                <button type="button" class="sq-btn sq-btn--ghost is-current" data-range="day">Day</button>
+                <button type="button" class="sq-btn sq-btn--ghost" data-range="week">Week</button>
+                <button type="button" class="sq-btn sq-btn--ghost" data-range="month">Month</button>
+                <button type="button" class="sq-btn sq-btn--ghost" data-range="year">Year</button>
+              </div>
+              <span class="sq-section__meta sq-mono" id="wal-reward-chart-meta">-</span>
+            </div>
+            <div class="sq-chart" id="reward-chart">
+              <div class="sq-chart__body">
+                <div class="sq-chart__cols" id="reward-chart-cols" role="img" aria-label="Actual OCT rewards per period"></div>
+              </div>
+              <div class="sq-chart__xlabels" data-sq-chart-labels></div>
+              <div class="sq-chart__legend" data-sq-chart-legend></div>
+            </div>
+            <p class="sq-t-xs sq-mute" id="wal-reward-chart-note">
+              Actual OCT credited from the operator log; switch Day / Week / Month / Year to sum the same history.
+            </p>
           </div>
-          <div class="sq-table-wrap">
-            <table class="sq-table">
-              <thead>
-                <tr>
-                  <th scope="col" class="sq-table__num">Epoch</th>
-                  <th scope="col">Role</th>
-                  <th scope="col" class="sq-table__num">Reward</th>
-                  <th scope="col" class="sq-table__num">Finalized</th>
-                </tr>
-              </thead>
-              <tbody id="wal-rewards-body">
-                <tr><td colspan="4" class="sq-mute">Waiting for wallet telemetry...</td></tr>
-              </tbody>
-            </table>
+
+          <div class="panel">
+            <div class="sq-section__head">
+              <span class="sq-section__title">Epoch rewards - newest first</span>
+              <span class="sq-section__meta sq-mono" id="wal-rewards-meta">-</span>
+            </div>
+            <div class="sq-table-wrap">
+              <table class="sq-table">
+                <thead>
+                  <tr>
+                    <th scope="col" class="sq-table__num">Epoch</th>
+                    <th scope="col">Role</th>
+                    <th scope="col" class="sq-table__num">Reward</th>
+                    <th scope="col" class="sq-table__num">Finalized</th>
+                  </tr>
+                </thead>
+                <tbody id="wal-rewards-body">
+                  <tr><td colspan="4" class="sq-mute">Waiting for wallet telemetry...</td></tr>
+                </tbody>
+              </table>
+            </div>
           </div>
+
         </div>
 
         <p class="sq-t-xs sq-mute sys-foot" id="wal-foot">-</p>
@@ -1239,7 +1266,7 @@
 </div><!-- /.sq-app -->
 
 <script src="assets/js/synteq-ui.js?v=1.0.8"></script>
-  <script src="app.js?v=2.8.1"></script>
+  <script src="app.js?v=2.8.4"></script>
 </body>
 </html>
 

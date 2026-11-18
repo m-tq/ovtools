@@ -325,3 +325,12 @@
   .dash-hero__hostname { font-size: var(--sq-text-lg); }
 }
 
+
+/* Daily reward summary: range selector in the panel head */
+.reward-range { display: flex; align-items: center; gap: 4px; flex-wrap: wrap; }
+.reward-range .sq-btn { padding: 3px 8px; font-size: var(--sq-text-xs); }
+.reward-range .sq-btn.is-current {
+  color: var(--sq-text-on-accent);
+  background: var(--sq-brand);
+  border-color: var(--sq-brand);
+}

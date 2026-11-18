@@ -29,7 +29,8 @@
     logLevel: 'all',
     logQuery: '',
     logPaused: false,
-    fetching: false
+    fetching: false,
+    rewardRange: 'day'
   };
 
   /* -- tiny DOM helpers ------------------------------------------- */
@@ -68,6 +69,17 @@
     if (sec < 3600) return Math.round(sec / 60) + 'm';
     if (sec < 86400) return Math.floor(sec / 3600) + 'h ' + Math.round((sec % 3600) / 60) + 'm';
     return Math.floor(sec / 86400) + 'd ' + Math.floor((sec % 86400) / 3600) + 'h';
+  }
+
+  /* Axis labels must stay narrow: the chart panel sits next to "Vote weight vs
+     quorum" and a full "2,000,000" overflowed into that panel. */
+  function fmtAxis(v) {
+    if (!isNum(v)) return '-';
+    var abs = Math.abs(v);
+    if (abs >= 1e9) return (v / 1e9).toFixed(1).replace(/\.0$/, '') + 'B';
+    if (abs >= 1e6) return (v / 1e6).toFixed(1).replace(/\.0$/, '') + 'M';
+    if (abs >= 1e3) return (v / 1e3).toFixed(1).replace(/\.0$/, '') + 'k';
+    return String(Math.round(v));
   }
 
   function fmtCompact(v) {
@@ -436,6 +448,13 @@
         title: 'Updater check failed',
         text: updater.error || 'The read-only release check did not answer.'
       });
+    } else if (updater.status === 'marker_expired') {
+      alerts.push({
+        id: 'updater-marker-expired',
+        level: 'info',
+        title: 'Release marker expired',
+        text: 'No active upstream release marker; the node stays on its current build.'
+      });
     }
 
     var order = { error: 0, warn: 1, info: 2 };
@@ -712,7 +731,7 @@
       SynteqUI.renderLineChart(chart, [{ name: 'head epoch', values: heads }], {
         labels: epochLabels,
         decimals: 0,
-        format: function (value) { return fmtInt(value); }
+        format: fmtAxis
       });
     }
     setText('epoch-spark-meta', heads.length >= 2
@@ -1031,12 +1050,14 @@
     var status = u.checking ? 'checking' : (u.status || 'unknown');
     var text = status === 'update_available' ? 'update available'
       : status === 'current' ? 'up to date'
+      : status === 'marker_expired' ? 'release marker expired'
       : status === 'error' ? 'check failed'
       : status === 'unavailable' ? 'unavailable'
       : status === 'checking' ? 'checking...'
       : 'unknown';
     var cls = status === 'update_available' ? 'sq-badge--warn'
       : status === 'current' ? 'sq-badge--ok'
+      : status === 'marker_expired' ? 'sq-badge--warn'
       : status === 'error' ? 'sq-badge--err'
       : '';
     renderBadgeInto('updater-status', text, cls);
@@ -1053,9 +1074,11 @@
     if (note) {
       note.textContent = status === 'update_available'
         ? 'A newer release is published. Run Manage active node - Update node when the validator can restart.'
-        : status === 'error'
-          ? ('The read-only upgrade test failed: ' + (u.error || 'unknown error'))
-          : 'The dashboard runs the official read-only upgrade test; it never rebuilds or restarts the node.';
+        : status === 'marker_expired'
+          ? 'The last upstream release marker expired. The node keeps its current build; wait for a new signed marker.'
+          : status === 'error'
+            ? ('The read-only upgrade test failed: ' + (u.error || 'unknown error'))
+            : 'The dashboard runs the official read-only upgrade test; it never rebuilds or restarts the node.';
     }
   }
 
@@ -1108,6 +1131,83 @@
   }
 
   /* -- wallets ---------------------------------------------------- */
+  function rewardBucket(dateStr, range) {
+    var date = new Date(dateStr + 'T00:00:00Z');
+    if (isNaN(date.getTime())) return null;
+    if (range === 'year') {
+      return { key: String(date.getUTCFullYear()), label: String(date.getUTCFullYear()) };
+    }
+    if (range === 'month') {
+      return {
+        key: date.getUTCFullYear() + '-' + String(date.getUTCMonth() + 1).padStart(2, '0'),
+        label: date.toLocaleDateString('en-GB', { month: 'short', year: '2-digit', timeZone: 'UTC' })
+      };
+    }
+    if (range === 'week') {
+      var monday = new Date(date.getTime());
+      var day = monday.getUTCDay() || 7;
+      monday.setUTCDate(monday.getUTCDate() - day + 1);
+      return {
+        key: monday.toISOString().slice(0, 10),
+        label: monday.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', timeZone: 'UTC' })
+      };
+    }
+    return {
+      key: dateStr,
+      label: date.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', timeZone: 'UTC' })
+    };
+  }
+
+  function rewardSeries(daily, range) {
+    var buckets = {};
+    (daily || []).forEach(function (row) {
+      if (!row || !row.date) return;
+      var key = rewardBucket(row.date, range);
+      if (!key) return;
+      if (!buckets[key.key]) buckets[key.key] = { label: key.label, amount: 0 };
+      buckets[key.key].amount += parseFloat(row.amount || 0) || 0;
+    });
+    var keys = Object.keys(buckets).sort();
+    var limit = range === 'day' ? 31 : range === 'week' ? 26 : range === 'month' ? 24 : 10;
+    return keys.slice(-limit).map(function (key) {
+      return { key: key, label: buckets[key].label, amount: buckets[key].amount };
+    });
+  }
+
+  function renderRewardChart(rewards) {
+    var data = rewardSeries((rewards || {}).daily || [], state.rewardRange || 'day');
+    var meta = $('wal-reward-chart-meta');
+    var note = $('wal-reward-chart-note');
+    var cols = $('reward-chart-cols');
+    if (!data.length) {
+      setText('wal-reward-chart-meta', 'collecting daily history...');
+      if (cols) cols.textContent = '';
+      if (note) note.textContent = 'Daily rewards are indexed once from the operator log; the chart fills as history is available.';
+      return;
+    }
+    var labels = data.map(function (row) {
+      return row.label;
+    });
+    var values = data.map(function (row) {
+      return row.amount;
+    });
+    var total = values.reduce(function (a, b) { return a + b; }, 0);
+    setText('wal-reward-chart-meta',
+      fmtToken(total) + ' OCT | ' + data.length + ' ' + (state.rewardRange || 'day') + ' bucket' + (data.length === 1 ? '' : 's'));
+    if (note) {
+      note.textContent = 'Actual OCT credited per ' + (state.rewardRange || 'day') +
+        ' from ' + data[0].label + ' to ' + data[data.length - 1].label +
+        '; switch the range to sum the same history.';
+    }
+    if (cols && window.SynteqUI && SynteqUI.renderStackedBars) {
+      SynteqUI.renderStackedBars(cols, [{ name: 'OCT', values: values }], {
+        labels: labels,
+        minCols: Math.min(24, Math.max(12, data.length)),
+        format: function (value) { return fmtToken(value) + ' OCT'; }
+      });
+    }
+  }
+
   function renderWallets(d) {
     var w = d.wallet || {};
     var r = w.rewards || {};
@@ -1276,6 +1376,8 @@
         body.appendChild(tr);
       });
     }
+
+    renderRewardChart(r);
 
     setText('wal-foot',
       'Wallet & rewards - rewards are folded per epoch from the node operator log ' +
@@ -1527,6 +1629,18 @@
         showTip(refresh, 'Refreshed');
       });
     }
+
+    var rewardButtons = document.querySelectorAll('#reward-range [data-range]');
+    Array.prototype.forEach.call(rewardButtons, function (button) {
+      button.addEventListener('click', function () {
+        state.rewardRange = button.getAttribute('data-range') || 'day';
+        Array.prototype.forEach.call(rewardButtons, function (other) {
+          other.classList.toggle('is-current', other === button);
+        });
+        var wallet = (state.status && state.status.wallet) || {};
+        renderRewardChart(wallet.rewards || {});
+      });
+    });
 
     var updaterRefresh = $('updater-refresh');
     if (updaterRefresh) {
