@@ -1,18 +1,56 @@
+# dependencies / build output
 node_modules/
 dist/
-*.log
-logs/
-backups/
-tmp/
-.env
-hostkeys.json
-known_hosts
 *.tsbuildinfo
-
+coverage/
 *.tgz
 
+# python bytecode / caches
+__pycache__/
+*.py[cod]
+*.pyo
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.cache/
+.venv/
+venv/
+
+# logs, temporary files and runtime state
+*.log
+*.log.*
+logs/
+log/
+tmp/
+temp/
+backups/
+*.tmp
+*.temp
+*.swp
+*.swo
+*~
+*.bak
+*.orig
+*.rej
+*.old
+*.pid
+*.seed
+*.pid.lock
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+assets/manage/dashboard_monitor/state/
+
+# local secrets / machine state
+.env
+.env.*
+hostkeys.json
+known_hosts
+
+# editors / OS junk
 .DS_Store
 Thumbs.db
+desktop.ini
 .vscode/
 .idea/
-coverage/
