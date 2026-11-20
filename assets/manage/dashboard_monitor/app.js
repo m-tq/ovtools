@@ -1197,12 +1197,15 @@
     if (note) {
       note.textContent = 'Actual OCT credited per ' + (state.rewardRange || 'day') +
         ' from ' + data[0].label + ' to ' + data[data.length - 1].label +
-        '; switch the range to sum the same history.';
+        (state.rewardRange === 'day'
+          ? '; daily scale is capped at 100 OCT' + (values.some(function (v) { return v > 100; }) ? ' (one or more days exceed the cap).' : '.')
+          : '; aggregated ranges auto-scale.');
     }
     if (cols && window.SynteqUI && SynteqUI.renderStackedBars) {
       SynteqUI.renderStackedBars(cols, [{ name: 'OCT', values: values }], {
         labels: labels,
         minCols: Math.min(24, Math.max(12, data.length)),
+        max: state.rewardRange === 'day' ? 100 : undefined,
         format: function (value) { return fmtToken(value) + ' OCT'; }
       });
     }

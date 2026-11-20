@@ -66,6 +66,7 @@ WALLET_SCAN_TTL  = 10.0    # seconds between log-index passes when caught up
 WALLET_CATCHUP   = 1.0     # faster passes while the log index is still behind
 WALLET_SCAN_BYTES = 8 * 1024 * 1024   # bounded work per pass
 WALLET_RECENT_MAX = 16     # epoch reward rows kept for the table
+DAILY_BACKFILL_VERSION = 2 # bump to force a one-time full daily rebuild
 WALLET_STATE_ENV = "OCTRA_WALLET_STATE"
 WALLET_STATE_DIRS = (
     Path("/var/lib/octra/dashboard"),
@@ -1039,6 +1040,7 @@ def empty_tracking():
         "recent": [],
         "daily": {},
         "daily_backfilled": False,
+        "daily_backfill_version": 0,
     }
 
 
@@ -1271,7 +1273,8 @@ def wallet_scan_log(address, eligible_from=0):
             for key in ("pending_epoch", "first_epoch", "last_epoch", "proposals",
                         "reward_cursor", "reward_raw", "reward_epochs", "proposer_raw",
                         "validator_raw", "last_reward_epoch", "last_reward_raw",
-                        "last_reward_at", "last_reward_proposer", "first_reward_at"):
+                        "last_reward_at", "last_reward_proposer", "first_reward_at",
+                        "daily", "daily_backfilled", "daily_backfill_version"):
                 merged[key] = tracking.get(key, merged.get(key))
             merged["recent"] = tracking.get("recent") or merged.get("recent") or []
             merged["offset"] = offset + len(block)
@@ -1380,6 +1383,7 @@ def _wallet_daily_worker(address):
                     daily[day] = amount
             tracking["daily"] = daily
             tracking["daily_backfilled"] = True
+            tracking["daily_backfill_version"] = DAILY_BACKFILL_VERSION
             state["tracking"] = tracking
             wallet_state_save(state)
     finally:
@@ -1394,7 +1398,7 @@ def ensure_wallet_daily(address):
         if _wallet_daily["running"] or _wallet_scanning:
             return
         tracking = wallet_state_load().get("tracking") or {}
-        if tracking.get("daily_backfilled"):
+        if tracking.get("daily_backfilled") and tracking.get("daily_backfill_version") == DAILY_BACKFILL_VERSION:
             return
         # Only backfill after the incremental index has caught up; otherwise the
         # same reward lines would be added twice (once by the backfill, once by
@@ -1606,7 +1610,10 @@ def _wallet_reward_block(block, tracking, baseline, baseline_raw, balance_raw,
     if gross_raw and total_raw != gross_raw:
         proposer_raw = int(round(proposer_raw * total_raw / gross_raw))
         validator_raw = max(0, total_raw - proposer_raw)
-    avg_value = (total_raw / covered) if covered else 0.0
+    # Rate for the "per epoch / per day" estimate comes from the reward log
+    # fold, not from the balance delta: transfers/bond movements can inflate the
+    # delta and made the estimate drift far above what the log actually paid.
+    avg_value = (gross_raw / reward_epochs) if reward_epochs else ((total_raw / covered) if covered else 0.0)
 
     block["rewards"] = {
         "total": token_amount(total_raw),
@@ -1923,7 +1930,7 @@ def build_status():
     logs = log_summary(pm2_log_tail_cached(120))
     backend = availability_block()
     backend.update({
-        "version": "2.3",
+        "version": "2.3.1",
         "uptime_secs": int(time.time() - _start_time),
         "uptime": human_age(time.time() - _start_time),
     })
