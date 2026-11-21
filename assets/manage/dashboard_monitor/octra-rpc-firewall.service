@@ -1,0 +1,12 @@
+[Unit]
+Description=Octra node RPC localhost firewall
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/usr/local/sbin/octra-rpc-firewall.sh
+
+[Install]
+WantedBy=multi-user.target

@@ -6,24 +6,32 @@ Wants=network-online.target
 
 [Service]
 Type=simple
-User=root
+User=octra
+Group=octra
 WorkingDirectory=/opt/octra/dashboard
+Environment=PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+Environment=HOME=/home/octra
+Environment=PM2_HOME=/home/octra/.pm2
+Environment=PYTHONDONTWRITEBYTECODE=1
 ExecStart=/usr/bin/python3 /opt/octra/dashboard/server.py --port 9090
 Restart=always
 RestartSec=3
-# Read-only telemetry collector: keep it cheap and predictable
 Nice=5
 TimeoutStopSec=10
 StandardOutput=journal
 StandardError=journal
 SyslogIdentifier=octra-dashboard
 
-# Optional overrides
-#Environment=OCTRA_API_PORT=8080
-
-# Hardening (the backend only needs to read /proc, pm2 state and log files)
+# Hardening: the backend reads /proc, pm2 logs and node state; only the wallet
+# cache directory is writable. It no longer runs as root.
 NoNewPrivileges=true
 PrivateTmp=true
+PrivateDevices=true
+ProtectSystem=full
+ProtectHome=read-only
+ReadWritePaths=/var/lib/octra/dashboard
+RestrictSUIDSGID=true
+LockPersonality=true
 
 [Install]
 WantedBy=multi-user.target

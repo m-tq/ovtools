@@ -27,6 +27,7 @@ import base64
 import calendar
 import json
 import os
+import pwd
 import re
 import socket
 import subprocess
@@ -169,6 +170,13 @@ def _int(value, default=0):
         return int(float(value))
     except (TypeError, ValueError):
         return default
+
+
+def is_node_user():
+    try:
+        return pwd.getpwuid(os.geteuid()).pw_name == "octra"
+    except Exception:
+        return False
 
 
 # -- Text hygiene ---------------------------------------------------
@@ -550,10 +558,10 @@ def pm2_info():
         except Exception:
             return None
 
-    for cmd in (
-        ["su", "-", "octra", "-c", "pm2 jlist --silent"],
-        ["pm2", "jlist", "--silent"],
-    ):
+    commands = [["pm2", "jlist", "--silent"]]
+    if not is_node_user():
+        commands.insert(0, ["su", "-", "octra", "-c", "pm2 jlist --silent"])
+    for cmd in commands:
         try:
             r = subprocess.run(cmd, capture_output=True, text=True, timeout=5)
             result = _parse(r.stdout)
@@ -624,19 +632,25 @@ def parse_log_line(line, src="stdout"):
 def pm2_log_paths():
     node_env = parse_env(NODE_ENV_PATH)
     pm2_name = node_env.get("OCTRA_OPERATOR_PM2_NAME", "octra-validator-01")
-    return [
-        Path(f"/root/.pm2/logs/{pm2_name}-out.log"),
+    home = [
         Path(f"/home/octra/.pm2/logs/{pm2_name}-out.log"),
-        Path(f"/root/.pm2/logs/{pm2_name}-error.log"),
         Path(f"/home/octra/.pm2/logs/{pm2_name}-error.log"),
     ]
+    root = [
+        Path(f"/root/.pm2/logs/{pm2_name}-out.log"),
+        Path(f"/root/.pm2/logs/{pm2_name}-error.log"),
+    ]
+    return home + root if is_node_user() else root + home
 
 
 def pm2_log_tail(lines=MAX_LOG_LINES):
     """Return the last N parsed log lines (oldest -> newest)."""
     collected = []
     for log_path in pm2_log_paths():
-        if not log_path.is_file():
+        try:
+            if not log_path.is_file():
+                continue
+        except OSError:
             continue
         try:
             r = subprocess.run(
@@ -657,11 +671,13 @@ def pm2_log_tail(lines=MAX_LOG_LINES):
         node_env = parse_env(NODE_ENV_PATH)
         pm2_name = node_env.get("OCTRA_OPERATOR_PM2_NAME", "octra-validator-01")
         try:
-            r = subprocess.run(
-                ["su", "-", "octra", "-c",
-                 f"pm2 logs {pm2_name} --lines {lines} --nostream --raw 2>&1"],
-                capture_output=True, text=True, timeout=8,
+            command = (
+                ["sh", "-c", f"pm2 logs {pm2_name} --lines {lines} --nostream --raw 2>&1"]
+                if is_node_user()
+                else ["su", "-", "octra", "-c",
+                      f"pm2 logs {pm2_name} --lines {lines} --nostream --raw 2>&1"]
             )
+            r = subprocess.run(command, capture_output=True, text=True, timeout=8)
             raw = [ln for ln in r.stdout.splitlines() if ln.strip()]
             collected = [parse_log_line(ln, src="pm2") for ln in raw[-lines:]]
         except Exception:
@@ -1728,10 +1744,16 @@ def _updater_check():
     if not tool.is_file():
         return {"status": "unavailable", "error": "controls/upgrade.sh not found", "available": False}
     try:
-        result = subprocess.run(
-            ["su", "-", "octra", "-c", f"cd {NODE_SRC_DIR} && sh controls/upgrade.sh"],
-            capture_output=True, text=True, timeout=75,
-        )
+        if is_node_user():
+            result = subprocess.run(
+                ["sh", "controls/upgrade.sh"],
+                cwd=str(NODE_SRC_DIR), capture_output=True, text=True, timeout=75,
+            )
+        else:
+            result = subprocess.run(
+                ["su", "-", "octra", "-c", f"cd {NODE_SRC_DIR} && sh controls/upgrade.sh"],
+                capture_output=True, text=True, timeout=75,
+            )
     except Exception as error:
         return {"status": "error", "error": str(error), "available": False}
     text = (result.stdout or "") + "\n" + (result.stderr or "")
@@ -1829,6 +1851,9 @@ def updater_snapshot(force=False):
     with _updater_lock:
         data = _updater["data"]
         age = now - _updater["ts"] if data else None
+        # A public refresh cannot hammer the official upgrade test.
+        if force and data and age is not None and age < 60:
+            force = False
         if data and not force and age is not None and age < UPDATER_TTL:
             return dict(data, age_sec=round(age, 1), checking=False)
         if _updater["running"]:
@@ -1976,7 +2001,7 @@ def build_wallet():
 
 # -- HTTP handler --------------------------------------------------
 class DashboardHandler(SimpleHTTPRequestHandler):
-    server_version = "OctraDashboard/2.1"
+    server_version = "OctraDashboard"
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, directory=str(DASHBOARD_DIR), **kwargs)
@@ -2046,7 +2071,6 @@ class DashboardHandler(SimpleHTTPRequestHandler):
             self.send_response(status)
             self.send_header("Content-Type", "application/json; charset=utf-8")
             self.send_header("Cache-Control", "no-cache, no-store, must-revalidate")
-            self.send_header("Access-Control-Allow-Origin", "*")
             self.send_header("Content-Length", str(len(body)))
             self.end_headers()
             self.wfile.write(body)

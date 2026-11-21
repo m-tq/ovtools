@@ -53,10 +53,29 @@ else
 fi
 
 for f in index.html app.js styles.css server.py assets/css/synteq-ui.css assets/js/synteq-ui.js \
+         cloudflare-ips.conf cloudflare-geo.conf octra-security-headers.conf octra-dashboard-limits.conf \
+         rpc-firewall.sh octra-rpc-firewall.service \
          prune-node-junk.sh octra-node-prune.cron octra-node-prune.service octra-node-prune.timer; do
   [[ -f "$DASH_DIR/$f" ]] || die "missing file: $DASH_DIR/$f"
 done
 log "Files verified"
+
+# nginx snippets + API limit zones. The site includes the two snippets; the
+# limits file lives in conf.d because limit_req_zone is http-context only.
+install -d -m 755 /etc/nginx/snippets
+install -m 644 "$DASH_DIR/cloudflare-ips.conf" /etc/nginx/snippets/octra-cloudflare.conf
+install -m 644 "$DASH_DIR/octra-security-headers.conf" /etc/nginx/snippets/octra-security-headers.conf
+install -m 644 "$DASH_DIR/octra-dashboard-limits.conf" /etc/nginx/conf.d/octra-dashboard-limits.conf
+install -m 644 "$DASH_DIR/cloudflare-geo.conf" /etc/nginx/conf.d/octra-cloudflare-geo.conf
+
+# Only Cloudflare edge IPs may reach 80/443 from the internet (localhost health
+# checks stay allowed). Keep the node RPC on localhost too.
+install -m 755 "$DASH_DIR/rpc-firewall.sh" /usr/local/sbin/octra-rpc-firewall.sh
+install -m 644 "$DASH_DIR/octra-rpc-firewall.service" /etc/systemd/system/octra-rpc-firewall.service
+sed -i 's/\r$//' /usr/local/sbin/octra-rpc-firewall.sh /etc/systemd/system/octra-rpc-firewall.service
+systemctl daemon-reload
+systemctl enable --now octra-rpc-firewall >/dev/null 2>&1 \
+  || warn "could not enable octra-rpc-firewall (check iptables)"
 
 chown -R root:root "$DASH_DIR"
 find "$DASH_DIR" -type d -exec chmod 755 {} +
@@ -64,7 +83,13 @@ find "$DASH_DIR" -type f -exec chmod 644 {} +
 chmod 755 "$DASH_DIR/server.py" 2>/dev/null || true
 
 # ── 3. Backend service ────────────────────────────────────────────
-log "Installing systemd unit ${SERVICE_NAME}…"
+# The backend runs as octra (not root). It only writes the wallet state cache.
+WALLET_STATE_DIR="/var/lib/octra/dashboard"
+install -d -o octra -g octra -m 750 "$WALLET_STATE_DIR"
+if [[ -f "$WALLET_STATE_DIR/wallet_state.json" ]]; then
+  chown octra:octra "$WALLET_STATE_DIR/wallet_state.json" 2>/dev/null || true
+fi
+log "Installing systemd unit ${SERVICE_NAME}..."
 install -m 644 "$DASH_DIR/octra-dashboard.service" "$SERVICE_FILE"
 systemctl daemon-reload
 systemctl enable "$SERVICE_NAME" >/dev/null 2>&1 || true
@@ -87,15 +112,16 @@ log "Backend healthy on 127.0.0.1:9090"
 # point for the wallet panel's reward cross-check. The log index itself is
 # rebuilt incrementally by the backend, so this only ever runs once.
 WALLET_STATE_DIR="/var/lib/octra/dashboard"
-install -d -m 755 "$WALLET_STATE_DIR"
+install -d -o octra -g octra -m 750 "$WALLET_STATE_DIR"
 if [[ -f "$WALLET_STATE_DIR/wallet_state.json" ]]; then
   log "Wallet baseline already captured — keeping $WALLET_STATE_DIR/wallet_state.json"
 else
   log "Capturing wallet reward baseline..."
-  if ! python3 "$DASH_DIR/server.py" --init-wallet; then
+  if ! su - octra -c "python3 '$DASH_DIR/server.py' --init-wallet"; then
     warn "wallet baseline not captured (node RPC offline?) — the backend retries on first poll"
   fi
 fi
+chown -R octra:octra "$WALLET_STATE_DIR"
 
 # ── 3c. Daily prune job (node logs & junk) ────────────────────────
 # The monitor is the natural owner of this: it already runs on the node, and a

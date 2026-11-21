@@ -13,6 +13,7 @@
     "public/",
     "assets/",
     "README.md",
+    "Screenshot.png",
     "LICENSE"
   ],
   "scripts": {

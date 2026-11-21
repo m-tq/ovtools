@@ -2,6 +2,8 @@
 
 Deploy, migrate and manage Octra validators from one Node.js CLI and web console.
 
+![ovtools console preview](Screenshot.png)
+
 ## Features
 
 - **Deploy** a fresh VPS as an observer or validator.
