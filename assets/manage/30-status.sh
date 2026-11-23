@@ -29,7 +29,14 @@ rpc() {  # rpc <method> <params-json>
     "http://127.0.0.1:${PORT}/rpc" 2>/dev/null || true
 }
 
-BALANCE_RAW=$(rpc octra_balance "[\"${ADDR}\"]" | jq -r '.result.balance // empty' 2>/dev/null || true)
+BALANCE_JSON=$(rpc octra_balance "[\"${ADDR}\"]")
+# Newer nodes expose balance_raw (integer string). Older responses only had a
+# decimal `balance`; convert that without ever printing 0 for a funded wallet.
+BALANCE_RAW=$(printf '%s' "${BALANCE_JSON}" | jq -r '.result.balance_raw // empty' 2>/dev/null || true)
+if [[ ! "${BALANCE_RAW}" =~ ^[0-9]+$ ]]; then
+  BALANCE_RAW=$(printf '%s' "${BALANCE_JSON}" | jq -r \
+    '(.result.balance // 0) | tonumber * 1000000 | floor' 2>/dev/null || true)
+fi
 [[ "${BALANCE_RAW}" =~ ^[0-9]+$ ]] || BALANCE_RAW=0
 
 log "=== active node: $(hostname) ==="
