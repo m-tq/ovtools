@@ -39,13 +39,36 @@ ensure_tool jq jq || die "jq is missing and could not be installed"
 [[ -f "${NODE_WALLET}" ]] || die "wallet.json is missing (${NODE_WALLET}) - is this the validator host?"
 [[ -f "${NODE_ENV}" ]] || die "node.env is missing (${NODE_ENV})"
 
+wait_for_ready() {
+  local limit="${EXIT_RPC_WAIT:-900}" start now
+  start=$(date +%s)
+  while true; do
+    read_state
+    if [[ "${RPC:-}" == "ready" && -n "${ENROLL:-}" && "${ENROLL}" != "unavailable" ]]; then
+      return 0
+    fi
+    now=$(date +%s)
+    if (( now - start >= limit )); then
+      return 1
+    fi
+    log "waiting for node RPC/enrollment before exit (rpc=${RPC:-?} enrollment=${ENROLL:-?})"
+    sleep 10
+  done
+}
+
 read_state
+if ! wait_for_ready; then
+  warn "cannot read the validator enrollment yet (rpc=${RPC:-?} enrollment=${ENROLL:-?})"
+  warn "refusing to conclude 'nothing to exit' from an unavailable RPC"
+  set_status WAITING-RPC "node RPC/enrollment is unavailable - the exit was not evaluated"
+  exit 2
+fi
 ADDR=$(wallet_address || echo unknown)
 log "=== exit validator: ${ADDR} ==="
 log "node: role=${ROLE:-?} process=${PROCESS:-?} rpc=${RPC:-?} voting=${VOTING:-?} epoch=${EPOCH:-?}"
 log "membership: active=${ACTIVE:-?} scheduled=${SCHED:-?} enrollment=${ENROLL:-?} bond=$(raw_to_oct "${BOND:-0}") OCT"
 
-# Already gone? (a previous run finished, or another host did it)
+# Already gone? Only after the RPC answered with a real enrollment state.
 if [[ "${BOND:-0}" == "0" && "${ENROLL:-}" != "bonded" && "${ENROLL:-}" != "ready" && "${ENROLL:-}" != "exiting" ]]; then
   log "this wallet holds no bond on chain (enrollment=${ENROLL:-absent}) - nothing to exit"
   exit_watch_disarm
@@ -113,10 +136,11 @@ if [[ "${SUMMARY}" == *"state=exiting"* ]]; then
   log "the exit is already committed - not signing another one"
 else
   log "submitting the exit (controls/enroll.sh exit) - this pauses the validator duty"
-  set +e
-  OUT=$(node_script 600 "sh controls/enroll.sh exit")
-  RC=$?
-  set -e
+  if OUT=$(node_script 600 "sh controls/enroll.sh exit"); then
+    RC=0
+  else
+    RC=$?
+  fi
   printf '%s\n' "${OUT}" | sed 's/^/    /'
   if (( RC != 0 )); then
     if printf '%s' "${OUT}" | grep -q "already committed"; then
@@ -211,10 +235,11 @@ if [[ "${VERDICT}" != "withdrawable" ]]; then
 fi
 
 log "unbonding finished (${SUMMARY}) - withdrawing the stake"
-set +e
-OUT=$(node_script 900 "sh controls/enroll.sh withdraw")
-RC=$?
-set -e
+if OUT=$(node_script 900 "sh controls/enroll.sh withdraw"); then
+  RC=0
+else
+  RC=$?
+fi
 printf '%s\n' "${OUT}" | sed 's/^/    /'
 if (( RC != 0 )); then
   if printf '%s' "${OUT}" | grep -qE "unbonding period incomplete|withdraw_epoch|waits for removal"; then
