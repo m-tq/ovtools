@@ -122,5 +122,10 @@ export async function nodeSummary(ip: string): Promise<NodeSummary> {
 
 export async function getEnrollment(ip: string): Promise<any | null> {
   const probe = await probeNode(ip);
-  return probe.validator?.raw || probe.validator || null;
+  if (!probe || probe.reachable === false) return null;
+  const validator = probe.validator;
+  if (!validator) return null;
+  const state = String(validator.state || '').trim().toLowerCase();
+  if (!state || state === 'unavailable' || state === 'unknown') return null;
+  return validator.raw || validator;
 }

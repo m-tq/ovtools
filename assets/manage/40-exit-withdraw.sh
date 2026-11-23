@@ -55,11 +55,34 @@ enrollment_summary() {
     "${state:-unknown}" "${exit_ep:-none}" "${withdraw_ep:-none}" "${head:-0}" "${remaining:-none}"
 }
 
+wait_for_ready() {
+  local limit="${EXIT_RPC_WAIT:-900}" start now
+  start=$(date +%s)
+  while true; do
+    read_state
+    if [[ "${RPC:-}" == "ready" && "${ENROLL:-}" != "unavailable" ]]; then
+      return 0
+    fi
+    now=$(date +%s)
+    if (( now - start >= limit )); then
+      return 1
+    fi
+    log "waiting for node RPC/enrollment before deciding the withdrawal (rpc=${RPC:-?} enrollment=${ENROLL:-?})"
+    sleep 10
+  done
+}
+
 read_state
+if ! wait_for_ready; then
+  log "node RPC/enrollment unavailable - keeping the withdrawal timer armed"
+  record WAITING "node RPC/enrollment unavailable - retrying"
+  exit 0
+fi
 ADDR=$(wallet_address || echo unknown)
 
 # --- already finished? -------------------------------------------------
-if [[ "${BOND:-0}" == "0" && "${ENROLL:-}" != "bonded" && "${ENROLL:-}" != "ready" && "${ENROLL:-}" != "exiting" ]]; then
+if [[ "${RPC:-}" == "ready" && "${ENROLL:-}" != "unavailable" \
+   && "${BOND:-0}" == "0" && "${ENROLL:-}" != "bonded" && "${ENROLL:-}" != "ready" && "${ENROLL:-}" != "exiting" ]]; then
   log "${ADDR}: no bond on chain any more (enrollment=${ENROLL:-absent}) - the exit is complete"
   record DONE "bond 0 (enrollment=${ENROLL:-absent}) - nothing left to withdraw"
   exit_watch_disarm
@@ -118,6 +141,15 @@ fi
 START=$(date +%s)
 while :; do
   read_state
+  if [[ "${RPC:-}" != "ready" || "${ENROLL:-}" == "unavailable" ]]; then
+    if (( $(date +%s) - START >= BOND_WAIT )); then
+      log "${ADDR}: node RPC/enrollment unavailable while waiting for the bond - retrying later"
+      record WAITING "node unavailable while waiting for bond - retrying"
+      exit 0
+    fi
+    sleep 20
+    continue
+  fi
   if [[ "${BOND:-0}" == "0" ]]; then
     log "${ADDR}: stake returned - validator_bond = 0, the exit is complete"
     record DONE "stake returned (bond 0, exit epoch $(summary_value "${SUMMARY}" exit_epoch))"

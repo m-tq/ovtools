@@ -715,11 +715,17 @@ export class JobManager {
       }
       try {
         const result = await getEnrollment(ip);
-        if (!result) return;
+        if (!result) {
+          // Never keep a stale "stake is back" popup when the RPC cannot tell
+          // us the current bond/enrollment state.
+          if (this.state.exitInfo && this.state.exitInfo.done) this.state.exitInfo = null;
+          return;
+        }
         const bond = Number(result.bond) || 0;
         const member = result.membership || {};
-        const state = String(result.state || '');
-        const done = bond === 0 && !['bonded', 'ready', 'exiting'].includes(state);
+        const state = String(result.state || '').toLowerCase();
+        const known = Boolean(state) && state !== 'unavailable' && state !== 'unknown';
+        const done = known && bond === 0 && !['bonded', 'ready', 'exiting'].includes(state);
         const remaining = result.remaining_epochs === undefined || result.remaining_epochs === null
           ? null
           : Number(result.remaining_epochs);

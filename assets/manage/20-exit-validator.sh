@@ -44,7 +44,7 @@ wait_for_ready() {
   start=$(date +%s)
   while true; do
     read_state
-    if [[ "${RPC:-}" == "ready" && -n "${ENROLL:-}" && "${ENROLL}" != "unavailable" ]]; then
+    if [[ "${RPC:-}" == "ready" && "${ENROLL:-}" != "unavailable" ]]; then
       return 0
     fi
     now=$(date +%s)

@@ -205,6 +205,11 @@ Unit=${EXIT_WATCH_UNIT}.service
 [Install]
 WantedBy=timers.target
 UNIT
+  # A stale DONE/ERROR from an earlier RPC-race must not keep the "Stake is
+  # back" popup alive after the timer is re-armed.
+  if [[ -f "${EXIT_WATCH_STATUS}" ]] && grep -qE '^(DONE|ERROR) ' "${EXIT_WATCH_STATUS}" 2>/dev/null; then
+    printf 'WAITING %s re-armed while the unbonding is still in progress\n' "$(date -u +%Y-%m-%dT%H:%M:%SZ)" > "${EXIT_WATCH_STATUS}"
+  fi
   if "${SYSTEMCTL}" daemon-reload >/dev/null 2>&1 \
      && "${SYSTEMCTL}" enable --now "${EXIT_WATCH_UNIT}.timer" >/dev/null 2>&1; then
     log "the withdrawal retry is armed: ${EXIT_WATCH_UNIT}.timer (every 15 min, also after a reboot)"
