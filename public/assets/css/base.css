@@ -1,5 +1,5 @@
 /* ==========================================================================
-   SYNTEQ UI — 04. BASE RESET, VIEWPORT LOCK & A11Y (base.css)
+   SYNTEQ UI - 04. BASE RESET, VIEWPORT LOCK & A11Y (base.css)
    Key rule: body NEVER scrolls. Only in-content regions scroll.
    ========================================================================== */
 *, *::before, *::after {
@@ -11,7 +11,7 @@
 html, body {
   height: 100%;
   width: 100%;
-  /* Viewport lock — the app matches the screen, no page scrollbar */
+  /* Viewport lock - the app matches the screen, no page scrollbar */
   overflow: hidden;
 }
 
@@ -33,7 +33,7 @@ body {
 html { overscroll-behavior: none; }
 body { position: fixed; inset: 0; }
 
-/* In-content scroll region — the ONLY place scrollbars appear */
+/* In-content scroll region - the ONLY place scrollbars appear */
 .sq-scroll {
   overflow-y: auto;
   overflow-x: hidden;
@@ -68,7 +68,6 @@ button, a, input, select, textarea, [tabindex] {
   font-family: inherit;
   color: inherit;
   border: none;
-  outline: none;
   background: none;
   text-decoration: none;
   transition:

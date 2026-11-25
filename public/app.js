@@ -1851,10 +1851,10 @@
 
     var seg = $('seg-programs');
     if (seg) {
-      var buttons = seg.querySelectorAll('.mc-tab');
+      var buttons = seg.querySelectorAll('.sq-seg__btn');
       for (var i = 0; i < buttons.length; i++) {
         var on = buttons[i].getAttribute('data-program') === state.program;
-        buttons[i].className = 'mc-tab' + (on ? ' mc-tab--active' : '');
+        buttons[i].className = 'sq-seg__btn' + (on ? ' sq-seg__btn--active' : '');
         buttons[i].setAttribute('aria-selected', String(on));
       }
     }

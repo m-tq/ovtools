@@ -1,5 +1,5 @@
 /* ==========================================================================
-   SYNTEQ UI — FORMS (components/forms.css)
+   SYNTEQ UI - FORMS (components/forms.css)
    Native HTML form controls restyled to match the flat-surface model.
    All interactive states, full keyboard support, ARIA-ready.
    ========================================================================== */
@@ -50,7 +50,7 @@
   height: var(--sq-input-h);
   padding: 0 var(--sq-space-3);
   background: var(--sq-inset);
-  border: var(--sq-line-h) solid transparent;
+  border: var(--sq-line-h) solid var(--sq-border-control);
   border-radius: var(--sq-radius-control);
   color: var(--sq-text-strong);
   font-size: var(--sq-text-sm);
@@ -67,18 +67,19 @@
   background: var(--sq-hover);
   /* ONE indicator per field: a brand ring drawn with outline. Previously the
      global `:focus-visible` outline from base.css was painted around the input
-     while this rule also turned the 1px border brand — a double coloured edge. */
+     while this rule also turned the 1px border brand - a double coloured edge. */
   outline: 2px solid var(--sq-brand);
-  outline-offset: 1px;
-  border-color: transparent;
+  outline-offset: -1px;
+  border-color: var(--sq-brand);
 }
 
-.sq-input:disabled,
-.sq-input[readonly] {
+.sq-input:disabled {
   opacity: 0.5;
   cursor: not-allowed;
   background: var(--sq-inset);
 }
+/* Read-only is not disabled: the value must stay fully legible and selectable. */
+.sq-input[readonly] { background: transparent; cursor: default; }
 
 .sq-input:disabled::placeholder {
   color: var(--sq-text-subtle);
@@ -91,10 +92,10 @@
 
 .sq-input[aria-invalid="true"]:focus-visible,
 .sq-field--invalid .sq-input:focus-visible {
-  /* Invalid fields keep the error signal, but only once: the ring turns red
-     instead of adding a red border underneath a brand ring. */
+  /* Invalid fields keep the error signal, but only once: the ring turns pink
+     instead of adding a pink border underneath a brand ring. */
   outline-color: var(--sq-status-error);
-  border-color: transparent;
+  border-color: var(--sq-status-error);
 }
 
 /* ---- Textarea ---- */
@@ -103,7 +104,7 @@
   min-height: calc(var(--sq-input-h) * 2.5);
   padding: var(--sq-space-2) var(--sq-space-3);
   background: var(--sq-inset);
-  border: var(--sq-line-h) solid transparent;
+  border: var(--sq-line-h) solid var(--sq-border-control);
   border-radius: var(--sq-radius-control);
   color: var(--sq-text-strong);
   font-size: var(--sq-text-sm);
@@ -121,16 +122,17 @@
 .sq-textarea:focus-visible {
   background: var(--sq-hover);
   outline: 2px solid var(--sq-brand);
-  outline-offset: 1px;
-  border-color: transparent;
+  outline-offset: -1px;
+  border-color: var(--sq-brand);
 }
 
-.sq-textarea:disabled,
-.sq-textarea[readonly] {
+.sq-textarea:disabled {
   opacity: 0.5;
   cursor: not-allowed;
   resize: none;
 }
+/* Read-only is not disabled: the value must stay fully legible and selectable. */
+.sq-textarea[readonly] { background: transparent; cursor: default; }
 
 .sq-textarea[aria-invalid="true"],
 .sq-field--invalid .sq-textarea {
@@ -140,7 +142,7 @@
 .sq-textarea[aria-invalid="true"]:focus-visible,
 .sq-field--invalid .sq-textarea:focus-visible {
   outline-color: var(--sq-status-error);
-  border-color: transparent;
+  border-color: var(--sq-status-error);
 }
 
 /* ---- Select (native, custom arrow) ---- */
@@ -149,16 +151,19 @@
   height: var(--sq-input-h);
   padding: 0 var(--sq-space-6) 0 var(--sq-space-3);
   background: var(--sq-inset);
-  border: var(--sq-line-h) solid transparent;
+  border: var(--sq-line-h) solid var(--sq-border-control);
   border-radius: var(--sq-radius-control);
   color: var(--sq-text-strong);
   font-size: var(--sq-text-sm);
   font-family: var(--sq-font-sans);
   appearance: none;
   cursor: pointer;
-  background-image: url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1.5L6 6.5L11 1.5' stroke='%237a8080' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-image:
+    linear-gradient(45deg, transparent 50%, var(--sq-text-subtle) 50%),
+    linear-gradient(135deg, var(--sq-text-subtle) 50%, transparent 50%);
+  background-size: 5px 5px, 5px 5px;
+  background-position: calc(100% - 15px) 52%, calc(100% - 10px) 52%;
   background-repeat: no-repeat;
-  background-position: right var(--sq-space-3) center;
   transition: border-color var(--sq-dur-instant) var(--sq-ease),
               background-color var(--sq-dur-instant) var(--sq-ease);
 }
@@ -166,8 +171,8 @@
 .sq-select:focus-visible {
   background-color: var(--sq-hover);
   outline: 2px solid var(--sq-brand);
-  outline-offset: 1px;
-  border-color: transparent;
+  outline-offset: -1px;
+  border-color: var(--sq-brand);
 }
 
 .sq-select:disabled {
@@ -180,11 +185,6 @@
   border-color: var(--sq-status-error);
 }
 
-/* Light theme arrow color adjustment */
-[data-theme="light"] .sq-select {
-  background-image: url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1.5L6 6.5L11 1.5' stroke='%23666e6e' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
-}
-
 /* ---- Checkbox ---- */
 .sq-checkbox {
   appearance: none;
@@ -192,7 +192,7 @@
   height: 16px;
   flex-shrink: 0;
   background: var(--sq-inset);
-  border: var(--sq-line-h) solid var(--sq-line-strong);
+  border: var(--sq-line-h) solid var(--sq-border-control);
   border-radius: var(--sq-radius-micro);
   cursor: pointer;
   position: relative;
@@ -206,7 +206,7 @@
 }
 
 .sq-checkbox:focus-visible {
-  /* Ring only — the border already carries the checked / invalid state. */
+  /* Ring only - the border already carries the checked / invalid state. */
   outline: 2px solid var(--sq-brand);
   outline-offset: 2px;
 }
@@ -260,7 +260,7 @@
   height: 16px;
   flex-shrink: 0;
   background: var(--sq-inset);
-  border: var(--sq-line-h) solid var(--sq-line-strong);
+  border: var(--sq-line-h) solid var(--sq-border-control);
   border-radius: 50%;
   cursor: pointer;
   position: relative;
@@ -333,7 +333,7 @@
   height: 20px;
   flex-shrink: 0;
   background: var(--sq-inset);
-  border: var(--sq-line-h) solid var(--sq-line-strong);
+  border: var(--sq-line-h) solid var(--sq-border-control);
   border-radius: var(--sq-radius-pill);
   cursor: pointer;
   position: relative;
@@ -401,7 +401,7 @@
   align-items: stretch;
   width: 100%;
   background: var(--sq-inset);
-  border: var(--sq-line-h) solid transparent;
+  border: var(--sq-line-h) solid var(--sq-border-control);
   border-radius: var(--sq-radius-control);
   overflow: hidden;
   transition: border-color var(--sq-dur-instant) var(--sq-ease);
@@ -553,7 +553,7 @@
   font-variant-numeric: tabular-nums;
 }
 
-/* ── Responsive ─────────────────────────────────────────────────── */
+/* -- Responsive --------------------------------------------------- */
 @media (pointer: coarse) {
   /* Touch-friendly targets */
   .sq-checkbox,

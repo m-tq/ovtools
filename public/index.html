@@ -4,11 +4,24 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <meta name="color-scheme" content="dark light" />
+  <meta name="theme-color" content="#101115" />
   <meta name="description" content="Octra Validator Tools - deploy, migrate and manage Octra validators" />
   <title>Octra Validator Tools</title>
+  <script>
+    /* Synteq theme boot - must run before the stylesheet paints (no flash of the wrong theme). */
+    (function () {
+      try {
+        var s = localStorage.getItem('sq-theme');
+        var t = s || (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+        var r = document.documentElement;
+        r.setAttribute('data-theme', t);
+        r.className = (r.className.replace(/\btheme-\S+/g, '') + ' theme-' + t).trim();
+      } catch (e) {}
+    })();
+  </script>
   <link rel="icon" type="image/svg+xml" href="favicon.svg?v=2.2.1" />
-  <link rel="stylesheet" href="assets/css/synteq-ui.css?v=1.0.8" />
-  <link rel="stylesheet" href="styles.css?v=2.2.3" />
+  <link rel="stylesheet" href="assets/css/synteq-ui.css?v=2.3.0" />
+  <link rel="stylesheet" href="styles.css?v=2.2.4" />
 </head>
 <body>
 
@@ -101,7 +114,7 @@
     <div class="sq-content sq-scroll" id="main-content">
 
       <!-- ---------- 1. CONSOLE ---------- -->
-      <section class="sq-section sq-section--compact" id="console" aria-label="Validator Management System">
+      <section class="sq-section sq-section--compact sq-fade-up" id="console" aria-label="Validator Management System">
 
         <div class="mc-hero">
           <div class="mc-hero__main">
@@ -138,20 +151,23 @@
              The fourth tool - updating the running node - lives INSIDE "Manage active
              node" (its actions sit next to Increase bond / Exit validator in the Live
              node state section), so there is no tab for it (2026-11-05). -->
-        <nav class="mc-tabs" id="seg-programs" role="tablist" aria-label="Automation program">
-          <button type="button" class="mc-tab" data-program="deploy" role="tab" aria-selected="false">
-            <span class="mc-tab__title">Deploy fresh node</span>
-            <span class="mc-tab__hint">One fresh VPS: toolchain, identity, sync, start, verify, enroll</span>
-          </button>
-          <button type="button" class="mc-tab mc-tab--active" data-program="migrate" role="tab" aria-selected="true">
-            <span class="mc-tab__title">Migrate node</span>
-            <span class="mc-tab__hint">Move the running validator: source keeps voting until the switch</span>
-          </button>
-          <button type="button" class="mc-tab" data-program="manage" role="tab" aria-selected="false">
-            <span class="mc-tab__title">Manage active node</span>
-            <span class="mc-tab__hint">Bond, exit, update the software, prune preserved states, monitor</span>
-          </button>
-        </nav>
+          <div class="sq-seg mc-program-seg" id="seg-programs" role="tablist" aria-label="Automation program">
+            <button type="button" class="sq-seg__btn" data-program="deploy" role="tab" aria-selected="false"
+                    title="One fresh VPS: toolchain, identity, sync, start, verify, enroll">
+              <svg class="sq-icon sq-icon--14" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12"/><polyline points="7 8 12 3 17 8"/><path d="M5 21h14"/></svg>
+              Deploy
+            </button>
+            <button type="button" class="sq-seg__btn sq-seg__btn--active" data-program="migrate" role="tab" aria-selected="true"
+                    title="Move the running validator: source keeps voting until the switch">
+              <svg class="sq-icon sq-icon--14" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h13"/><polyline points="14 4 17 7 14 10"/><path d="M20 17H7"/><polyline points="10 14 7 17 10 20"/></svg>
+              Migrate
+            </button>
+            <button type="button" class="sq-seg__btn" data-program="manage" role="tab" aria-selected="false"
+                    title="Bond, exit, update the software, prune preserved states, monitor">
+              <svg class="sq-icon sq-icon--14" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l8 4v5c0 5-3.5 8-8 9-4.5-1-8-4-8-9V7z"/><path d="M9 12l2 2 4-4"/></svg>
+              Manage
+            </button>
+          </div>
 
         <!-- ---------- 1. PROJECT SETTINGS (deploy + migrate) ---------- -->
         <!-- What a deploy/migrate run really takes from here: the swap file size.
@@ -160,7 +176,7 @@
              it is the "Deploy monitor" action of the Manage active node tab
              (2026-11-05), so the checkbox that used to sit here is gone. The Manage
              tab hides this section entirely. -->
-        <section class="sq-section sq-section--compact" id="settings" aria-label="Project settings">
+        <section class="sq-section sq-section--compact sq-fade-up" id="settings" aria-label="Project settings">
           <div class="sq-section__head">
             <span class="sq-section__title">Project settings</span>
             <span class="sq-section__meta" id="settings-meta">swap - the data store is automatic</span>
@@ -591,7 +607,7 @@
 
       </section>
 
-      <section class="sq-section sq-section--compact" id="nodes" aria-label="Node state">
+      <section class="sq-section sq-section--compact sq-fade-up" id="nodes" aria-label="Node state">
         <div class="sq-section__head">
           <span class="sq-section__title">Live node state</span>
           <span class="sq-section__meta" id="nodes-meta">every 10s - node REST API</span>
@@ -603,7 +619,7 @@
               <span class="sq-mono mc-node__ip" id="src-ip">-</span>
               <span class="sq-badge" id="src-state"><span id="src-state-text">-</span></span>
             </div>
-            <div class="sq-stat-strip">
+            <div class="sq-stat-strip" data-sq-stagger>
               <div class="sq-stat"><span class="sq-stat__label">Epoch</span><div class="sq-stat__value sq-mono" id="src-epoch">-</div><span class="sq-t-xs sq-mute" id="src-head">-</span></div>
               <div class="sq-stat"><span class="sq-stat__label">Membership</span><div class="sq-stat__value" id="src-membership">-</div><span class="sq-t-xs sq-mute" id="src-nextset">-</span></div>
               <div class="sq-stat"><span class="sq-stat__label">Enrollment</span><div class="sq-stat__value" id="src-enroll">-</div><span class="sq-t-xs sq-mute" id="src-bond">-</span></div>
@@ -617,7 +633,7 @@
               <span class="sq-mono mc-node__ip" id="dst-ip">-</span>
               <span class="sq-badge" id="dst-state"><span id="dst-state-text">-</span></span>
             </div>
-            <div class="sq-stat-strip">
+            <div class="sq-stat-strip" data-sq-stagger>
               <div class="sq-stat"><span class="sq-stat__label">Epoch</span><div class="sq-stat__value sq-mono" id="dst-epoch">-</div><span class="sq-t-xs sq-mute" id="dst-head">-</span></div>
               <div class="sq-stat"><span class="sq-stat__label">Membership</span><div class="sq-stat__value" id="dst-membership">-</div><span class="sq-t-xs sq-mute" id="dst-nextset">-</span></div>
               <div class="sq-stat"><span class="sq-stat__label">Enrollment</span><div class="sq-stat__value" id="dst-enroll">-</div><span class="sq-t-xs sq-mute" id="dst-bond">-</span></div>
@@ -702,7 +718,7 @@
       </section>
 
       <!-- ---------- 3. RUNNING TASKS ---------- -->
-      <section class="sq-section sq-section--compact" id="tasks" aria-label="Running tasks">
+      <section class="sq-section sq-section--compact sq-fade-up" id="tasks" aria-label="Running tasks">
         <div class="sq-section__head">
           <span class="sq-section__title">Running Tasks</span>
           <span class="sq-section__meta" id="tasks-meta">no active background work</span>
@@ -711,7 +727,7 @@
       </section>
 
       <!-- ---------- 4. LIVE LOG ---------- -->
-      <section class="sq-section sq-section--compact" id="log" aria-label="Live log">
+      <section class="sq-section sq-section--compact sq-fade-up" id="log" aria-label="Live log">
         <div class="sq-section__head">
           <span class="sq-section__title">Live log</span>
           <span class="sq-section__meta" id="log-meta">streaming - 0 lines</span>
@@ -763,7 +779,7 @@
 
 
       <!-- ---------- 4. GUIDE ---------- -->
-      <section class="sq-section sq-section--compact" id="guide" aria-label="Guide">
+      <section class="sq-section sq-section--compact sq-fade-up" id="guide" aria-label="Guide">
         <div class="sq-section__head">
           <span class="sq-section__title">Runbook &amp; safety</span>
           <span class="sq-section__meta">one column per program - what it does, what is safe, what takes time</span>
@@ -1207,8 +1223,8 @@
   </div>
 </div>
 
-<script src="assets/js/synteq-ui.js?v=1.0.8"></script>
-  <script src="app.js?v=3.1.1"></script>
+<script src="assets/js/synteq-ui.js?v=2.3.0"></script>
+  <script src="app.js?v=3.1.2"></script>
 </body>
 </html>
 

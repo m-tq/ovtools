@@ -173,7 +173,7 @@
   function paintDot(node, dotClass) {
     if (!node) return;
     node.classList.remove('sq-dot--ok', 'sq-dot--warn', 'sq-dot--err', 'sq-dot--idle',
-      'sq-dot--stopped', 'sq-dot--reboot');
+      'sq-dot--err', 'sq-dot--reboot');
     if (dotClass) node.classList.add(dotClass);
   }
 

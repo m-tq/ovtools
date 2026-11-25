@@ -1,5 +1,5 @@
 /* ==========================================================================
-   SYNTEQ UI — 10. TEXT-FIRST DATA VIZ (components/data.css)
+   SYNTEQ UI - 10. TEXT-FIRST DATA VIZ (components/data.css)
    Simplest visualization: stat blocks, key-value rows, slim gauges,
    inline sparklines, and a tiny bar chart. No card chrome around them.
    ========================================================================== */
@@ -41,7 +41,7 @@
 .sq-stat__delta--up { color: var(--sq-status-running); }
 .sq-stat__delta--down { color: var(--sq-status-error); }
 
-/* ---- Key-value rows (no card — hairline between rows) ---- */
+/* ---- Key-value rows (no card - hairline between rows) ---- */
 .sq-kv {
   display: flex;
   flex-direction: column;
@@ -156,7 +156,7 @@
 .sq-spark--out .sq-spark__area { fill: var(--sq-tel-out); }
 .sq-spark--out .sq-spark__dot { fill: var(--sq-tel-out); }
 
-/* ---- Tiny bar chart (network I/O) — text-first alt ---- */
+/* ---- Tiny bar chart (network I/O) - text-first alt ---- */
 .sq-bars {
   display: grid;
   grid-template-columns: repeat(var(--sq-bars-cols, 24), 1fr);
@@ -216,21 +216,14 @@
   background: var(--sq-status-running);
   flex-shrink: 0;
 }
-.sq-dot--stopped { background: var(--sq-status-error); }
 .sq-dot--reboot { background: var(--sq-status-warning); animation: sq-pulse 1s infinite ease-in-out; }
-/* Semantic variants (kept separate from --stopped/--reboot for back-compat) */
+/* Semantic variants (kept separate from --reboot for back-compat) */
 .sq-dot--info  { background: var(--sq-status-info); }
 .sq-dot--ok    { background: var(--sq-status-running); }
 .sq-dot--warn  { background: var(--sq-status-warning); }
 .sq-dot--err   { background: var(--sq-status-error); }
 .sq-dot--idle  { background: var(--sq-text-subtle); }
-/* Dots nested in a badge follow the badge's type scale */
-/* DEPRECATED: a badge already carries the state colour. Pick one signal per
-   state - .sq-status (dot + text) OR .sq-badge--ok|warn|err (colour + text).
-   Kept only so legacy markup still shrinks the stray dot. */
-.sq-badge .sq-dot { width: 5px; height: 5px; }
-
-/* ---- Data table — slim, hairline rows, tabular numbers ---- */
+/* ---- Data table - slim, hairline rows, tabular numbers ---- */
 .sq-table-wrap {
   width: 100%;
   overflow-x: auto;
@@ -278,7 +271,7 @@
   .sq-table th, .sq-table td { padding: var(--sq-space-2); }
 }
 
-/* ---- Log viewer — mono rows with level accents ---- */
+/* ---- Log viewer - mono rows with level accents ---- */
 .sq-log {
   display: flex;
   flex-direction: column;
@@ -332,10 +325,10 @@
   letter-spacing: 0.04em;
   color: var(--sq-text-subtle);
 }
-.sq-log__level--info { color: color-mix(in srgb, var(--sq-status-info) var(--sq-status-ink-mix), var(--sq-text-strong)); }
-.sq-log__level--warn { color: color-mix(in srgb, var(--sq-status-warning) var(--sq-status-ink-mix), var(--sq-text-strong)); }
+.sq-log__level--info { color: var(--sq-status-info-ink); }
+.sq-log__level--warn { color: var(--sq-status-warning-ink); }
 .sq-log__level--error,
-.sq-log__level--fatal { color: color-mix(in srgb, var(--sq-status-error) var(--sq-status-ink-mix), var(--sq-text-strong)); }
+.sq-log__level--fatal { color: var(--sq-status-error-ink); }
 .sq-log__comp {
   flex-shrink: 0;
   min-width: 62px;

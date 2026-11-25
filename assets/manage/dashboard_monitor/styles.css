@@ -128,9 +128,9 @@
   height: 20px;
   padding: 0;
   border: 0;
-  border-radius: var(--sq-radius-sm, 4px);
+  border-radius: var(--sq-radius-control);
   background: transparent;
-  color: var(--sq-text-mute);
+  color: var(--sq-text-subtle);
   cursor: pointer;
   opacity: 0.65;
 }
@@ -146,7 +146,7 @@
   align-self: flex-start;
   padding: 2px var(--sq-space-3);
   font-size: var(--sq-text-xs);
-  color: var(--sq-text-mute);
+  color: var(--sq-text-subtle);
   text-decoration: underline;
   cursor: pointer;
 }
@@ -158,12 +158,12 @@
   background: transparent;
   border: 0;
   padding: 0;
-  color: var(--sq-text-mute);
+  color: var(--sq-text-subtle);
 }
-.dash-status--ok { color: var(--sq-status-ok, var(--sq-brand)); }
+.dash-status--ok { color: var(--sq-status-running, var(--sq-brand)); }
 .dash-status--warn { color: var(--sq-status-warning); }
 .dash-status--err { color: var(--sq-status-error); }
-.dash-status--info { color: var(--sq-text-mute); }
+.dash-status--info { color: var(--sq-text-subtle); }
 
 /* -- Health checklist ----------------------------------------------- */
 .health { display: flex; flex-direction: column; }

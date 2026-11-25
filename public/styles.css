@@ -47,7 +47,7 @@
   border: 1px solid var(--sq-line);
   border-left: 3px solid var(--sq-brand);
   border-radius: var(--sq-radius-control);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+  box-shadow: var(--sq-shadow-overlay);
 }
 .mc-stepbar__head { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
 .mc-stepbar__count {
@@ -70,29 +70,30 @@
 }
 .mc-stepchip__n { font-family: var(--sq-font-mono); opacity: 0.7; }
 .mc-stepchip--done {
-  color: var(--sq-status-success);
-  border-color: color-mix(in srgb, var(--sq-status-success) 45%, transparent);
+  color: var(--sq-status-running);
+  border-color: color-mix(in srgb, var(--sq-status-running) 45%, transparent);
 }
 .mc-stepchip--current {
   color: var(--sq-text-on-accent); background: var(--sq-brand);
   border-color: var(--sq-brand); font-weight: var(--sq-fw-semibold);
 }
 .mc-stepbar--waiting { border-left-color: var(--sq-status-warning); }
-.mc-stepbar--done { border-left-color: var(--sq-status-success); }
+.mc-stepbar--done { border-left-color: var(--sq-status-running); }
 .mc-stepbar--failed { border-left-color: var(--sq-status-error); }
 
 /* ---- running tasks page ------------------------------------------------ */
-.mc-tasks { display: grid; gap: var(--sq-space-2); }
+.mc-tasks { display: grid; gap: 0; }
 .mc-task {
   display: flex; flex-direction: column; gap: 6px;
-  padding: 12px; border: 1px solid var(--sq-line);
-  border-left: 2px solid var(--sq-line);
-  border-radius: var(--sq-radius-control); background: var(--sq-inset);
+  padding: 10px 0; border: 0;
+  border-top: 1px solid var(--sq-line);
+  border-radius: 0; background: transparent;
 }
-.mc-task--running { border-left-color: var(--sq-brand); }
-.mc-task--waiting { border-left-color: var(--sq-status-warning); }
-.mc-task--failed { border-left-color: var(--sq-status-error); }
-.mc-task--empty { color: var(--sq-text-subtle); font-size: var(--sq-text-sm); border-style: dashed; }
+.mc-task:first-child { border-top: 0; }
+.mc-task--running .mc-task__title { color: var(--sq-brand); }
+.mc-task--waiting .mc-task__title { color: var(--sq-status-warning); }
+.mc-task--failed .mc-task__title { color: var(--sq-status-error); }
+.mc-task--empty { padding: 12px; border: 1px dashed var(--sq-line); color: var(--sq-text-subtle); font-size: var(--sq-text-sm); }
 .mc-task__head { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
 .mc-task__title { font-size: var(--sq-text-sm); font-weight: var(--sq-fw-semibold); color: var(--sq-text-strong); }
 .mc-task__meta { font-size: var(--sq-text-xs); color: var(--sq-text-subtle); }
@@ -329,33 +330,18 @@
 /* the data directory is a full path now: let it wrap instead of overflowing */
 #hero-project { overflow-wrap: anywhere; }
 
-/* ---- program tabs + the three dashboards -------------------------------- */
-/* One row, three equal buttons; they stack only when the window is narrow. */
-.mc-tabs {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: var(--sq-space-3);
+/* ---- program segmented control + the three dashboards ------------------ */
+.mc-program-seg {
+  width: 100%;
   margin: var(--sq-space-4) 0 var(--sq-space-4);
 }
-@media (max-width: 760px) {
-  .mc-tabs { grid-template-columns: minmax(0, 1fr); }
+.mc-program-seg .sq-seg__btn {
+  flex: 1 1 0;
+  justify-content: center;
 }
-.mc-tab {
-  display: flex; flex-direction: column; gap: 2px; align-items: flex-start;
-  padding: var(--sq-space-3) var(--sq-space-4); text-align: left; cursor: pointer;
-  border: 1px solid var(--sq-line-strong); border-radius: var(--sq-radius-control);
-  background: var(--sq-inset); color: var(--sq-text);
-  min-width: 0;
+@media (max-width: 620px) {
+  .mc-program-seg .sq-seg__btn { font-size: var(--sq-text-xs); padding-inline: 6px; }
 }
-.mc-tab + .mc-tab { margin-left: 0; }
-.mc-tab:hover { border-color: var(--sq-line-accent); }
-.mc-tab--active {
-  border-color: var(--sq-brand);
-  background: color-mix(in srgb, var(--sq-brand) 8%, var(--sq-inset));
-}
-.mc-tab__title { font-size: var(--sq-text-md); font-weight: var(--sq-fw-semibold); color: var(--sq-text-strong); }
-.mc-tab--active .mc-tab__title { color: var(--sq-brand); }
-.mc-tab__hint { font-size: var(--sq-text-xs); color: var(--sq-text-subtle); }
 .mc-panel { display: flex; flex-direction: column; gap: var(--sq-space-3); }
 .mc-endpoints--single { grid-template-columns: minmax(0, 1fr); }
 .mc-endpoints--single .mc-endpoint { max-width: 560px; }
@@ -482,8 +468,8 @@
    and an operator read a healthy step as an error (2026-11-04). The two roles now
    have explicit NON-red hues: emerald for the source, sky for the target. */
 :root {
-  --mc-role-src: #34d399;
-  --mc-role-dst: #38bdf8;
+  --mc-role-src: var(--sq-status-running);
+  --mc-role-dst: var(--sq-status-info);
 }
 
 /* A line the operator must not miss in a 1500-row log: the manage token, the
@@ -594,14 +580,14 @@
   100% { box-shadow: 0 0 0 2px transparent; }
 }
 .mc-err { color: var(--sq-status-error); }
-.mc-ok { color: var(--sq-status-success); }
+.mc-ok { color: var(--sq-status-running); }
 
 /* ---- confirm modal ----------------------------------------------------- */
 .mc-modal {
   position: fixed; inset: 0; z-index: 90;
   display: grid; place-items: center;
   padding: var(--sq-space-4);
-  background: rgba(0, 0, 0, 0.62);
+  background: var(--sq-scrim);
   backdrop-filter: blur(2px);
 }
 .mc-modal[hidden] { display: none; }

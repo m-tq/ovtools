@@ -1,43 +1,61 @@
 /* ==========================================================================
-   SYNTEQ UI — 02. DARK THEME (theme-dark.css) [default]
-   Flat surfaces, hairline separators. No card elevation.
+   SYNTEQ UI - 02. DARK THEME (theme-dark.css) [default]
+   Soft operator palette. Flat surfaces, hairline separators, no elevation.
    ========================================================================== */
 :root,
 [data-theme="dark"],
 .theme-dark {
   color-scheme: dark;
 
-  /* Text — 3-step hierarchy (WCAG AA on canvas) */
-  --sq-text: #d6dada;        /* body / labels */
-  --sq-text-strong: #f4f6f6; /* high-emphasis values, hostnames, active */
-  --sq-text-subtle: #7a8080; /* metadata, units, timestamps */
-  --sq-text-on-accent: #06120f;
+  /* Text - soft 3-step hierarchy (WCAG AA on canvas) */
+  --sq-text: #e8e8ea;         /* body / labels */
+  --sq-text-strong: #f5f5f8;  /* high-emphasis values, hostnames, active */
+  --sq-text-subtle: #9799a4;  /* metadata, units, timestamps */
+  --sq-text-on-accent: #101115;
   /* Ink for SOLID accent/status fills (tips, brand button, brand mark, checked
-     controls). Dark in BOTH themes: accent and status colours stay light-to-mid
-     tone, so dark ink is the readable choice (white-on-amber failed contrast). */
-  --sq-text-on-solid: #08110e;
+     controls). The dark-theme accents are pastel peaks, so dark ink is used. */
+  --sq-text-on-solid: #101115;
 
-  /* Flat surfaces — Synteq UI uses a flat surface model, removing the raised/strong/muted ladder */
-  --sq-canvas: #0a0b0b;  /* main app background */
-  --sq-sidebar: #070808;  /* navigation background (slightly off canvas) */
-  --sq-hover: #161919;   /* interactive hover/active surface */
-  --sq-inset: #101212;   /* inset rows / inputs / gauge track */
+  /* Flat surfaces - single canvas, with quiet neutral steps */
+  --sq-canvas: #101115;   /* main app background */
+  --sq-sidebar: #0c0d11;  /* navigation background (slightly off canvas) */
+  --sq-hover: #1a1c23;    /* interactive hover/active surface */
+  --sq-inset: #16171d;    /* inset rows / inputs / gauge track */
 
-  /* Line separators (the primary structural device in Synteq UI — replaces cards) */
-  --sq-line: #1c2020;        /* default hairline */
-  --sq-line-strong: #2b3030; /* emphasized separator */
-  --sq-line-accent: #1f3a30; /* accent-tinted separator (brand edge) */
+  /* Line separators (the primary structural device in Synteq UI) */
+  --sq-line: #25262f;         /* default hairline */
+  --sq-line-strong: #353742;  /* emphasized separator */
+  --sq-line-accent: #335749;  /* accent-tinted separator (soft green) */
 
-  /* Semantic accents */
-  --sq-brand: #00e599;
-  --sq-status-info: #38bdf8;
-  --sq-status-running: #34d399;
-  --sq-status-warning: #fbbf24;
-  --sq-status-error: #f87171;
-  --sq-tel-in: #34d399;
-  --sq-tel-out: #fb7185;
-  --sq-track: #1a1d1d;       /* gauge empty track */
+  /* Semantic accents - peak hues from the soft palette */
+  --sq-brand: #77d9a8;
+  --sq-status-info: #89b4f8;
+  --sq-status-running: #77d9a8;
+  --sq-status-warning: #fcab76;
+  --sq-status-error: #ff8bca;
+  --sq-tel-in: #77d9a8;
+  --sq-tel-out: #ff8bca;
+  --sq-accent-purple: #c48afa;
+  --sq-track: #1b1c23;    /* gauge empty track */
 
   /* Theme-toggle icon glyph color */
-  --sq-glyph: #9aa0a0;
+  --sq-glyph: #9a9ca6;
+
+  /* Ink (text on tonal surfaces) - equals the former 60 % mix, so dark is unchanged */
+  --sq-brand-ink: #a9e4c8;
+  --sq-status-info-ink: #b4cef8;
+  --sq-status-running-ink: #a9e4c8;
+  --sq-status-warning-ink: #f9c9aa;
+  --sq-status-error-ink: #fbb5dc;
+
+  --sq-overlay: #101115;       /* surface of floating layers (== canvas in dark) */
+  --sq-border-control: #666672; /* 3.33:1 on canvas - WCAG 1.4.11 (see D2) */
+
+  /* Floating layers */
+  --sq-scrim: rgb(16 17 21 / 0.75);
+  --sq-shadow-overlay: none;
+
+  /* Skeleton shimmer */
+  --sq-skeleton-a: #16171d;
+  --sq-skeleton-b: #1a1c23;
 }

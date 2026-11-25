@@ -1,11 +1,11 @@
 /* ==========================================================================
-   SYNTEQ UI — 10. BOTTOM NAVIGATION DOCK (components/sidebar.css)
+   SYNTEQ UI - 10. BOTTOM NAVIGATION DOCK (components/sidebar.css)
 
    Layout rules
-   • Items are centred while they fit (safe centre → never clips to the left).
-   • When they no longer fit: the strip is drag-scrollable + a "More" drop-up
+   - Items are centred while they fit (safe centre -> never clips to the left).
+   - When they no longer fit: the strip is drag-scrollable + a "More" drop-up
      lists every item that is out of view (progressive overflow).
-   • Group labels are NOT rendered in the dock — icon + label is enough.
+   - Group labels are NOT rendered in the dock - icon + label is enough.
    ========================================================================== */
 .sq-aside {
   position: relative;
@@ -40,7 +40,7 @@
 }
 .sq-aside__brand-mark { width: 20px; height: 20px; border-radius: var(--sq-radius-micro); background: var(--sq-brand); display: inline-flex; align-items: center; justify-content: center; color: var(--sq-text-on-solid); flex-shrink: 0; }
 
-/* Nav strip — safe centring + optional drag scroll */
+/* Nav strip - safe centring + optional drag scroll */
 .sq-nav {
   flex: 1 1 auto;
   min-width: 0;
@@ -64,10 +64,10 @@
 .sq-nav::-webkit-scrollbar { display: none; }
 .sq-nav.is-dragging { cursor: grabbing; scroll-behavior: auto; }
 
-/* Legacy group labels — intentionally hidden inside the horizontal dock */
+/* Legacy group labels - intentionally hidden inside the horizontal dock */
 .sq-nav__group-label { display: none; }
 
-/* Nav item — icon over label, vertically centred in the dock */
+/* Nav item - icon over label, vertically centred in the dock */
 .sq-nav__item {
   position: relative;
   display: flex;
@@ -125,7 +125,7 @@
   pointer-events: none;
 }
 
-/* "More" trigger — only rendered when the strip overflows */
+/* "More" trigger - only rendered when the strip overflows */
 .sq-nav__more {
   display: flex;
   flex: 0 0 auto;
@@ -162,7 +162,8 @@
   max-height: min(60vh, 420px);
   overflow-y: auto;
   padding: var(--sq-space-2);
-  background: var(--sq-canvas);
+  background: var(--sq-overlay);
+  box-shadow: var(--sq-shadow-overlay);
   border: var(--sq-line-h) solid var(--sq-line-strong);
   border-radius: var(--sq-radius-control);
   animation: sq-drop-up var(--sq-dur-fast) var(--sq-ease) both;
@@ -186,7 +187,7 @@
 .sq-nav__menu-item.is-active .sq-icon { color: var(--sq-brand); }
 .sq-nav__menu-item .sq-nav__badge { position: static; margin-left: auto; }
 
-/* Footer — account row */
+/* Footer - account row */
 .sq-aside__footer {
   padding: var(--sq-space-2) var(--sq-space-3);
   border-left: var(--sq-line-h) solid var(--sq-line);
@@ -201,7 +202,7 @@
 }
 .sq-aside__footer .sq-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--sq-status-running); flex-shrink: 0; }
 
-/* ── Breakpoints ─────────────────────────────────────────────────── */
+/* -- Breakpoints --------------------------------------------------- */
 @media (max-width: 1080px) {
   .sq-nav__item { min-width: 78px; }
 }

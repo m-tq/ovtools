@@ -100,21 +100,25 @@
 .sq-chart__s1 { --sq-chart-tint: var(--sq-brand); }
 .sq-chart__s2 { --sq-chart-tint: var(--sq-tel-out); }
 .sq-chart__s3 { --sq-chart-tint: var(--sq-status-warning); }
-.sq-chart__s4 { --sq-chart-tint: var(--sq-text-subtle); }
+.sq-chart__s4 { --sq-chart-tint: var(--sq-status-info); }
+.sq-chart__s5 { --sq-chart-tint: var(--sq-accent-purple); }
 
 .sq-chart__line.sq-chart__s1,
 .sq-chart__line.sq-chart__s2,
 .sq-chart__line.sq-chart__s3,
-.sq-chart__line.sq-chart__s4 { stroke: var(--sq-chart-tint); }
+.sq-chart__line.sq-chart__s4,
+.sq-chart__line.sq-chart__s5 { stroke: var(--sq-chart-tint); }
 
 .sq-chart__dot.sq-chart__s1,
 .sq-chart__dot.sq-chart__s2,
 .sq-chart__dot.sq-chart__s3,
-.sq-chart__dot.sq-chart__s4 { fill: var(--sq-chart-tint); }
+.sq-chart__dot.sq-chart__s4,
+.sq-chart__dot.sq-chart__s5 { fill: var(--sq-chart-tint); }
 
 .sq-chart__area.sq-chart__s2,
 .sq-chart__area.sq-chart__s3,
-.sq-chart__area.sq-chart__s4 {
+.sq-chart__area.sq-chart__s4,
+.sq-chart__area.sq-chart__s5 {
   fill: color-mix(in srgb, var(--sq-chart-tint) 12%, transparent);
 }
 
@@ -171,7 +175,8 @@
 .sq-chart__seg--s1 { background: var(--sq-brand); }
 .sq-chart__seg--s2 { background: var(--sq-tel-out); }
 .sq-chart__seg--s3 { background: var(--sq-status-warning); }
-.sq-chart__seg--s4 { background: var(--sq-text-subtle); }
+.sq-chart__seg--s4 { background: var(--sq-status-info); }
+.sq-chart__seg--s5 { background: var(--sq-accent-purple); }
 
 /* ---- Axis label row (x labels under stacked bars) ---- */
 .sq-chart__xlabels {
@@ -231,7 +236,8 @@
   flex-direction: column;
   gap: var(--sq-space-1);
   padding: var(--sq-space-1) var(--sq-space-2);
-  background: var(--sq-canvas);
+  background: var(--sq-overlay);
+  box-shadow: var(--sq-shadow-overlay);
   border: var(--sq-line-h) solid var(--sq-line-strong);
   border-radius: var(--sq-radius-control);
   color: var(--sq-text);

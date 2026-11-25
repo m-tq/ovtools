@@ -3,6 +3,8 @@
  * Zero-dependency vanilla JS helpers:
  *  - Theme toggle (dark / light, persisted via localStorage)
  *  - Sticky bottom navigation dock toggle and persisted visibility
+ *  - Lightweight click ripple on buttons and copy triggers
+ *  - Thin topbar loading line (SynteqUI.setLoading)
  *  - Smooth gauge fill (width-based, uses CSS transition)
  *  - Mini bar chart renderer (network I/O or any dual-series data)
  *  - SVG sparkline renderer
@@ -15,7 +17,7 @@
  *  - Topbar scroll-shadow
  *  - Reduced-motion guard on all animations
  *  - Stagger mount trigger (IntersectionObserver)
- *  - replayAnimation() — restart a mount animation on demand (WAAPI, reduced-
+ *  - replayAnimation() - restart a mount animation on demand (WAAPI, reduced-
  *    motion aware) for "replay" demos and success feedback
  *  - Nav scroll + scroll-spy (BoundingClientRect-based, works inside
  *    any scrollable .sq-content container)
@@ -31,37 +33,144 @@
     typeof matchMedia !== 'undefined' &&
     matchMedia('(prefers-reduced-motion: reduce)').matches;
 
+  const RIPPLE_SELECTOR =
+    '.sq-btn, .sq-iconbtn, .sq-seg__btn, .sq-search, .sq-sidebar-toggle, ' +
+    '.sq-theme-toggle, .sq-nav__more, [data-sq-copy]';
+
+  function spawnClickRipple(control, clientX, clientY) {
+    if (!control || control.disabled || control.getAttribute('aria-disabled') === 'true') return;
+    var rect = control.getBoundingClientRect();
+    if (!rect.width || !rect.height) return;
+
+    var size = Math.max(rect.width, rect.height) * 2;
+    var x = typeof clientX === 'number' ? clientX : rect.left + rect.width / 2;
+    var y = typeof clientY === 'number' ? clientY : rect.top + rect.height / 2;
+    var old = control.querySelector('.sq-ripple');
+    if (old) old.remove();
+
+    var ripple = document.createElement('span');
+    ripple.className = 'sq-ripple';
+    ripple.setAttribute('aria-hidden', 'true');
+    ripple.style.width = size + 'px';
+    ripple.style.height = size + 'px';
+    ripple.style.left = (x - rect.left - size / 2) + 'px';
+    ripple.style.top = (y - rect.top - size / 2) + 'px';
+    control.appendChild(ripple);
+    ripple.addEventListener('animationend', function () { ripple.remove(); }, { once: true });
+  }
+
+  function initClickRipple() {
+    if (document.__sqRippleBound) return;
+    document.__sqRippleBound = true;
+
+    document.addEventListener('pointerdown', function (e) {
+      if (e.button !== 0 || prefersReduced()) return;
+      var control = e.target.closest && e.target.closest(RIPPLE_SELECTOR);
+      if (control) spawnClickRipple(control, e.clientX, e.clientY);
+    }, { passive: true });
+
+    // Keyboard activation has no pointer coordinates; start from the centre.
+    document.addEventListener('click', function (e) {
+      if (e.detail !== 0 || prefersReduced()) return;
+      var control = e.target.closest && e.target.closest(RIPPLE_SELECTOR);
+      if (control) spawnClickRipple(control);
+    });
+  }
+
+  function setLoading(active, target) {
+    var topbar = target
+      ? (typeof target === 'string' ? $(target) : target)
+      : $('.sq-topbar');
+    if (!topbar) return false;
+
+    var on = !!active;
+    var loader = topbar.querySelector('.sq-topbar__loader');
+    if (!loader && on) {
+      loader = document.createElement('div');
+      loader.className = 'sq-topbar__loader';
+      loader.setAttribute('aria-hidden', 'true');
+      topbar.appendChild(loader);
+    }
+
+    topbar.classList.toggle('is-loading', on);
+    topbar.setAttribute('aria-busy', on ? 'true' : 'false');
+    return on;
+  }
+
   /* ======================================================
-     THEME
+     THEME - 'dark' | 'light' | 'system' (+ names added by registerTheme)
+     'system' follows prefers-color-scheme live and is NEVER written to
+     localStorage; only an explicit choice is persisted.
      ====================================================== */
+  var THEME_KEY = 'sq-theme';
+  var themeSchemes = { dark: 'dark', light: 'light' };      // theme name -> UA color-scheme
+  var themeMode = 'system';                                 // what the user asked for
+  var themeBound = false;
+  var lightMQ = typeof matchMedia !== 'undefined' ? matchMedia('(prefers-color-scheme: light)') : null;
+
+  function systemTheme() { return lightMQ && lightMQ.matches ? 'light' : 'dark'; }
+
+  function applyTheme(name) {
+    var root = document.documentElement;
+    var prev = root.getAttribute('data-theme');
+    root.setAttribute('data-theme', name);
+    // keep the legacy .theme-* class in sync (any previous theme-* class is dropped)
+    Array.prototype.slice.call(root.classList).forEach(function (c) {
+      if (c.indexOf('theme-') === 0) root.classList.remove(c);
+    });
+    root.classList.add('theme-' + name);
+    root.style.colorScheme = themeSchemes[name] || 'dark';
+    var meta = document.querySelector('meta[name="theme-color"]');
+    if (meta) {
+      var canvas = getComputedStyle(root).getPropertyValue('--sq-canvas').trim();
+      if (canvas) meta.setAttribute('content', canvas);
+    }
+    if (prev !== name) {
+      root.dispatchEvent(new CustomEvent('sq:themechange', {
+        bubbles: true, detail: { theme: name, mode: themeMode }
+      }));
+    }
+    return name;
+  }
+
+  function registerTheme(name, scheme) {
+    if (!/^[a-z][a-z0-9-]*$/.test(name)) throw new Error('[SynteqUI] Invalid theme name: ' + name);
+    themeSchemes[name] = scheme === 'light' ? 'light' : 'dark';
+  }
+
   function setTheme(theme) {
-    const t = theme === 'light' ? 'light' : 'dark';
-    const root = document.documentElement;
-    root.setAttribute('data-theme', t);
-    root.classList.remove('theme-dark', 'theme-light');
-    root.classList.add('theme-' + t);
-    try { localStorage.setItem('sq-theme', t); } catch (_) {}
-    return t;
+    if (theme !== 'system' && !themeSchemes[theme]) {
+      console.warn('[SynteqUI] Unknown theme "' + theme + '". Call SynteqUI.registerTheme(name, "dark"|"light") first.');
+      return getTheme();
+    }
+    themeMode = theme;
+    try {
+      if (theme === 'system') localStorage.removeItem(THEME_KEY);
+      else localStorage.setItem(THEME_KEY, theme);
+    } catch (_) {}
+    return applyTheme(theme === 'system' ? systemTheme() : theme);
   }
 
-  function getTheme() {
-    return document.documentElement.getAttribute('data-theme') || 'dark';
-  }
-
-  function toggleTheme() {
-    return setTheme(getTheme() === 'dark' ? 'light' : 'dark');
-  }
+  function getTheme() { return document.documentElement.getAttribute('data-theme') || 'dark'; }
+  function getThemeMode() { return themeMode; }
+  function toggleTheme() { return setTheme((themeSchemes[getTheme()] || 'dark') === 'dark' ? 'light' : 'dark'); }
 
   function initTheme() {
-    let saved;
-    try { saved = localStorage.getItem('sq-theme'); } catch (_) {}
-    if (saved) { setTheme(saved); return; }
-    const sys = typeof matchMedia !== 'undefined' && matchMedia('(prefers-color-scheme: light)').matches;
-    setTheme(sys ? 'light' : 'dark');
+    var saved;
+    try { saved = localStorage.getItem(THEME_KEY); } catch (_) {}
+    themeMode = saved && /^[a-z][a-z0-9-]*$/.test(saved) ? saved : 'system';
+    // First paint is owned by the <head> boot script; here we only reconcile + listen.
+    applyTheme(themeMode === 'system' ? systemTheme() : themeMode);      // no storage write
+    if (!themeBound && lightMQ) {
+      themeBound = true;
+      var onChange = function () { if (themeMode === 'system') applyTheme(systemTheme()); };
+      if (lightMQ.addEventListener) lightMQ.addEventListener('change', onChange);
+      else lightMQ.addListener(onChange);
+    }
   }
 
   /* ======================================================
-     GAUGE  —  sets .sq-gauge__fill width via data-value
+     GAUGE  -  sets .sq-gauge__fill width via data-value
      Usage:  renderGauge(el, 72.5)                  // thresholds
              renderGauge(el, 100, { kind:'brand' }) // quorum-style
              renderGauge(el, 42, { kind:'neutral' })// no state colour
@@ -99,9 +208,9 @@
   }
 
   /* ======================================================
-     BARS  — dual-series bar chart (in / out)
+     BARS  - dual-series bar chart (in / out)
      stageEl  : .sq-bars container
-     samples  : Array of [inPct, outPct] each 0–100
+     samples  : Array of [inPct, outPct] each 0-100
      opts     : { minCols, stepSec, emptyLabel }
                 minCols   pad with empty columns so a short series still
                           renders slim bars instead of a few fat ones
@@ -150,7 +259,7 @@
         ? ('T-' + (offset * opts.stepSec) + 's')
         : ('Sample -' + offset);
       col.setAttribute('title',
-        label + '  ↓ ' + inPct.toFixed(1) + '%  ↑ ' + outPct.toFixed(1) + '%');
+        label + '  in ' + inPct.toFixed(1) + '%  out ' + outPct.toFixed(1) + '%');
 
       var segOut = document.createElement('div');
       segOut.className = 'sq-bars__seg sq-bars__seg--out';
@@ -168,14 +277,14 @@
   }
 
   /* ======================================================
-     SPARKLINE  — draws an SVG polyline inside .sq-spark
+     SPARKLINE  - draws an SVG polyline inside .sq-spark
      sparkEl  : SVG element with class .sq-spark
      values   : Array of numbers (raw values, auto-scaled)
      ====================================================== */
   function renderSparkline(sparkEl, values) {
     if (!sparkEl) return;
     if (!values || values.length < 2) {
-      // Not enough samples yet — clear the previous path and publish an empty
+      // Not enough samples yet - clear the previous path and publish an empty
       // state so consumers can render a placeholder instead of stale data.
       while (sparkEl.firstChild) sparkEl.removeChild(sparkEl.firstChild);
       sparkEl.__sqSparkValues = [];
@@ -297,7 +406,7 @@
   }
 
   /* ======================================================
-     TOPBAR SCROLL SHADOW  — adds .is-scrolled to .sq-topbar
+     TOPBAR SCROLL SHADOW  - adds .is-scrolled to .sq-topbar
      when the in-content region scrolls past 4px
      ====================================================== */
   function initScrollShadow() {
@@ -311,7 +420,7 @@
   }
 
   /* ======================================================
-     STAGGER MOUNT  — triggers .sq-stagger animation when
+     STAGGER MOUNT  - triggers .sq-stagger animation when
      the element scrolls into view (IntersectionObserver).
      Skips animation if reduced-motion is active.
      ====================================================== */
@@ -330,7 +439,7 @@
   }
 
   /* ======================================================
-     MOTION  —  replayAnimation(el, opts)
+     MOTION  -  replayAnimation(el, opts)
      Restarts a mount animation on demand and is the only place that decides
      what reduced-motion means for a *user-requested* replay.
      opts: { preset: 'fade-up' | 'fade' | 'zoom-in', duration, force }
@@ -383,7 +492,7 @@
   }
 
   /* ======================================================
-     THEME TOGGLE BUTTON  — wire all [data-sq-toggle-theme]
+     THEME TOGGLE BUTTON  - wire all [data-sq-toggle-theme]
      ====================================================== */
   function initThemeToggles() {
     $$('[data-sq-toggle-theme]').forEach(function (btn) {
@@ -392,7 +501,7 @@
   }
 
   /* ======================================================
-     TIP  —  transient anchored label ("Copied", "Paused", …)
+     TIP  -  transient anchored label ("Copied", "Paused", ...)
      tip(el, 'Copied')                       // ok, 1.5 s
      tip(el, 'Copy failed', { kind: 'err' }) // warn | err | ok
      Auto-positions above the anchor (below when there is no room) and removes
@@ -436,7 +545,7 @@
   }
 
   /* ======================================================
-     CLIPBOARD  — delegated, with a fallback for insecure origins
+     CLIPBOARD  - delegated, with a fallback for insecure origins
      Any element carrying [data-sq-copy] copies its value (or the text of its
      previous sibling when the attribute is empty). Delegation means buttons
      added or swapped in later keep working without re-initialisation.
@@ -505,8 +614,8 @@
      TOAST (upgraded with kinds, dismiss, queue)
      toast('Message')                      // default (no border accent)
      toast('Saved', { kind: 'ok' })        // green left border
-     toast('Warning', { kind: 'warn' })    // amber left border
-     toast('Error', { kind: 'err' })       // red left border
+     toast('Warning', { kind: 'warn' })    // brown left border
+     toast('Error', { kind: 'err' })       // pink left border
      toast('Info', { kind: 'info' })       // brand left border
      toast(msg, { duration: 5000 })        // custom duration
      toast(msg, { dismissible: true })     // show X button
@@ -585,7 +694,7 @@
   }
 
   /* ======================================================
-     TABS — roving tabindex + arrow keys
+     TABS - roving tabindex + arrow keys
      Wire with data-sq-tabs on .sq-tabs container
      ====================================================== */
   function initTabs() {
@@ -640,7 +749,7 @@
   }
 
   /* ======================================================
-     MENU — open/close, keyboard nav, escape
+     MENU - open/close, keyboard nav, escape
      Trigger: data-sq-menu-trigger="menu-id"
      Menu: .sq-menu#menu-id
      ====================================================== */
@@ -713,7 +822,7 @@
   }
 
   /* ======================================================
-     POPOVER — show/hide, positioning, escape
+     POPOVER - show/hide, positioning, escape
      Trigger: data-sq-popover-trigger="popover-id"
      Popover: .sq-popover#popover-id
      ====================================================== */
@@ -848,11 +957,11 @@
   }
 
   /* ======================================================
-     BOTTOM DOCK  —  drag-to-scroll + "More" drop-up
-     • Items are safe-centred by CSS; when they overflow the strip can be
+     BOTTOM DOCK  -  drag-to-scroll + "More" drop-up
+     - Items are safe-centred by CSS; when they overflow the strip can be
        dragged (mouse / pen), wheel-scrolled horizontally, and a More button
        opens a drop-up with every item that is currently out of view.
-     • Keeps the active item visible when the scroll-spy changes.
+     - Keeps the active item visible when the scroll-spy changes.
      ====================================================== */
   function initNavDock() {
     var aside = $('.sq-aside');
@@ -955,7 +1064,7 @@
       var navRect = nav.getBoundingClientRect();
       var r = item.getBoundingClientRect();
       var pad = 8;
-      // Already comfortably in view — leave the strip alone
+      // Already comfortably in view - leave the strip alone
       if (r.left >= navRect.left + pad && r.right <= navRect.right - pad) return;
       // Otherwise centre it so the neighbouring destinations stay discoverable
       var max = nav.scrollWidth - nav.clientWidth;
@@ -1014,7 +1123,7 @@
     }, true);
     nav.addEventListener('dragstart', function (e) { e.preventDefault(); });
 
-    /* ---- Vertical wheel → horizontal strip ---- */
+    /* ---- Vertical wheel -> horizontal strip ---- */
     nav.addEventListener('wheel', function (e) {
       if (!overflowing() || Math.abs(e.deltaY) <= Math.abs(e.deltaX)) return;
       var max = nav.scrollWidth - nav.clientWidth;
@@ -1056,14 +1165,14 @@
 
   /* ======================================================
      NAV SCROLL & SCROLL-SPY
-     - Click nav item → smooth scroll to target section
+     - Click nav item -> smooth scroll to target section
      - Scroll-spy: highlight nav item when section in view
      Uses getBoundingClientRect for accurate scroll detection
      inside any scrollable container (.sq-content).
      ====================================================== */
 
   /* ======================================================
-     SECTION SCROLL — shared by nav clicks and #deep links
+     SECTION SCROLL - shared by nav clicks and #deep links
      scrollToSection('logs') / scrollToSection('#logs')
      ====================================================== */
   function scrollToSection(id, opts) {
@@ -1101,7 +1210,7 @@
     if (content.dataset.sqNavReady === 'true') return;
     content.dataset.sqNavReady = 'true';
 
-    // Build map of nav items → sections via href="#id"
+    // Build map of nav items -> sections via href="#id"
     var navItems = $$('.sq-nav__item[href^="#"]');
     var sections = [];
     var app = document.getElementById('app') || $('.sq-app');
@@ -1172,7 +1281,7 @@
   }
 
   /* ======================================================
-     ADVANCED TABLE  — sort, select, filter, paginate
+     ADVANCED TABLE  - sort, select, filter, paginate
      Markup contract:
        <table class="sq-table" data-sq-table data-sq-page-size="8">
          thead th > button.sq-table__sort[data-sq-sort="text|number"]
@@ -1457,7 +1566,7 @@
   }
 
   /* ======================================================
-     CHART EXTENSIONS  — line / area chart, stacked bars, hover tooltip
+     CHART EXTENSIONS  - line / area chart, stacked bars, hover tooltip
      renderLineChart(svgEl, series, opts)
        series: [{ name, values: [n, ...] }]
        opts  : { labels, min, max, unit, area: true, yTicks: 4, xTickEvery, decimals }
@@ -1467,7 +1576,7 @@
      Both draw in element pixel units (the SVG height comes from CSS), so the
      chart redraws on resize instead of scaling stale geometry.
      ====================================================== */
-  var CHART_TINTS = ['sq-chart__s1', 'sq-chart__s2', 'sq-chart__s3', 'sq-chart__s4'];
+  var CHART_TINTS = ['sq-chart__s1', 'sq-chart__s2', 'sq-chart__s3', 'sq-chart__s4', 'sq-chart__s5'];
 
   function svgNode(tag, attrs) {
     var el = document.createElementNS('http://www.w3.org/2000/svg', tag);
@@ -1797,7 +1906,7 @@
       series.forEach(function (item, seriesIndex) {
         var value = Math.max(0, (item.values || [])[c] || 0);
         var seg = document.createElement('div');
-        seg.className = 'sq-chart__seg sq-chart__seg--s' + ((seriesIndex % 4) + 1);
+        seg.className = 'sq-chart__seg sq-chart__seg--s' + ((seriesIndex % CHART_TINTS.length) + 1);
         seg.style.height = ((value / scale) * 100) + '%';
         seg.setAttribute('data-sq-series', item.name || String(seriesIndex));
         seg.setAttribute('data-sq-value', String(value));
@@ -1886,15 +1995,15 @@
   }
 
   /* ======================================================
-     TREE  — expand / collapse with keyboard support (max 3 levels)
+     TREE  - expand / collapse with keyboard support (max 3 levels)
      Markup:
        <div class="sq-tree" data-sq-tree>
          <div class="sq-tree__item">
            <div class="sq-tree__row">
-             <button class="sq-tree__toggle" aria-expanded="true" aria-label="Toggle X">…</button>
-             <span class="sq-tree__label">…</span>
+             <button class="sq-tree__toggle" aria-expanded="true" aria-label="Toggle X">...</button>
+             <span class="sq-tree__label">...</span>
            </div>
-           <div class="sq-tree__group"> …nested items… </div>
+           <div class="sq-tree__group"> ...nested items... </div>
          </div>
        </div>
      ====================================================== */
@@ -2017,7 +2126,7 @@
   }
 
   /* ======================================================
-     STEPPER  — vertical progress indicator
+     STEPPER  - vertical progress indicator
      setStep(el, index) marks items before index complete, index active.
      ====================================================== */
   function setStep(stepperEl, index) {
@@ -2051,7 +2160,7 @@
   }
 
   /* ======================================================
-     CODE BLOCK  — gutter with line numbers + copy button
+     CODE BLOCK  - gutter with line numbers + copy button
      Markup:
        <div class="sq-code" data-sq-code data-sq-line-numbers>
          <div class="sq-code__head">
@@ -2125,7 +2234,7 @@
   }
 
   /* ======================================================
-     AUTO-INIT  — runs on DOMContentLoaded
+     AUTO-INIT  - runs on DOMContentLoaded
      ====================================================== */
   function init() {
     initTheme();
@@ -2136,6 +2245,7 @@
     initScrollShadow();
     initStagger();
     initCopyButtons();
+    initClickRipple();
     initProductionControls();
     initNavDock();
     initNavScroll();
@@ -2159,10 +2269,12 @@
      PUBLIC API
      ====================================================== */
   global.SynteqUI = {
-    version: '2.2.0',
+    version: '2.3.0',
     // Theme
     setTheme:        setTheme,
     getTheme:        getTheme,
+    getThemeMode:    getThemeMode,
+    registerTheme:   registerTheme,
     toggleTheme:     toggleTheme,
     // Sidebar
     sidebarToggle:   sidebarToggle,
@@ -2184,6 +2296,7 @@
     // Motion
     replayAnimation: replayAnimation,
     prefersReducedMotion: prefersReduced,
+    setLoading:      setLoading,
     // Navigation
     scrollToSection: scrollToSection,
     // Init helpers (call after dynamic content changes)

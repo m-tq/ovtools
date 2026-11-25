@@ -1,5 +1,5 @@
 /* ==========================================================================
-   SYNTEQ UI — FEEDBACK & STATUS (components/feedback.css)
+   SYNTEQ UI - FEEDBACK & STATUS (components/feedback.css)
    Alert, progress, breadcrumb, empty state, spinner, skeleton polish.
    Flat-surface model: hairline borders + colored accent rail, no fills.
    ========================================================================== */
@@ -264,7 +264,6 @@
   width: 48px;
   height: 48px;
   color: var(--sq-text-subtle);
-  opacity: 0.5;
 }
 
 .sq-empty__title {
@@ -286,7 +285,7 @@
 
 /* ---- Skeleton (single source of truth; motion.css no longer duplicates it) ---- */
 .sq-skeleton {
-  background: linear-gradient(90deg, var(--sq-inset) 0%, var(--sq-hover) 50%, var(--sq-inset) 100%);
+  background: linear-gradient(90deg, var(--sq-skeleton-a) 0%, var(--sq-skeleton-b) 50%, var(--sq-skeleton-a) 100%);
   background-size: 200% 100%;
   animation: sq-shimmer 1.4s infinite linear;
   border-radius: var(--sq-radius-micro);
@@ -348,31 +347,31 @@
 .sq-tag--brand {
   background: color-mix(in srgb, var(--sq-brand) 10%, transparent);
   border-color: var(--sq-brand);
-  color: color-mix(in srgb, var(--sq-brand) var(--sq-status-ink-mix), var(--sq-text-strong));
+  color: var(--sq-brand-ink);
 }
 
 .sq-tag--info {
   background: color-mix(in srgb, var(--sq-status-info) 10%, transparent);
   border-color: var(--sq-status-info);
-  color: color-mix(in srgb, var(--sq-status-info) var(--sq-status-ink-mix), var(--sq-text-strong));
+  color: var(--sq-status-info-ink);
 }
 
 .sq-tag--ok {
   background: color-mix(in srgb, var(--sq-status-running) 10%, transparent);
   border-color: var(--sq-status-running);
-  color: color-mix(in srgb, var(--sq-status-running) var(--sq-status-ink-mix), var(--sq-text-strong));
+  color: var(--sq-status-running-ink);
 }
 
 .sq-tag--warn {
   background: color-mix(in srgb, var(--sq-status-warning) 10%, transparent);
   border-color: var(--sq-status-warning);
-  color: color-mix(in srgb, var(--sq-status-warning) var(--sq-status-ink-mix), var(--sq-text-strong));
+  color: var(--sq-status-warning-ink);
 }
 
 .sq-tag--err {
   background: color-mix(in srgb, var(--sq-status-error) 10%, transparent);
   border-color: var(--sq-status-error);
-  color: color-mix(in srgb, var(--sq-status-error) var(--sq-status-ink-mix), var(--sq-text-strong));
+  color: var(--sq-status-error-ink);
 }
 
 .sq-tag__dismiss {
@@ -391,7 +390,7 @@
   background: color-mix(in srgb, currentColor 20%, transparent);
 }
 
-/* ── Responsive ─────────────────────────────────────────────────── */
+/* -- Responsive --------------------------------------------------- */
 @media (max-width: 600px) {
   .sq-alert {
     padding: var(--sq-space-3);

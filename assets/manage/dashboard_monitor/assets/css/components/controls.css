@@ -1,5 +1,5 @@
 /* ==========================================================================
-   SYNTEQ UI — 11. CONTROLS (components/controls.css)
+   SYNTEQ UI - 11. CONTROLS (components/controls.css)
    Buttons, segmented bar, inputs, chips, badges, keyboard pills.
    Flat surfaces (no card chrome), consistent control radius.
    ========================================================================== */
@@ -94,15 +94,12 @@
 .sq-tip--ok { background: var(--sq-status-running); }
 .sq-tip--warn { background: var(--sq-status-warning); }
 .sq-tip--err { background: var(--sq-status-error); }
-/* Solid status fills stay light-to-mid tone in both themes, so the ink must
-   stay dark in both themes too (white-on-amber failed contrast in light mode). */
+/* Soft status fills: pastel peaks in dark, muted bases in light. The theme's
+   --sq-text-on-solid token supplies the matching readable ink. */
 .sq-tip--info,
 .sq-tip--ok,
 .sq-tip--warn,
 .sq-tip--err { color: var(--sq-text-on-solid); }
-/* The error fill is the one status colour that is dark enough on the light
-   theme to need the theme's inverted ink instead. */
-.sq-tip--err { color: var(--sq-text-on-accent); }
 .sq-tip.is-out { opacity: 0; transition: opacity var(--sq-dur-fast) var(--sq-ease); }
 
 /* ---- Button base ---- */
@@ -123,9 +120,17 @@
 }
 .sq-btn:hover:not(:disabled) { background: var(--sq-hover); color: var(--sq-text-strong); }
 
-/* Ghost (text-only) button */
-.sq-btn--ghost { background: transparent; color: var(--sq-text-subtle); }
-.sq-btn--ghost:hover:not(:disabled) { background: var(--sq-hover); color: var(--sq-text-strong); }
+/* Ghost (text-only) button. The icon tint sets --sq-ghost-ink, so a labelled
+   ghost action keeps its context colour on both icon and text. */
+.sq-btn--ghost { background: transparent; color: var(--sq-ghost-ink, var(--sq-text-subtle)); }
+.sq-btn--ghost:hover:not(:disabled) { background: var(--sq-hover); color: var(--sq-ghost-ink, var(--sq-text-strong)); }
+
+.sq-btn--ghost:has(.sq-icon--err)   { --sq-ghost-ink: var(--sq-status-error); }
+.sq-btn--ghost:has(.sq-icon--warn)  { --sq-ghost-ink: var(--sq-status-warning); }
+.sq-btn--ghost:has(.sq-icon--info)  { --sq-ghost-ink: var(--sq-status-info); }
+.sq-btn--ghost:has(.sq-icon--brand) { --sq-ghost-ink: var(--sq-brand); }
+.sq-btn--ghost:has(.sq-icon--ok)    { --sq-ghost-ink: var(--sq-status-running); }
+.sq-btn--ghost:has(.sq-icon--mute)  { --sq-ghost-ink: var(--sq-text-subtle); }
 
 /* Primary (high-emphasis inverted surface) */
 .sq-btn--primary {
@@ -134,32 +139,46 @@
 }
 .sq-btn--primary:hover:not(:disabled) { opacity: 0.9; background: var(--sq-text-strong); color: var(--sq-text-on-accent); }
 
-/* Brand accent button — dark ink in both themes so the green fill clears AA */
+/* Soft brand accent - ink follows the theme via --sq-text-on-solid */
 .sq-btn--brand {
   background: var(--sq-brand);
   color: var(--sq-text-on-solid);
 }
 .sq-btn--brand:hover:not(:disabled) { opacity: 0.92; }
 
+/* Success / positive action (tonal) - pair with a mini-icon */
+.sq-btn--ok,
+.sq-btn--success {
+  background: color-mix(in srgb, var(--sq-status-running) 16%, transparent);
+  color: var(--sq-status-running-ink);
+}
+.sq-btn--ok:hover:not(:disabled),
+.sq-btn--success:hover:not(:disabled) { background: color-mix(in srgb, var(--sq-status-running) 26%, transparent); }
+
+/* Icon rule: every button pairs a mini-icon with its colored label */
+.sq-btn .sq-icon { flex: 0 0 auto; width: 14px; height: 14px; }
+.sq-btn--sm .sq-icon { width: 12px; height: 12px; }
+.sq-btn--icon .sq-icon { width: 16px; height: 16px; }
+
 /* Danger (tonal) */
 .sq-btn--danger {
   background: color-mix(in srgb, var(--sq-status-error) 16%, transparent);
-  color: color-mix(in srgb, var(--sq-status-error) var(--sq-status-ink-mix), var(--sq-text-strong));
+  color: var(--sq-status-error-ink);
 }
 .sq-btn--danger:hover:not(:disabled) { background: color-mix(in srgb, var(--sq-status-error) 26%, transparent); }
 
-/* Info (tonal) — neutral, non-destructive notice action */
+/* Info (tonal) - neutral, non-destructive notice action */
 .sq-btn--info {
   background: color-mix(in srgb, var(--sq-status-info) 16%, transparent);
-  color: color-mix(in srgb, var(--sq-status-info) var(--sq-status-ink-mix), var(--sq-text-strong));
+  color: var(--sq-status-info-ink);
 }
 .sq-btn--info:hover:not(:disabled) { background: color-mix(in srgb, var(--sq-status-info) 26%, transparent); }
 
-/* Warning (tonal) — "proceed with care" action. `--warning` is an alias. */
+/* Warning (tonal) - "proceed with care" action. `--warning` is an alias. */
 .sq-btn--warn,
 .sq-btn--warning {
   background: color-mix(in srgb, var(--sq-status-warning) 16%, transparent);
-  color: color-mix(in srgb, var(--sq-status-warning) var(--sq-status-ink-mix), var(--sq-text-strong));
+  color: var(--sq-status-warning-ink);
 }
 .sq-btn--warn:hover:not(:disabled),
 .sq-btn--warning:hover:not(:disabled) { background: color-mix(in srgb, var(--sq-status-warning) 26%, transparent); }
@@ -167,7 +186,7 @@
 /* Icon-only */
 .sq-btn--icon { width: 32px; padding: 0; }
 
-/* Clipboard feedback — the runtime adds .sq-copy--ok for 1.8 s after a copy */
+/* Clipboard feedback - the runtime adds .sq-copy--ok for 1.8 s after a copy */
 .sq-copy--ok,
 .sq-copy--ok[aria-label] {
   color: var(--sq-status-running) !important;
@@ -209,7 +228,7 @@
    depend on load order. Keep this file free of field styling. */
 
 /* Feedback and overlay primitives (toast / dialog / command palette)
-   live in components/overlays.css — they used to be duplicated here, which
+   live in components/overlays.css - they used to be duplicated here, which
    meant every overlay property depended on @import order. */
 
 /* ---- Badges & chips (micro radius) ---- */
@@ -224,11 +243,11 @@
   font-size: var(--sq-text-xs);
   line-height: 1.5;
 }
-.sq-badge--brand { color: color-mix(in srgb, var(--sq-brand) var(--sq-status-ink-mix), var(--sq-text-strong)); background: color-mix(in srgb, var(--sq-brand) 14%, transparent); }
-.sq-badge--info { color: color-mix(in srgb, var(--sq-status-info) var(--sq-status-ink-mix), var(--sq-text-strong)); background: color-mix(in srgb, var(--sq-status-info) 14%, transparent); }
-.sq-badge--ok { color: color-mix(in srgb, var(--sq-status-running) var(--sq-status-ink-mix), var(--sq-text-strong)); background: color-mix(in srgb, var(--sq-status-running) 14%, transparent); }
-.sq-badge--warn { color: color-mix(in srgb, var(--sq-status-warning) var(--sq-status-ink-mix), var(--sq-text-strong)); background: color-mix(in srgb, var(--sq-status-warning) 16%, transparent); }
-.sq-badge--err { color: color-mix(in srgb, var(--sq-status-error) var(--sq-status-ink-mix), var(--sq-text-strong)); background: color-mix(in srgb, var(--sq-status-error) 14%, transparent); }
+.sq-badge--brand { color: var(--sq-brand-ink); background: color-mix(in srgb, var(--sq-brand) 14%, transparent); }
+.sq-badge--info { color: var(--sq-status-info-ink); background: color-mix(in srgb, var(--sq-status-info) 14%, transparent); }
+.sq-badge--ok { color: var(--sq-status-running-ink); background: color-mix(in srgb, var(--sq-status-running) 14%, transparent); }
+.sq-badge--warn { color: var(--sq-status-warning-ink); background: color-mix(in srgb, var(--sq-status-warning) 16%, transparent); }
+.sq-badge--err { color: var(--sq-status-error-ink); background: color-mix(in srgb, var(--sq-status-error) 14%, transparent); }
 
 /* Keyboard shortcut pill */
 .sq-kbd {

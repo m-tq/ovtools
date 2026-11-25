@@ -4,13 +4,26 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <meta name="color-scheme" content="dark light" />
+  <meta name="theme-color" content="#101115" />
   <meta name="description" content="Validator Monitoring System - live node monitoring" />
   <title>Validator Monitoring System</title>
+  <script>
+    /* Synteq theme boot - must run before the stylesheet paints (no flash of the wrong theme). */
+    (function () {
+      try {
+        var s = localStorage.getItem('sq-theme');
+        var t = s || (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+        var r = document.documentElement;
+        r.setAttribute('data-theme', t);
+        r.className = (r.className.replace(/\btheme-\S+/g, '') + ' theme-' + t).trim();
+      } catch (e) {}
+    })();
+  </script>
   <link rel="icon" type="image/svg+xml" href="favicon.svg?v=2.1.3" />
   <!-- Asset URLs carry a version: nginx/Cloudflare cache css+js for a day, so a
        deploy must change these query strings (or the folder path) to bust it. -->
-  <link rel="stylesheet" href="assets/css/synteq-ui.css?v=1.0.8" />
-  <link rel="stylesheet" href="styles.css?v=2.2.8" />
+  <link rel="stylesheet" href="assets/css/synteq-ui.css?v=2.3.0" />
+  <link rel="stylesheet" href="styles.css?v=2.2.9" />
 </head>
 <body>
 
@@ -110,7 +123,7 @@
     <div class="sq-content sq-scroll" id="main-content">
 
       <!-- ---------- 1. OVERVIEW ---------- -->
-      <section class="sq-section sq-section--compact" id="overview" aria-label="Overview">
+      <section class="sq-section sq-section--compact sq-fade-up" id="overview" aria-label="Overview">
 
         <div class="dash-hero">
           <div class="dash-hero__main">
@@ -267,7 +280,7 @@
       </section>
 
       <!-- ---------- 2. CONSENSUS ---------- -->
-      <section class="sq-section sq-section--compact" id="consensus" aria-label="Consensus">
+      <section class="sq-section sq-section--compact sq-fade-up" id="consensus" aria-label="Consensus">
         <div class="sq-section__head">
           <span class="sq-section__title">
             <svg class="sq-icon sq-icon--14" viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="2" width="6" height="4" rx="1"/><rect x="2" y="16" width="6" height="4" rx="1"/><rect x="16" y="16" width="6" height="4" rx="1"/><line x1="12" y1="6" x2="12" y2="11"/><line x1="5" y1="16" x2="10" y2="12"/><line x1="19" y1="16" x2="14" y2="12"/></svg>
@@ -276,7 +289,7 @@
           <span class="sq-section__meta">live | 5 s</span>
         </div>
 
-        <div class="sq-stat-strip">
+        <div class="sq-stat-strip" data-sq-stagger>
           <div class="sq-stat">
             <span class="sq-stat__label">Step</span>
             <div class="sq-stat__value sq-t-xl" id="c-step">-</div>
@@ -400,7 +413,7 @@
       </section>
 
       <!-- ---------- 3. RESOURCES ---------- -->
-      <section class="sq-section sq-section--compact" id="resources" aria-label="Resources">
+      <section class="sq-section sq-section--compact sq-fade-up" id="resources" aria-label="Resources">
         <div class="sq-section__head">
           <span class="sq-section__title">
             <svg class="sq-icon sq-icon--14" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><line x1="9" y1="2" x2="9" y2="4"/><line x1="15" y1="2" x2="15" y2="4"/><line x1="9" y1="20" x2="9" y2="22"/><line x1="15" y1="20" x2="15" y2="22"/><line x1="20" y1="9" x2="22" y2="9"/><line x1="20" y1="14" x2="22" y2="14"/><line x1="2" y1="9" x2="4" y2="9"/><line x1="2" y1="14" x2="4" y2="14"/></svg>
@@ -534,7 +547,7 @@
       </section>
 
       <!-- ---------- 4. PEERS ---------- -->
-      <section class="sq-section sq-section--compact" id="peers" aria-label="Peers">
+      <section class="sq-section sq-section--compact sq-fade-up" id="peers" aria-label="Peers">
         <div class="sq-section__head">
           <span class="sq-section__title">
             <svg class="sq-icon sq-icon--14" viewBox="0 0 24 24" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
@@ -543,7 +556,7 @@
           <span class="sq-section__meta" id="peers-meta">-</span>
         </div>
 
-        <div class="sq-stat-strip">
+        <div class="sq-stat-strip" data-sq-stagger>
           <div class="sq-stat">
             <span class="sq-stat__label">Connected</span>
             <div class="sq-stat__value" id="p-connected">-</div>
@@ -669,7 +682,7 @@
       </section>
 
       <!-- ---------- 5. PROCESS ---------- -->
-      <section class="sq-section sq-section--compact" id="process" aria-label="Process">
+      <section class="sq-section sq-section--compact sq-fade-up" id="process" aria-label="Process">
         <div class="sq-section__head">
           <span class="sq-section__title">
             <svg class="sq-icon sq-icon--14" viewBox="0 0 24 24" aria-hidden="true"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>
@@ -678,7 +691,7 @@
           <span class="sq-section__meta" id="pr-meta">-</span>
         </div>
 
-        <div class="sq-stat-strip">
+        <div class="sq-stat-strip" data-sq-stagger>
           <div class="sq-stat">
             <span class="sq-stat__label">Status</span>
             <div class="sq-stat__value sq-t-xl" id="pr-status">-</div>
@@ -769,7 +782,7 @@
 
 
       <!-- ---------- 6. LOGS ---------- -->
-      <section class="sq-section sq-section--compact" id="logs" aria-label="Logs">
+      <section class="sq-section sq-section--compact sq-fade-up" id="logs" aria-label="Logs">
         <div class="sq-section__head">
           <span class="sq-section__title">
             <svg class="sq-icon sq-icon--14" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="14" y2="17"/></svg>
@@ -800,7 +813,7 @@
 
 
       <!-- ---------- 7. SYSTEM ---------- -->
-      <section class="sq-section sq-section--compact" id="system" aria-label="System and identity">
+      <section class="sq-section sq-section--compact sq-fade-up" id="system" aria-label="System and identity">
         <div class="sq-section__head">
           <span class="sq-section__title">
             <svg class="sq-icon sq-icon--14" viewBox="0 0 24 24" aria-hidden="true"><rect x="2" y="2" width="20" height="8" rx="2"/><rect x="2" y="14" width="20" height="8" rx="2"/><line x1="6" y1="6" x2="6.01" y2="6"/><line x1="6" y1="18" x2="6.01" y2="18"/></svg>
@@ -980,7 +993,7 @@
       </section>
 
       <!-- ---------- 8. WALLETS ---------- -->
-      <section class="sq-section sq-section--compact" id="wallets" aria-label="Wallet and rewards">
+      <section class="sq-section sq-section--compact sq-fade-up" id="wallets" aria-label="Wallet and rewards">
         <div class="sq-section__head">
           <span class="sq-section__title">
             <svg class="sq-icon sq-icon--14" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"/><path d="M3 5v14a2 2 0 0 0 2 2h16v-5"/><path d="M18 12a2 2 0 0 0 0 4h4v-4z"/></svg>
@@ -989,7 +1002,7 @@
           <span class="sq-section__meta" id="wal-meta">-</span>
         </div>
 
-        <div class="sq-stat-strip">
+        <div class="sq-stat-strip" data-sq-stagger>
           <div class="sq-stat">
             <span class="sq-stat__label">
               <svg class="sq-icon sq-icon--14 sq-icon--mute" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"/><path d="M3 5v14a2 2 0 0 0 2 2h16v-5"/><path d="M18 12a2 2 0 0 0 0 4h4v-4z"/></svg>
@@ -1265,8 +1278,8 @@
 
 </div><!-- /.sq-app -->
 
-<script src="assets/js/synteq-ui.js?v=1.0.8"></script>
-  <script src="app.js?v=2.8.6"></script>
+<script src="assets/js/synteq-ui.js?v=2.3.0"></script>
+  <script src="app.js?v=2.8.7"></script>
 </body>
 </html>
 

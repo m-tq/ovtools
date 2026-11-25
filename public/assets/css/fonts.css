@@ -1,10 +1,10 @@
 /* ==========================================================================
-   SYNTEQ UI — 00. LOCAL FONTS (css/fonts.css)
-   Google Sans Code — self-hosted, zero external requests.
+   SYNTEQ UI - 00. LOCAL FONTS (css/fonts.css)
+   Google Sans Code - self-hosted, zero external requests.
    Files live at fonts/*.ttf (SIL OFL license).
    ========================================================================== */
 
-/* Path is relative to THIS css file → ../fonts/ */
+/* Path is relative to THIS css file -> ../fonts/ */
 @font-face {
   font-family: 'Google Sans Code';
   font-style: normal;

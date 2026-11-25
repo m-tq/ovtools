@@ -51,7 +51,7 @@
   height: var(--sq-input-h);
   padding: 0 var(--sq-space-2);
   background: var(--sq-inset);
-  border: var(--sq-line-h) solid var(--sq-line);
+  border: var(--sq-line-h) solid var(--sq-border-control);
   border-radius: var(--sq-radius-control);
   color: var(--sq-text-subtle);
   min-width: 0;
@@ -109,7 +109,7 @@
 .sq-table__sort svg,
 .sq-table__sort-icon {
   flex-shrink: 0;
-  opacity: 0.4;
+  opacity: 0.75;
   transition: transform var(--sq-dur-fast) var(--sq-ease),
               opacity var(--sq-dur-fast) var(--sq-ease);
 }

@@ -1,11 +1,11 @@
 /* ==========================================================================
-   SYNTEQ UI — 09. CONTENT & LINE SEPARATORS (components/content.css)
+   SYNTEQ UI - 09. CONTENT & LINE SEPARATORS (components/content.css)
 
-   RULE: Only ONE separator between sections — the top border of .sq-section.
+   RULE: Only ONE separator between sections - the top border of .sq-section.
    No secondary hairlines inside section heads or stat strips.
    ========================================================================== */
 
-/* Section — one top hairline between blocks, centred on both axes.
+/* Section - one top hairline between blocks, centred on both axes.
    The section fills the space between topbar and dock, and its content is
    vertically centred inside that row; the column itself is horizontally
    centred through max-width + auto margins. */
@@ -28,7 +28,7 @@
 .sq-section:first-child { border-top: none; }
 
 /* Nested sections (live previews, embedded demos) must never inherit the
-   viewport height — this was the source of the giant stacked demo blocks. */
+   viewport height - this was the source of the giant stacked demo blocks. */
 .sq-section .sq-section {
   min-height: 0;
   max-width: none;
@@ -39,7 +39,7 @@
 .sq-section--top { justify-content: flex-start; }
 .sq-section--compact { min-height: 0; }
 
-/* Section head: label + trailing action — NO secondary rule below it */
+/* Section head: label + trailing action - NO secondary rule below it */
 .sq-section__head {
   display: flex;
   align-items: center;
@@ -47,7 +47,7 @@
   flex-wrap: wrap;
   gap: var(--sq-space-2) var(--sq-space-3);
   min-width: 0;
-  /* Intentionally no border-bottom — avoid double-rule appearance */
+  /* Intentionally no border-bottom - avoid double-rule appearance */
 }
 .sq-section__meta {
   margin-left: auto;
@@ -76,7 +76,7 @@
 .sq-rule--strong { border-top-color: var(--sq-line-strong); }
 .sq-rule--dashed { border-top-style: dashed; }
 
-/* Layout grids — equal-height tracks, safe minmax(0) to avoid overflow */
+/* Layout grids - equal-height tracks, safe minmax(0) to avoid overflow */
 .sq-grid { display: grid; gap: var(--sq-space-5); align-items: start; min-width: 0; }
 .sq-grid > * { min-width: 0; }
 .sq-grid--2    { grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -85,7 +85,7 @@
 /* Content-driven grid: fills as many columns as the width allows */
 .sq-grid--auto-fit { grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
 
-/* Stat strip — flex wrap, gap only. No vertical hairlines between items. */
+/* Stat strip - flex wrap, gap only. No vertical hairlines between items. */
 .sq-stat-strip {
   display: flex;
   align-items: flex-start;
@@ -95,7 +95,7 @@
 }
 .sq-stat-strip .sq-stat { min-width: 80px; flex: 1 1 80px; }
 
-/* ── Breakpoints ─────────────────────────────────────────────────── */
+/* -- Breakpoints --------------------------------------------------- */
 @media (max-width: 1024px) {
   .sq-grid--3 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }

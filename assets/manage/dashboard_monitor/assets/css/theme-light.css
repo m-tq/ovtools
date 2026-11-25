@@ -1,39 +1,57 @@
 /* ==========================================================================
-   SYNTEQ UI — 03. LIGHT THEME (theme-light.css)
-   Daylight operator palette, same flat hairline architecture.
+   SYNTEQ UI - 03. LIGHT THEME (theme-light.css)
+   Daylight palette. Same flat hairline architecture as dark, but accents keep
+   their chroma (OKLCH C 0.115-0.195) instead of collapsing to near-black.
    ========================================================================== */
 [data-theme="light"],
 .theme-light {
   color-scheme: light;
 
-  /* Text — high-contrast daylight hierarchy (WCAG AA verified) */
-  --sq-text: #2f3434;        /* body / labels */
-  --sq-text-strong: #0d1010; /* high-emphasis values, hostnames, active */
-  --sq-text-subtle: #666e6e; /* metadata, units, timestamps (AA on inset/canvas) */
-  --sq-text-on-accent: #ffffff;
-  /* Same dark ink as the dark theme — see theme-dark.css for the rationale. */
-  --sq-text-on-solid: #08110e;
+  /* Text */
+  --sq-text: #34353d;
+  --sq-text-strong: #101115;
+  --sq-text-subtle: #5d5d69;
+  --sq-text-on-accent: #f7f7fa;
+  --sq-text-on-solid: #ffffff;
 
   /* Flat surfaces */
-  --sq-canvas: #f4f6f6;   /* main app background */
-  --sq-sidebar: #ffffff;   /* navigation background */
-  --sq-hover: #e8ecec;    /* interactive hover/active surface */
-  --sq-inset: #eef1f1;    /* inset rows / inputs / gauge track */
+  --sq-canvas: #fafafc;
+  --sq-sidebar: #ffffff;
+  --sq-hover: #e3e3eb;
+  --sq-inset: #ececf3;
+  --sq-overlay: #ffffff;
 
-  /* Line separators */
-  --sq-line: #e1e5e5;        /* default hairline */
-  --sq-line-strong: #cfd4d4; /* emphasized separator */
-  --sq-line-accent: #b9d9cf; /* accent-tinted separator */
+  /* Lines */
+  --sq-line: #dddde6;
+  --sq-line-strong: #c3c4d0;
+  --sq-line-accent: #afd1c4;
+  --sq-border-control: #81818d;
 
-  /* Semantic accents (tuned for light contrast) */
-  --sq-brand: #059669;
-  --sq-status-info: #0284c7;
-  --sq-status-running: #16a34a;
-  --sq-status-warning: #d97706;
-  --sq-status-error: #dc2626;
-  --sq-tel-in: #16a34a;
-  --sq-tel-out: #e11d48;
-  --sq-track: #e2e6e6;
+  /* Accents (solid: fills, dots, rails, icons) */
+  --sq-brand: #007143;
+  --sq-status-info: #2760b7;
+  --sq-status-running: #007143;
+  --sq-status-warning: #9a4d04;
+  --sq-status-error: #b2237d;
+  --sq-tel-in: #007143;
+  --sq-tel-out: #b2237d;
+  --sq-accent-purple: #8145b2;
 
-  --sq-glyph: #5a6363;
+  /* Ink (text on tonal surfaces) */
+  --sq-brand-ink: #00491e;
+  --sq-status-info-ink: #00398d;
+  --sq-status-running-ink: #00491e;
+  --sq-status-warning-ink: #702600;
+  --sq-status-error-ink: #79004d;
+
+  --sq-track: #d9d9e3;
+  --sq-glyph: #5d5d69;
+
+  /* Floating layers */
+  --sq-scrim: rgb(16 17 21 / 0.42);
+  --sq-shadow-overlay: 0 1px 2px rgb(16 17 21 / 0.06), 0 8px 24px rgb(16 17 21 / 0.12);
+
+  /* Skeleton shimmer */
+  --sq-skeleton-a: #e3e3eb;
+  --sq-skeleton-b: #f4f4f8;
 }
